@@ -332,6 +332,7 @@ const getPostOptions = async () => {
   const res = await listSimplePostsApi()
   postOptions.value.push(...res)
 }
+
 const dataFormater = (val) => {
   return deptFormater(deptOptions.value, val)
 }
