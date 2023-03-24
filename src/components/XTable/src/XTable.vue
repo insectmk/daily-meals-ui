@@ -130,7 +130,7 @@ const getColumnsConfig = (options: XTableProps) => {
     proxyForm = true
     options.formConfig = {
       enabled: true,
-      titleWidth: 180,
+      titleWidth: 110,
       titleAlign: 'right',
       items: allSchemas.searchSchema
     }
