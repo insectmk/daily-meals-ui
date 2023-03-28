@@ -118,27 +118,62 @@ import { dateFormatter } from '@/utils/formatTime'
 const message = useMessage() // 消息弹窗
 const { t } = useI18n() // 国际化
 
-const loading = ref(true) // 列表的加载中
-const total = ref(0) // 列表的总页数
-const list = ref([]) // 列表的数据
-const queryParams = reactive({
-  pageNo: 1,
-  pageSize: 10,
-  name: undefined,
-  storage: undefined,
-  createTime: []
+// ========== CRUD 相关 ==========
+const actionLoading = ref(false) // 遮罩层
+const actionType = ref('') // 操作按钮的类型
+const dialogVisible = ref(false) // 是否显示弹出层
+const dialogTitle = ref('edit') // 弹出层标题
+const formRef = ref<FormInstance>() // 表单 Ref
+const detailData = ref() // 详情 Ref
+const form = ref<FileConfigApi.FileConfigVO>({
+  id: 0,
+  name: '',
+  storage: null,
+  master: false,
+  visible: false,
+  config: {
+    basePath: '',
+    host: '',
+    port: 0,
+    username: '',
+    password: '',
+    mode: '',
+    endpoint: '',
+    bucket: '',
+    accessKey: '',
+    accessSecret: '',
+    domain: ''
+  },
+  remark: '',
+  createTime: new Date()
 })
 const queryFormRef = ref() // 搜索的表单
 
-/** 查询列表 */
-const getList = async () => {
-  loading.value = true
-  try {
-    const data = await FileConfigApi.getFileConfigPage(queryParams)
-    list.value = data.list
-    total.value = data.total
-  } finally {
-    loading.value = false
+// 新增操作
+const handleCreate = (formEl: FormInstance | undefined) => {
+  setDialogTile('create')
+  formEl?.resetFields()
+  form.value = {
+    id: 0,
+    name: '',
+    storage: null,
+    master: false,
+    visible: false,
+    config: {
+      basePath: '',
+      host: '',
+      port: 0,
+      username: '',
+      password: '',
+      mode: '',
+      endpoint: '',
+      bucket: '',
+      accessKey: '',
+      accessSecret: '',
+      domain: ''
+    },
+    remark: '',
+    createTime: new Date()
   }
 }
 
