@@ -338,26 +338,107 @@ const getPostOptions = async () => {
   const res = await getSimplePostListApi()
   postOptions.value.push(...res)
 }
-// 用户列表
-const userList = ref<UserVO[]>([])
-const loading = ref(false)
-const total = ref(0)
-const columns = ref([
-  { key: 0, label: `用户编号`, visible: true },
-  { key: 1, label: `用户名称`, visible: true },
-  { key: 2, label: `用户昵称`, visible: true },
-  { key: 3, label: `部门`, visible: true },
-  { key: 4, label: `手机号码`, visible: true },
-  { key: 5, label: `状态`, visible: true },
-  { key: 6, label: `创建时间`, visible: true }
-])
-/* 查询列表 */
-const getList = () => {
-  loading.value = true
-  getUserPageApi(queryParams).then((response) => {
-    userList.value = response.list
-    total.value = response.total
-    loading.value = false
+const dataFormater = (val) => {
+  return deptFormater(deptOptions.value, val)
+}
+//部门回显
+const deptFormater = (ary, val: any) => {
+  var o = ''
+  if (ary && val) {
+    for (const v of ary) {
+      if (v.id == val) {
+        o = v.name
+        if (o) return o
+      } else if (v.children?.length) {
+        o = deptFormater(v.children, val)
+        if (o) return o
+      }
+    }
+    return o
+  } else {
+    return val
+  }
+}
+
+// 设置标题
+const setDialogTile = async (type: string) => {
+  dialogTitle.value = t('action.' + type)
+  actionType.value = type
+  dialogVisible.value = true
+}
+
+// 新增操作
+const handleCreate = async () => {
+  setDialogTile('create')
+  // 重置表单
+  await nextTick()
+  if (allSchemas.formSchema[0].field !== 'username') {
+    unref(formRef)?.addSchema(
+      {
+        field: 'username',
+        label: '用户账号',
+        component: 'Input'
+      },
+      0
+    )
+    unref(formRef)?.addSchema(
+      {
+        field: 'password',
+        label: '用户密码',
+        component: 'InputPassword'
+      },
+      1
+    )
+  }
+}
+
+// 修改操作
+const handleUpdate = async (rowId: number) => {
+  setDialogTile('update')
+  await nextTick()
+  unref(formRef)?.delSchema('username')
+  unref(formRef)?.delSchema('password')
+  // 设置数据
+  const res = await UserApi.getUserApi(rowId)
+  if (res.sex == 0) res.sex = null
+  unref(formRef)?.setValues(res)
+}
+const detailData = ref()
+
+// 详情操作
+const handleDetail = async (rowId: number) => {
+  // 设置数据
+  const res = await UserApi.getUserApi(rowId)
+  detailData.value = res
+  await setDialogTile('detail')
+}
+
+// 提交按钮
+const submitForm = async () => {
+  const elForm = unref(formRef)?.getElFormRef()
+  if (!elForm) return
+  elForm.validate(async (valid) => {
+    if (valid) {
+      // 提交请求
+      try {
+        const data = unref(formRef)?.formModel as UserApi.UserVO
+        if (actionType.value === 'create') {
+          loading.value = true
+          await UserApi.createUserApi(data)
+          message.success(t('common.createSuccess'))
+        } else {
+          loading.value = true
+          await UserApi.updateUserApi(data)
+          message.success(t('common.updateSuccess'))
+        }
+        dialogVisible.value = false
+      } finally {
+        // unref(formRef)?.setSchema(allSchemas.formSchema)
+        // 刷新列表
+        await reload()
+        loading.value = false
+      }
+    }
   })
 }
 /** 搜索按钮操作 */
