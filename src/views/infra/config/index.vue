@@ -149,8 +149,8 @@ const message = useMessage() // 消息弹窗
 // 列表相关的变量
 const [registerTable, { reload, deleteData, exportList }] = useXTable({
   allSchemas: allSchemas,
-  getListApi: ConfigApi.getConfigPageApi,
-  deleteApi: ConfigApi.deleteConfigApi,
+  getListApi: ConfigApi.getConfigPage,
+  deleteApi: ConfigApi.deleteConfig,
   exportListApi: ConfigApi.exportConfigApi
 })
 
@@ -183,14 +183,6 @@ const handleCreate = async () => {
       },
       2
     )
-    unref(formRef)?.addSchema(
-      {
-        field: 'value',
-        label: '参数键值',
-        component: 'Input'
-      },
-      3
-    )
   }
 }
 
@@ -198,24 +190,43 @@ const handleCreate = async () => {
 const handleUpdate = async (rowId: number) => {
   setDialogTile('update')
   // 设置数据
-  const res = await ConfigApi.getConfigApi(rowId)
+  const res = await ConfigApi.getConfig(rowId)
   unref(formRef)?.delSchema('key')
-  unref(formRef)?.delSchema('value')
-
   unref(formRef)?.setValues(res)
 }
 
 // 详情操作
 const handleDetail = async (rowId: number) => {
   setDialogTile('detail')
-  const res = await ConfigApi.getConfigApi(rowId)
+  const res = await ConfigApi.getConfig(rowId)
   detailData.value = res
 }
 
-/** 添加/修改操作 */
-const formRef = ref()
-const openForm = (type: string, id?: number) => {
-  formRef.value.open(type, id)
+// 提交按钮
+const submitForm = async () => {
+  const elForm = unref(formRef)?.getElFormRef()
+  if (!elForm) return
+  elForm.validate(async (valid) => {
+    if (valid) {
+      actionLoading.value = true
+      // 提交请求
+      try {
+        const data = unref(formRef)?.formModel as ConfigApi.ConfigVO
+        if (actionType.value === 'create') {
+          await ConfigApi.createConfig(data)
+          message.success(t('common.createSuccess'))
+        } else {
+          await ConfigApi.updateConfig(data)
+          message.success(t('common.updateSuccess'))
+        }
+        dialogVisible.value = false
+      } finally {
+        actionLoading.value = false
+        // 刷新列表
+        await reload()
+      }
+    }
+  })
 }
 
 /** 删除按钮操作 */
