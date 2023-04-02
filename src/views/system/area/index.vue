@@ -1,24 +1,10 @@
 <template>
-  <div class="app-container">
-    <doc-alert title="地区 & IP" url="https://doc.iocoder.cn/area-and-ip/" />
-    <!-- 操作工具栏 -->
-    <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
-        <XButton preIcon="fa:search" type="primary" @click="handleAdd" title="IP 查询" />
-      </el-col>
-    </el-row>
-    <!-- 列表 -->
-    <el-table
-      v-if="refreshTable"
-      v-loading="loading"
-      :data="list"
-      row-key="id"
-      :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
-    >
-      <el-table-column label="编号" prop="id" />
-      <el-table-column label="名字" prop="name" />
-    </el-table>
-    <!-- <XTable ref="xGrid" @register="registerTable" show-overflow /> -->
+  <!-- 操作栏 -->
+  <content-wrap>
+    <el-button type="primary" plain @click="openModal()">
+      <Icon icon="ep:plus" class="mr-5px" /> IP 查询
+    </el-button>
+  </content-wrap>
 
     <!-- 对话框(添加 / 修改) -->
     <el-dialog title="IP 查询" v-model="open" width="500px" append-to-body>
