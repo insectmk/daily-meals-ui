@@ -232,6 +232,17 @@ const handleAuthorized = () => {
       isRelogin.show = false
       window.location.href = '/'
     })
+      .then(() => {
+        const { wsCache } = useCache()
+        resetRouter() // 重置静态路由表
+        wsCache.clear()
+        removeToken()
+        isRelogin.show = false
+        window.location.href = import.meta.env.VITE_BASE_PATH
+      })
+      .catch(() => {
+        isRelogin.show = false
+      })
   }
   return Promise.reject(t('sys.api.timeoutMessage'))
 }
