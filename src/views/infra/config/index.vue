@@ -1,15 +1,22 @@
 <template>
+  <doc-alert title="配置中心" url="https://doc.iocoder.cn/config-center/" />
+
+  <!-- 搜索 -->
   <ContentWrap>
-    <!-- 列表 -->
-    <XTable @register="registerTable">
-      <template #toolbar_buttons>
-        <!-- 操作：新增 -->
-        <XButton
-          type="primary"
-          preIcon="ep:zoom-in"
-          :title="t('action.add')"
-          v-hasPermi="['infra:config:create']"
-          @click="handleCreate()"
+    <el-form
+      class="-mb-15px"
+      :model="queryParams"
+      ref="queryFormRef"
+      :inline="true"
+      label-width="68px"
+    >
+      <el-form-item label="参数名称" prop="name">
+        <el-input
+          v-model="queryParams.name"
+          placeholder="请输入参数名称"
+          clearable
+          @keyup.enter="handleQuery"
+          class="!w-240px"
         />
       </el-form-item>
       <el-form-item label="参数键名" prop="key">
@@ -29,10 +36,10 @@
           class="!w-240px"
         >
           <el-option
-            v-for="dict in getDictOptions(DICT_TYPE.INFRA_CONFIG_TYPE)"
-            :key="parseInt(dict.value)"
+            v-for="dict in getIntDictOptions(DICT_TYPE.INFRA_CONFIG_TYPE)"
+            :key="dict.value"
             :label="dict.label"
-            :value="parseInt(dict.value)"
+            :value="dict.value"
           />
         </el-select>
       </el-form-item>
@@ -53,7 +60,7 @@
         <el-button
           type="primary"
           plain
-          @click="openModal('create')"
+          @click="openForm('create')"
           v-hasPermi="['infra:config:create']"
         >
           <Icon icon="ep:plus" class="mr-5px" /> 新增
@@ -64,77 +71,79 @@
           @click="handleExport"
           :loading="exportLoading"
           v-hasPermi="['infra:config:export']"
-          @click="exportList('配置.xls')"
-        />
-      </template>
-      <template #visible_default="{ row }">
-        <span>{{ row.visible ? '是' : '否' }} </span>
-      </template>
-      <template #actionbtns_default="{ row }">
-        <!-- 操作：修改 -->
-        <XTextButton
-          preIcon="ep:edit"
-          :title="t('action.edit')"
-          v-hasPermi="['infra:config:update']"
-          @click="handleUpdate(row.id)"
-        />
-        <!-- 操作：详情 -->
-        <XTextButton
-          preIcon="ep:view"
-          :title="t('action.detail')"
-          v-hasPermi="['infra:config:query']"
-          @click="handleDetail(row.id)"
-        />
-        <!-- 操作：删除 -->
-        <XTextButton
-          preIcon="ep:delete"
-          :title="t('action.del')"
-          v-hasPermi="['infra:config:delete']"
-          @click="deleteData(row.id)"
-        />
-      </template>
-    </XTable>
+        >
+          <Icon icon="ep:download" class="mr-5px" /> 导出
+        </el-button>
+      </el-form-item>
+    </el-form>
   </ContentWrap>
 
-  <XModal v-model="dialogVisible" :title="dialogTitle">
-    <!-- 对话框(添加 / 修改) -->
-    <Form
-      v-if="['create', 'update'].includes(actionType)"
-      :schema="allSchemas.formSchema"
-      :rules="rules"
-      ref="formRef"
-    />
-    <!-- 对话框(详情) -->
-    <Descriptions
-      v-if="actionType === 'detail'"
-      :schema="allSchemas.detailSchema"
-      :data="detailData"
-    >
-      <template #visible="{ row }">
-        <span>{{ row.visible ? '是' : '否' }} </span>
-      </template>
-    </Descriptions>
-    <!-- 操作按钮 -->
-    <template #footer>
-      <!-- 按钮：保存 -->
-      <XButton
-        v-if="['create', 'update'].includes(actionType)"
-        type="primary"
-        :title="t('action.save')"
-        :loading="actionLoading"
-        @click="submitForm()"
+  <!-- 列表 -->
+  <ContentWrap>
+    <el-table v-loading="loading" :data="list">
+      <el-table-column label="参数主键" align="center" prop="id" />
+      <el-table-column label="参数分类" align="center" prop="category" />
+      <el-table-column label="参数名称" align="center" prop="name" :show-overflow-tooltip="true" />
+      <el-table-column label="参数键名" align="center" prop="key" :show-overflow-tooltip="true" />
+      <el-table-column label="参数键值" align="center" prop="value" />
+      <el-table-column label="是否可见" align="center" prop="visible">
+        <template #default="scope">
+          <dict-tag :type="DICT_TYPE.INFRA_BOOLEAN_STRING" :value="scope.row.visible" />
+        </template>
+      </el-table-column>
+      <el-table-column label="系统内置" align="center" prop="type">
+        <template #default="scope">
+          <dict-tag :type="DICT_TYPE.INFRA_CONFIG_TYPE" :value="scope.row.type" />
+        </template>
+      </el-table-column>
+      <el-table-column label="备注" align="center" prop="remark" :show-overflow-tooltip="true" />
+      <el-table-column
+        label="创建时间"
+        align="center"
+        prop="createTime"
+        width="180"
+        :formatter="dateFormatter"
       />
-      <!-- 按钮：关闭 -->
-      <XButton :loading="actionLoading" :title="t('dialog.close')" @click="dialogVisible = false" />
-    </template>
-  </XModal>
+      <el-table-column label="操作" align="center">
+        <template #default="scope">
+          <el-button
+            link
+            type="primary"
+            @click="openForm('update', scope.row.id)"
+            v-hasPermi="['infra:config:update']"
+          >
+            编辑
+          </el-button>
+          <el-button
+            link
+            type="danger"
+            @click="handleDelete(scope.row.id)"
+            v-hasPermi="['infra:config:delete']"
+          >
+            删除
+          </el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+    <!-- 分页 -->
+    <Pagination
+      :total="total"
+      v-model:page="queryParams.pageNo"
+      v-model:limit="queryParams.pageSize"
+      @pagination="getList"
+    />
+  </ContentWrap>
+
+  <!-- 表单弹窗：添加/修改 -->
+  <ConfigForm ref="formRef" @success="getList" />
 </template>
 <script setup lang="ts" name="Config">
-import type { FormExpose } from '@/components/Form'
-// 业务相关的 import
+import { DICT_TYPE, getIntDictOptions } from '@/utils/dict'
+import { dateFormatter } from '@/utils/formatTime'
+import download from '@/utils/download'
 import * as ConfigApi from '@/api/infra/config'
-import { rules, allSchemas } from './config.data'
-
+import ConfigForm from './ConfigForm.vue'
+const message = useMessage() // 消息弹窗
 const { t } = useI18n() // 国际化
 const message = useMessage() // 消息弹窗
 // 列表相关的变量
@@ -203,30 +212,42 @@ const handleDetail = async (rowId: number) => {
   detailData.value = res
 }
 
-// 提交按钮
-const submitForm = async () => {
-  const elForm = unref(formRef)?.getElFormRef()
-  if (!elForm) return
-  elForm.validate(async (valid) => {
-    if (valid) {
-      actionLoading.value = true
-      // 提交请求
-      try {
-        const data = unref(formRef)?.formModel as ConfigApi.ConfigVO
-        if (actionType.value === 'create') {
-          await ConfigApi.createConfigApi(data)
-          message.success(t('common.createSuccess'))
-        } else {
-          await ConfigApi.updateConfigApi(data)
-          message.success(t('common.updateSuccess'))
-        }
-        dialogVisible.value = false
-      } finally {
-        actionLoading.value = false
-        // 刷新列表
-        await reload()
-      }
-    }
-  })
+/** 添加/修改操作 */
+const formRef = ref()
+const openForm = (type: string, id?: number) => {
+  formRef.value.open(type, id)
 }
+
+/** 删除按钮操作 */
+const handleDelete = async (id: number) => {
+  try {
+    // 删除的二次确认
+    await message.delConfirm()
+    // 发起删除
+    await ConfigApi.deleteConfig(id)
+    message.success(t('common.delSuccess'))
+    // 刷新列表
+    await getList()
+  } catch {}
+}
+
+/** 导出按钮操作 */
+const handleExport = async () => {
+  try {
+    // 导出的二次确认
+    await message.exportConfirm()
+    // 发起导出
+    exportLoading.value = true
+    const data = await ConfigApi.exportConfig(queryParams)
+    download.excel(data, '参数配置.xls')
+  } catch {
+  } finally {
+    exportLoading.value = false
+  }
+}
+
+/** 初始化 **/
+onMounted(() => {
+  getList()
+})
 </script>

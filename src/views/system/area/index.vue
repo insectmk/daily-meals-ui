@@ -1,28 +1,39 @@
 <template>
+  <doc-alert title="地区 & IP" url="https://doc.iocoder.cn/area-and-ip/" />
+
   <!-- 操作栏 -->
-  <content-wrap>
-    <el-button type="primary" plain @click="openModal()">
+  <ContentWrap>
+    <el-button type="primary" plain @click="openForm()">
       <Icon icon="ep:plus" class="mr-5px" /> IP 查询
     </el-button>
-  </content-wrap>
+  </ContentWrap>
 
-    <!-- 对话框(添加 / 修改) -->
-    <el-dialog title="IP 查询" v-model="open" width="500px" append-to-body>
-      <el-form ref="formRef" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="IP" prop="ip">
-          <el-input v-model="form.ip" placeholder="请输入 IP 地址" />
-        </el-form-item>
-        <el-form-item label="地址" prop="result">
-          <el-input v-model="form.result" readonly placeholder="展示查询 IP 结果" />
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <el-button type="primary" @click="submitForm(formRef)">查 询</el-button>
-        <el-button @click="cancel(formRef)">取 消</el-button>
-      </template>
-    </el-dialog>
-  </div>
+  <!-- 列表 -->
+  <ContentWrap>
+    <div style="width: 100%; height: 700px">
+      <!-- AutoResizer 自动调节大小 -->
+      <el-auto-resizer>
+        <template #default="{ height, width }">
+          <!-- Virtualized Table 虚拟化表格：高性能，解决表格在大数据量下的卡顿问题 -->
+          <el-table-v2
+            :columns="columns"
+            :data="list"
+            :width="width"
+            :height="height"
+            expand-column-key="id"
+          />
+        </template>
+      </el-auto-resizer>
+    </div>
+  </ContentWrap>
+
+  <!-- 表单弹窗：添加/修改 -->
+  <AreaForm ref="formRef" />
 </template>
+<script setup lang="tsx" name="Area">
+import type { Column } from 'element-plus'
+import AreaForm from './AreaForm.vue'
+import * as AreaApi from '@/api/system/area'
 
 <script lang="ts" setup name="Area">
 import * as areaApi from '@/api/system/area'
@@ -106,6 +117,13 @@ const submitForm = async (formEl: FormInstance | undefined) => {
   })
 }
 
+/** 添加/修改操作 */
+const formRef = ref()
+const openForm = () => {
+  formRef.value.open()
+}
+
+/** 初始化 **/
 onMounted(() => {
   getList()
 })
