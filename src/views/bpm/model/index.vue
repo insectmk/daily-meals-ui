@@ -447,7 +447,7 @@
   </Dialog>
 </template>
 
-<script setup lang="ts" name="Form">
+<script setup lang="ts" name="BpmModel">
 import { DICT_TYPE, getIntDictOptions } from '@/utils/dict'
 import { dateFormatter, formatDate } from '@/utils/formatTime'
 import * as ModelApi from '@/api/bpm/model'
@@ -542,7 +542,7 @@ const handleChangeState = async (row) => {
 /** 设计流程 */
 const handleDesign = (row) => {
   push({
-    name: 'modelEditor',
+    name: 'BpmModelEditor',
     query: {
       modelId: row.id
     }
@@ -575,7 +575,7 @@ const handleAssignRule = (row) => {
 /** 跳转到指定流程定义列表 */
 const handleDefinitionList = (row) => {
   push({
-    name: 'BpmProcessDefinitionList',
+    name: 'BpmProcessDefinition',
     query: {
       key: row.key
     }

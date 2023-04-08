@@ -128,11 +128,11 @@
   <!-- 表单弹窗：查看 -->
   <job-view ref="viewModalRef" @success="getList" />
 </template>
-
-<script setup lang="ts" name="Job">
-import { DICT_TYPE, getDictOptions } from '@/utils/dict'
-import JobForm from './form.vue'
-import JobView from './view.vue'
+<script setup lang="ts" name="InfraJob">
+import { DICT_TYPE, getIntDictOptions } from '@/utils/dict'
+import { checkPermi } from '@/utils/permission'
+import JobForm from './JobForm.vue'
+import JobDetail from './JobDetail.vue'
 import download from '@/utils/download'
 import * as JobApi from '@/api/infra/job'
 import { InfraJobStatusEnum } from '@/utils/constants'

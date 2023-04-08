@@ -87,8 +87,8 @@
   <!-- 表单弹窗：添加/修改 -->
   <notice-form ref="modalRef" @success="getList" />
 </template>
-<script setup lang="tsx">
-import { DICT_TYPE, getDictOptions } from '@/utils/dict'
+<script setup lang="tsx" name="SystemNotice">
+import { DICT_TYPE, getIntDictOptions } from '@/utils/dict'
 import { dateFormatter } from '@/utils/formatTime'
 import * as NoticeApi from '@/api/system/notice'
 import { DictTag } from '@/components/DictTag'

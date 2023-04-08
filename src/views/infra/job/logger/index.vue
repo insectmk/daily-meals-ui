@@ -99,9 +99,9 @@
   <!-- 表单弹窗：查看 -->
   <log-view ref="viewModalRef" @success="getList" />
 </template>
-
-<script setup lang="ts" name="JobLog">
-import { DICT_TYPE, getDictOptions } from '@/utils/dict'
+<script setup lang="ts" name="InfraJobLog">
+import { DICT_TYPE, getIntDictOptions } from '@/utils/dict'
+import { formatDate } from '@/utils/formatTime'
 import download from '@/utils/download'
 import LogView from './JobLogView.vue'
 import * as JobLogApi from '@/api/infra/jobLog'
