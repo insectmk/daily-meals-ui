@@ -13,15 +13,14 @@
           <img class="material-img" :src="item.url" />
           <p class="item-name">{{ item.name }}</p>
           <el-row class="ope-row">
-            <el-button type="success" @click="selectMaterialFun(item)"
-              >选择 <Icon icon="ep:circle-check" />
+            <el-button type="success" @click="selectMaterialFun(item)">
+              选择 <Icon icon="ep:circle-check" />
             </el-button>
           </el-row>
         </div>
       </div>
       <!-- 分页组件 -->
-      <pagination
-        v-show="total > 0"
+      <Pagination
         :total="total"
         v-model:page="queryParams.pageNo"
         v-model:limit="queryParams.pageSize"
@@ -39,27 +38,23 @@
             <WxVoicePlayer :url="scope.row.url" />
           </template>
         </el-table-column>
-        <el-table-column label="上传时间" align="center" prop="createTime" width="180">
-          <template #default="scope">
-            <span>{{ formatDate(scope.row.createTime) }}</span>
-          </template>
-        </el-table-column>
         <el-table-column
-          label="操作"
+          label="上传时间"
           align="center"
-          fixed="right"
-          class-name="small-padding fixed-width"
-        >
+          prop="createTime"
+          width="180"
+          :formatter="dateFormatter"
+        />
+        <el-table-column label="操作" align="center" fixed="right">
           <template #default="scope">
-            <el-button type="text" @click="selectMaterialFun(scope.row)"
-              >选择<Icon icon="ep:plus" />
+            <el-button type="text" @click="selectMaterialFun(scope.row)">
+              选择<Icon icon="ep:plus" />
             </el-button>
           </template>
         </el-table-column>
       </el-table>
       <!-- 分页组件 -->
-      <pagination
-        v-show="total > 0"
+      <Pagination
         :total="total"
         v-model:page="queryParams.pageNo"
         v-model:limit="queryParams.pageSize"
@@ -79,11 +74,13 @@
             <WxVideoPlayer :url="scope.row.url" />
           </template>
         </el-table-column>
-        <el-table-column label="上传时间" align="center" prop="createTime" width="180">
-          <template #default="scope">
-            <span>{{ formatDate(scope.row.createTime) }}</span>
-          </template>
-        </el-table-column>
+        <el-table-column
+          label="上传时间"
+          align="center"
+          prop="createTime"
+          width="180"
+          :formatter="dateFormatter"
+        />
         <el-table-column
           label="操作"
           align="center"
@@ -91,15 +88,14 @@
           class-name="small-padding fixed-width"
         >
           <template #default="scope">
-            <el-button type="text" @click="selectMaterialFun(scope.row)"
-              >选择<Icon icon="akar-icons:circle-plus" />
+            <el-button type="text" @click="selectMaterialFun(scope.row)">
+              选择<Icon icon="akar-icons:circle-plus" />
             </el-button>
           </template>
         </el-table-column>
       </el-table>
       <!-- 分页组件 -->
-      <pagination
-        v-show="total > 0"
+      <Pagination
         :total="total"
         v-model:page="queryParams.pageNo"
         v-model:limit="queryParams.pageSize"
@@ -121,8 +117,7 @@
         </div>
       </div>
       <!-- 分页组件 -->
-      <pagination
-        v-show="total > 0"
+      <Pagination
         :total="total"
         v-model:page="queryParams.pageNo"
         v-model:limit="queryParams.pageSize"
@@ -242,7 +237,7 @@ export default defineComponent({
       selectMaterialFun,
       getMaterialPageFun,
       getPage,
-      newsTypeRef,
+      formatDate,
       queryParams,
       objDataRef,
       list,
@@ -252,7 +247,6 @@ export default defineComponent({
   }
 })
 </script>
-
 <style lang="scss" scoped>
 /*瀑布流样式*/
 .waterfall {
