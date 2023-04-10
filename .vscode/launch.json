@@ -1,42 +1,16 @@
 {
-  "$schema": "https://json.schemastore.org/launchsettings.json",
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
     {
-      "type": "chrome",
-      "name": "vben admin playground dev",
+      "type": "msedge",
       "request": "launch",
-      "url": "http://localhost:5555",
-      "env": { "NODE_ENV": "development" },
-      "sourceMaps": true,
-      "webRoot": "${workspaceFolder}/playground"
-    },
-    {
-      "type": "chrome",
-      "name": "vben admin antd dev",
-      "request": "launch",
-      "url": "http://localhost:5666",
-      "env": { "NODE_ENV": "development" },
-      "sourceMaps": true,
-      "webRoot": "${workspaceFolder}/apps/web-antd"
-    },
-    {
-      "type": "chrome",
-      "name": "vben admin ele dev",
-      "request": "launch",
-      "url": "http://localhost:5777",
-      "env": { "NODE_ENV": "development" },
-      "sourceMaps": true,
-      "webRoot": "${workspaceFolder}/apps/web-ele"
-    },
-    {
-      "type": "chrome",
-      "name": "vben admin naive dev",
-      "request": "launch",
-      "url": "http://localhost:5888",
-      "env": { "NODE_ENV": "development" },
-      "sourceMaps": true,
-      "webRoot": "${workspaceFolder}/apps/web-naive"
+      "name": "Launch Edge against localhost",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}/src",
+      "sourceMaps": true
     }
   ]
 }
