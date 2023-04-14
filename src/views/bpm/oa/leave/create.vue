@@ -1,51 +1,54 @@
 <template>
-  <el-form
-    ref="formRef"
-    :model="formData"
-    :rules="formRules"
-    label-width="80px"
-    v-loading="formLoading"
-  >
-    <el-form-item label="请假类型" prop="type">
-      <el-select v-model="formData.type" placeholder="请选择请假类型" clearable>
-        <el-option
-          v-for="dict in getIntDictOptions(DICT_TYPE.BPM_OA_LEAVE_TYPE)"
-          :key="dict.value"
-          :label="dict.label"
-          :value="dict.value"
+  <Dialog v-model="dialogVisible" title="发起 OA 请假流程">
+    <el-form
+      ref="formRef"
+      v-loading="formLoading"
+      :model="formData"
+      :rules="formRules"
+      label-width="80px"
+    >
+      <el-form-item label="请假类型" prop="type">
+        <el-select v-model="formData.type" clearable placeholder="请选择请假类型">
+          <el-option
+            v-for="dict in getIntDictOptions(DICT_TYPE.BPM_OA_LEAVE_TYPE)"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="开始时间" prop="startTime">
+        <el-date-picker
+          v-model="formData.startTime"
+          clearable
+          placeholder="请选择开始时间"
+          type="datetime"
+          value-format="x"
         />
-      </el-select>
-    </el-form-item>
-    <el-form-item label="开始时间" prop="startTime">
-      <el-date-picker
-        clearable
-        v-model="formData.startTime"
-        type="datetime"
-        value-format="x"
-        placeholder="请选择开始时间"
-      />
-    </el-form-item>
-    <el-form-item label="结束时间" prop="endTime">
-      <el-date-picker
-        clearable
-        v-model="formData.endTime"
-        type="datetime"
-        value-format="x"
-        placeholder="请选择结束时间"
-      />
-    </el-form-item>
-    <el-form-item label="原因" prop="reason">
-      <el-input v-model="formData.reason" type="textarea" placeholder="请输请假原因" />
-    </el-form-item>
-    <el-form-item>
-      <el-button @click="submitForm" type="primary" :disabled="formLoading">确 定</el-button>
-    </el-form-item>
-  </el-form>
+      </el-form-item>
+      <el-form-item label="结束时间" prop="endTime">
+        <el-date-picker
+          v-model="formData.endTime"
+          clearable
+          placeholder="请选择结束时间"
+          type="datetime"
+          value-format="x"
+        />
+      </el-form-item>
+      <el-form-item label="原因" prop="reason">
+        <el-input v-model="formData.reason" placeholder="请输请假原因" type="textarea" />
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <el-button :disabled="formLoading" type="primary" @click="submitForm">确 定</el-button>
+      <el-button @click="dialogVisible = false">取 消</el-button>
+    </template>
+  </Dialog>
 </template>
-<script setup lang="ts">
+<script lang="ts" name="BpmOALeaveCreate" setup>
 import { DICT_TYPE, getIntDictOptions } from '@/utils/dict'
 import * as LeaveApi from '@/api/bpm/leave'
-import { useTagsViewStore } from '@/store/modules/tagsView'
+
 const message = useMessage() // 消息弹窗
 const { delView } = useTagsViewStore() // 视图操作
 const { currentRoute } = useRouter() // 路由
