@@ -77,44 +77,8 @@ const message = useMessage() // 消息弹窗
 
 /** 查询列表 */
 const getList = async () => {
-  loading.value = true
-  const response = await areaApi.getAreaTree()
-  list.value = response.data
-  loading.value = false
-}
-/** 取消按钮 */
-const cancel = (formEl: FormInstance | undefined) => {
-  if (!formEl) return
-  formEl.resetFields()
-  open.value = false
-  reset()
-}
-/** 表单重置 */
-const reset = async () => {
-  form.value = {
-    ip: undefined,
-    result: undefined
-  }
-  // await reload()
-}
-/** 新增按钮操作 */
-const handleAdd = () => {
-  open.value = true
-  reset()
-}
-/** 提交按钮 */
-const submitForm = async (formEl: FormInstance | undefined) => {
-  if (!formEl) return
-  await formEl.validate(async (valid, fields) => {
-    if (valid) {
-      console.log('submit!')
-      const response = await areaApi.getAreaByIp(form.value.ip)
-      message.success('查询成功')
-      form.value.result = response.data
-    } else {
-      console.log('error submit!', fields)
-    }
-  })
+  // id == 1 中国
+  list.value = await AreaApi.getAreaTree(1)
 }
 
 /** 添加/修改操作 */
