@@ -77,8 +77,7 @@ const message = useMessage() // 消息弹窗
 
 /** 查询列表 */
 const getList = async () => {
-  // id == 1 中国
-  list.value = await AreaApi.getAreaTree(1)
+  list.value = await AreaApi.getAreaTree()
 }
 
 /** 添加/修改操作 */
