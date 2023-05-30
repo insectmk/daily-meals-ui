@@ -51,8 +51,8 @@
     </el-row>
   </el-form>
 </template>
-<script lang="ts" setup>
-import type { SpuType } from '@/api/mall/product/spu'
+<script lang="ts" name="OtherSettingsForm" setup>
+import type { Spu } from '@/api/mall/product/spu'
 import { PropType } from 'vue'
 import { propTypes } from '@/utils/propTypes'
 import { copyValueToTarget } from '@/utils'
@@ -63,7 +63,7 @@ const message = useMessage() // 消息弹窗
 
 const props = defineProps({
   propFormData: {
-    type: Object as PropType<SpuType>,
+    type: Object as PropType<Spu>,
     default: () => {}
   },
   activeName: propTypes.string.def('')
@@ -71,7 +71,7 @@ const props = defineProps({
 
 const otherSettingsFormRef = ref() // 表单Ref
 // 表单数据
-const formData = ref<SpuType>({
+const formData = ref<Spu>({
   sort: 1, // 商品排序
   giveIntegral: 1, // 赠送积分
   virtualSalesCount: 1, // 虚拟销量

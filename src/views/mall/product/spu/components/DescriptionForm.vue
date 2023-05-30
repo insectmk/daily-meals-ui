@@ -6,8 +6,8 @@
     </el-form-item>
   </el-form>
 </template>
-<script lang="ts" setup>
-import type { SpuType } from '@/api/mall/product/spu'
+<script lang="ts" name="DescriptionForm" setup>
+import type { Spu } from '@/api/mall/product/spu'
 import { Editor } from '@/components/Editor'
 import { PropType } from 'vue'
 import { propTypes } from '@/utils/propTypes'
@@ -18,13 +18,13 @@ defineOptions({ name: 'DescriptionForm' })
 const message = useMessage() // 消息弹窗
 const props = defineProps({
   propFormData: {
-    type: Object as PropType<SpuType>,
+    type: Object as PropType<Spu>,
     default: () => {}
   },
   activeName: propTypes.string.def('')
 })
 const descriptionFormRef = ref() // 表单Ref
-const formData = ref<SpuType>({
+const formData = ref<Spu>({
   description: '' // 商品详情
 })
 // 表单规则
