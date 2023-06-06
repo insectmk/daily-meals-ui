@@ -17,7 +17,7 @@
     </template>
   </Dialog>
 </template>
-<script lang="ts" setup>
+<script lang="ts" name="ProductPropertyAddForm" setup>
 import * as PropertyApi from '@/api/mall/product/property'
 
 defineOptions({ name: 'ProductPropertyForm' })
