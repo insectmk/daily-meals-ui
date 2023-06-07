@@ -402,7 +402,7 @@ const openForm = (id?: number) => {
     return
   }
   // 新增
-  push('/product/spu/add')
+  push({ name: 'ProductSpuAdd' })
 }
 
 /**
