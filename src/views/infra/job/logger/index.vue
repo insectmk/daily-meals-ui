@@ -99,7 +99,7 @@
   <!-- 表单弹窗：查看 -->
   <log-view ref="viewModalRef" @success="getList" />
 </template>
-<script setup lang="ts">
+<script lang="ts" setup>
 import { DICT_TYPE, getIntDictOptions } from '@/utils/dict'
 import { formatDate } from '@/utils/formatTime'
 import download from '@/utils/download'
