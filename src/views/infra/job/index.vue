@@ -128,7 +128,7 @@
   <!-- 表单弹窗：查看 -->
   <job-view ref="viewModalRef" @success="getList" />
 </template>
-<script setup lang="ts" name="InfraJob">
+<script setup lang="ts">
 import { DICT_TYPE, getIntDictOptions } from '@/utils/dict'
 import { checkPermi } from '@/utils/permission'
 import JobForm from './JobForm.vue'
@@ -136,7 +136,8 @@ import JobDetail from './JobDetail.vue'
 import download from '@/utils/download'
 import * as JobApi from '@/api/infra/job'
 import { InfraJobStatusEnum } from '@/utils/constants'
-import { CACHE_KEY, useCache } from '@/hooks/web/useCache'
+
+defineOptions({ name: 'InfraJob' })
 
 const { t } = useI18n() // 国际化
 const message = useMessage() // 消息弹窗

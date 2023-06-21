@@ -99,13 +99,14 @@
   <!-- 表单弹窗：查看 -->
   <log-view ref="viewModalRef" @success="getList" />
 </template>
-<script setup lang="ts" name="InfraJobLog">
+<script setup lang="ts">
 import { DICT_TYPE, getIntDictOptions } from '@/utils/dict'
 import { formatDate } from '@/utils/formatTime'
 import download from '@/utils/download'
 import LogView from './JobLogView.vue'
 import * as JobLogApi from '@/api/infra/jobLog'
-import { parseTime } from './utils'
+
+defineOptions({ name: 'InfraJobLog' })
 
 const message = useMessage() // 消息弹窗
 

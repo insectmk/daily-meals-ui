@@ -30,19 +30,29 @@
   <!-- 表单弹窗：添加/修改 -->
   <AreaForm ref="formRef" />
 </template>
-<script setup lang="tsx" name="SystemArea">
+<script setup lang="tsx">
 import type { Column } from 'element-plus'
 import AreaForm from './AreaForm.vue'
 import * as AreaApi from '@/api/system/area'
 
-<script lang="ts" setup name="Area">
-import * as areaApi from '@/api/system/area'
-import type { FormInstance } from 'element-plus'
-// import { allSchemas } from './area.data'
-// import { getAreaByIp, getAreaTree } from '@/api/system/area'
-// 遮罩层
-const loading = ref(true)
-// 地区列表
+defineOptions({ name: 'SystemArea' })
+
+// 表格的 column 字段
+const columns: Column[] = [
+  {
+    dataKey: 'id', // 需要渲染当前列的数据字段。例如说：{id:9527, name:'Mike'}，则填 id
+    title: '编号', // 显示在单元格表头的文本
+    width: 400, // 当前列的宽度，必须设置
+    fixed: true, // 是否固定列
+    key: 'id' // 树形展开对应的 key
+  },
+  {
+    dataKey: 'name',
+    title: '地名',
+    width: 200
+  }
+]
+// 表格的数据
 const list = ref([])
 // 弹出层标题
 // const title = ref('')

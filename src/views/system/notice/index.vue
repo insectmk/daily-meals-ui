@@ -87,12 +87,14 @@
   <!-- 表单弹窗：添加/修改 -->
   <notice-form ref="modalRef" @success="getList" />
 </template>
-<script setup lang="tsx" name="SystemNotice">
+<script setup lang="ts">
 import { DICT_TYPE, getIntDictOptions } from '@/utils/dict'
 import { dateFormatter } from '@/utils/formatTime'
 import * as NoticeApi from '@/api/system/notice'
-import { DictTag } from '@/components/DictTag'
-import NoticeForm from './form.vue'
+import NoticeForm from './NoticeForm.vue'
+
+defineOptions({ name: 'SystemNotice' })
+
 const message = useMessage() // 消息弹窗
 const { t } = useI18n() // 国际化
 

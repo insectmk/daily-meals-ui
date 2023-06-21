@@ -45,9 +45,12 @@
     </template>
   </Dialog>
 </template>
-<script lang="ts" name="BpmOALeaveCreate" setup>
+<script setup lang="ts">
 import { DICT_TYPE, getIntDictOptions } from '@/utils/dict'
 import * as LeaveApi from '@/api/bpm/leave'
+import { useTagsViewStore } from '@/store/modules/tagsView'
+
+defineOptions({ name: 'BpmOALeaveCreate' })
 
 const message = useMessage() // 消息弹窗
 const { delView } = useTagsViewStore() // 视图操作
