@@ -23,11 +23,19 @@ export function deleteSpu(id) {
   })
 }
 
-// 获得商品 SPU 详情
-export function getSpuDetail(id) {
-  return request.get({
-    url: `/product/spu/get-detail?id=${id}`
-  })
+export interface SpuRespVO extends Spu {
+  price: number
+  salesCount: number
+  marketPrice: number
+  costPrice: number
+  stock: number
+  createTime: Date
+  status: number
+}
+
+// 获得 Spu 列表
+export const getSpuPage = (params: PageParam) => {
+  return request.get({ url: '/product/spu/page', params })
 }
 
 // 获得商品 SPU 分页
