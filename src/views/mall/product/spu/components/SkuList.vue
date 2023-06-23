@@ -189,7 +189,7 @@
     </template>
   </el-table>
 </template>
-<script lang="ts" name="SkuList" setup>
+<script lang="ts" setup>
 import { PropType, Ref } from 'vue'
 import { copyValueToTarget } from '@/utils'
 import { propTypes } from '@/utils/propTypes'
