@@ -23,6 +23,7 @@ export function deleteSpu(id) {
   })
 }
 
+// TODO @puhui999: SpuRespVO 合并到 SPU 里？前端少点 VO 类哈；
 export interface SpuRespVO extends Spu {
   price: number
   salesCount: number
