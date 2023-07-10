@@ -84,8 +84,7 @@
           >
           <el-button
             link
-            icon="el-icon-delete"
-            @click="handleDelete(scope.row)"
+            @click="handleDelete(scope.row.id)"
             v-hasPermi="['infra:job:delete']"
             >删除</el-button
           >
