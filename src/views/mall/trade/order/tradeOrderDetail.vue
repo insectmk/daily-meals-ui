@@ -336,12 +336,12 @@ const clipboardSuccess = () => {
     display: flex;
     align-items: center;
     &::before {
-      content: '';
       display: inline-block;
-      margin-right: 10px;
       width: 3px;
       height: 20px;
+      margin-right: 10px;
       background-color: #409eff;
+      content: '';
     }
   }
   .el-descriptions-item__container {
