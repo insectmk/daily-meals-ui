@@ -1,5 +1,5 @@
 <template>
-  <div></div>
-</template>
 
-<script lang="ts" name="CombinationRecord" setup></script>
+</template>
+<script lang="ts" setup>
+</script>
