@@ -60,6 +60,22 @@
       <el-form-item label="用户标签" prop="tagIds">
         <MemberTagSelect v-model="formData.tagIds" show-add />
       </el-form-item>
+      <el-row>
+        <el-col :span="12">
+          <el-form-item label="用户等级" prop="levelId">
+            <MemberLevelSelect v-model="formData.levelId" />
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item
+            label="修改原因"
+            prop="levelReason"
+            v-if="formData.levelId !== originLevelId"
+          >
+            <el-input type="text" v-model="formData.levelReason" placeholder="请输入修改原因" />
+          </el-form-item>
+        </el-col>
+      </el-row>
       <el-form-item label="用户分组" prop="groupId">
         <MemberGroupSelect v-model="formData.groupId" />
       </el-form-item>
