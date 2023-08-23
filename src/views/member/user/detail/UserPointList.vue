@@ -98,7 +98,8 @@
 <script lang="ts" setup>
 import { DICT_TYPE, getIntDictOptions } from '@/utils/dict'
 import { dateFormatter } from '@/utils/formatTime'
-import * as RecordApi from '@/api//member/point/record'
+import * as RecordApi from '@/api/member/point/record'
+import { RecordQueryVO } from '@/api/member/point/record'
 
 const loading = ref(true) // 列表的加载中
 const total = ref(0) // 列表的总页数
