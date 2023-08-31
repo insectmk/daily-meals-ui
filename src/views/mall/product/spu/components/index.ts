@@ -24,7 +24,7 @@ interface RuleConfig {
 }
 
 /**
- * 获得商品的规格列表 - 商品相关的公共函数
+ * 获得商品的规格列表
  *
  * @param spu
  * @return PropertyAndValues 规格列表
@@ -51,4 +51,4 @@ const getPropertyList = (spu: Spu): PropertyAndValues[] => {
   return properties
 }
 
-export { SkuList, PropertyAndValues, RuleConfig, getPropertyList }
+export { SkuList, getPropertyList, PropertyAndValues, RuleConfig }
