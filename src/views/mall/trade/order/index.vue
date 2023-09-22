@@ -199,7 +199,7 @@
                 <div class="flex items-center">
                   <el-image
                     :src="row.picUrl"
-                    class="w-30px h-30px mr-10px"
+                    class="mr-10px h-30px w-30px"
                     @click="imagePreview(row.picUrl)"
                   />
                   <span class="mr-10px">{{ row.spuName }}</span>
@@ -273,8 +273,8 @@
             <el-table-column align="center" fixed="right" label="操作" width="160">
               <template #default>
                 <!-- TODO 权限后续补齐 -->
-                <div class="flex justify-center items-center">
-                  <el-button link type="primary" @click="openDetail(scope.row.id)">
+                <div class="flex items-center justify-center">
+                  <el-button link type="primary" @click="openForm(scope.row.id)">
                     <Icon icon="ep:notification" />
                     详情
                   </el-button>
