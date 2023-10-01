@@ -363,7 +363,7 @@ const remainingRouter: AppRouteRecordRaw[] = [
           hidden: true,
           canTo: true,
           icon: 'ep:edit',
-          title: '添加商品',
+          title: '商品添加',
           activeMenu: '/mall/product/spu'
         }
       },
@@ -376,7 +376,7 @@ const remainingRouter: AppRouteRecordRaw[] = [
           hidden: true,
           canTo: true,
           icon: 'ep:edit',
-          title: '编辑商品',
+          title: '商品编辑',
           activeMenu: '/mall/product/spu'
         }
       },
