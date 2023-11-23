@@ -72,6 +72,9 @@
           >
             删除
           </el-button>
+          <el-button link @click="handlePush(scope.row.id)" v-hasPermi="['system:notice:update']">
+            推送
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -151,6 +154,17 @@ const handleDelete = async (id: number) => {
     message.success(t('common.delSuccess'))
     // 刷新列表
     await getList()
+  } catch {}
+}
+
+/** 推送按钮操作 */
+const handlePush = async (id: number) => {
+  try {
+    // 推送的二次确认
+    await message.confirm('是否推送所选中通知？')
+    // 发起推送
+    await NoticeApi.pushNotice(id)
+    message.success(t('推送成功'))
   } catch {}
 }
 
