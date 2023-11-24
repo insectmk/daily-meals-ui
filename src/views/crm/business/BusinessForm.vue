@@ -10,7 +10,6 @@
       <el-form-item label="商机名称" prop="name">
         <el-input v-model="formData.name" placeholder="请输入商机名称" />
       </el-form-item>
-      <!-- TODO 芋艿：客户列表的组件 -->
       <el-form-item label="客户名称" prop="customerName">
         <el-popover
           placement="bottom"
@@ -79,7 +78,12 @@
         </el-select>
       </el-form-item>
       <el-form-item label="商机状态" prop="statusId">
-        <el-select v-model="formData.statusId" placeholder="请选择商机状态" clearable size="small">
+        <el-select
+          v-model="formData.statusId"
+          placeholder="请选择商机状态"
+          clearable
+          size="small"
+        >
           <el-option
             v-for="item in businessStatusList"
             :key="item.id"
@@ -118,9 +122,9 @@
 <script setup lang="ts">
 import * as BusinessApi from '@/api/crm/business'
 import * as BusinessStatusTypeApi from '@/api/crm/businessStatusType'
-import * as CustomerApi from '@/api/crm/customer'
+import * as CustomerApi from "@/api/crm/customer";
 import { DICT_TYPE } from '@/utils/dict'
-import { ElTable } from 'element-plus'
+import {ElTable} from "element-plus";
 
 const { t } = useI18n() // 国际化
 const message = useMessage() // 消息弹窗
@@ -229,12 +233,10 @@ const resetForm = () => {
   }
   formRef.value?.resetFields()
 }
-
-/** 加载商机状态列表 */
-const changeBusinessStatusType = async (typeId: number) => {
-  businessStatusList.value = await BusinessStatusTypeApi.getBusinessStatusListByTypeId(typeId)
+const changeBusinessStatusType = async (id) => {
+  // 加载商机状态列表
+  businessStatusList.value = await BusinessStatusTypeApi.getBusinessStatusListByTypeId(id)
 }
-
 const queryParams = reactive({
   pageNo: 1,
   pageSize: 10,

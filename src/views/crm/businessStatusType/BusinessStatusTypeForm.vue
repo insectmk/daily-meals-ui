@@ -23,12 +23,22 @@
       </el-form-item>
       <el-form-item label="状态设置" prop="statusList">
         <el-table border style="width: 100%" :data="formData.statusList">
-          <el-table-column align="center" label="状态" width="120" prop="star">
+          <el-table-column
+             align="center"
+             label="状态"
+             width="120"
+             prop="star"
+          >
             <template #default="scope">
-              <el-text>状态{{ scope.$index + 1 }}</el-text>
+              <el-text>状态{{scope.$index+1}}</el-text>
             </template>
           </el-table-column>
-          <el-table-column align="center" label="状态名称" width="120" prop="name">
+          <el-table-column
+            align="center"
+            label="状态名称"
+            width="120"
+            prop="name"
+          >
             <template #default="{ row }">
               <el-input v-model="row.name" placeholder="请输入状态名称" />
             </template>
@@ -40,13 +50,10 @@
           </el-table-column>
           <el-table-column label="操作" align="center">
             <template #default="scope">
-              <el-button link type="primary" @click="addStatusArea(scope.$index)"> 添加 </el-button>
-              <el-button
-                link
-                type="danger"
-                @click="deleteStatusArea(scope.$index)"
-                v-show="scope.$index > 0"
-              >
+              <el-button link type="primary" @click="addStatusArea(scope.$index)">
+                添加
+              </el-button>
+              <el-button link type="danger" @click="deleteStatusArea(scope.$index)" v-show="scope.$index>0">
                 删除
               </el-button>
             </template>
@@ -62,8 +69,8 @@
 </template>
 <script setup lang="ts">
 import * as BusinessStatusTypeApi from '@/api/crm/businessStatusType'
-import { defaultProps, handleTree } from '@/utils/tree'
-import * as DeptApi from '@/api/system/dept'
+import {defaultProps, handleTree} from "@/utils/tree";
+import * as DeptApi from "@/api/system/dept";
 
 const { t } = useI18n() // 国际化
 const message = useMessage() // 消息弹窗
@@ -79,7 +86,7 @@ const formData = ref({
   statusList: []
 })
 const formRules = reactive({
-  name: [{ required: true, message: '状态类型名不能为空', trigger: 'blur' }]
+  name: [{ required: true, message: '状态类型名不能为空', trigger: 'blur' }],
 })
 const formRef = ref() // 表单 Ref
 const deptList = ref<Tree[]>([]) // 树形结构
@@ -87,7 +94,7 @@ const treeRef = ref() // 菜单树组件 Ref
 const checkStrictly = ref(true) // 是否严格模式，即父子不关联
 
 /** 打开弹窗 */
-const open = async (type: string, id?: number) => {
+const open = async (type: string,  id?: number) => {
   dialogVisible.value = true
   dialogTitle.value = t('action.' + type)
   formType.value = type
@@ -98,7 +105,7 @@ const open = async (type: string, id?: number) => {
     try {
       formData.value = await BusinessStatusTypeApi.getBusinessStatusType(id)
       treeRef.value.setCheckedKeys(formData.value.deptIds)
-      if (formData.value.statusList.length == 0) {
+      if(formData.value.statusList.length == 0) {
         addStatusArea(0)
       }
     } finally {
@@ -109,6 +116,7 @@ const open = async (type: string, id?: number) => {
   }
   // 加载部门树
   deptList.value = handleTree(await DeptApi.getSimpleDeptList())
+
 }
 defineExpose({ open }) // 提供 open 方法，用于打开弹窗
 
@@ -149,18 +157,16 @@ const resetForm = () => {
   treeRef.value?.setCheckedNodes([])
   formRef.value?.resetFields()
 }
-
 /** 添加状态 */
-const addStatusArea = () => {
+const addStatusArea = (index) => {
   const data = formData.value
   data.statusList.push({
     name: '',
     percent: ''
   })
 }
-
 /** 删除状态 */
-const deleteStatusArea = (index: number) => {
+const deleteStatusArea = (index) => {
   const data = formData.value
   data.statusList.splice(index, 1)
 }
