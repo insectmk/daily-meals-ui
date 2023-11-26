@@ -1,5 +1,5 @@
 <template>
-  <CustomerDetailsTop :customer="customer" :loading="loading" @refresh="getCustomerData(id)" />
+  <CustomerDetailsHeader :customer="customer" :loading="loading" @refresh="getCustomerData(id)" />
   <el-col>
     <el-tabs>
       <el-tab-pane label="详细资料">
