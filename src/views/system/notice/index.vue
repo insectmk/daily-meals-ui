@@ -13,8 +13,8 @@
       <el-form-item label="公告状态" prop="status">
         <el-select v-model="queryParams.status" placeholder="请选择公告状态" clearable>
           <el-option
-            v-for="dict in getDictOptions(DICT_TYPE.COMMON_STATUS)"
-            :key="parseInt(dict.value)"
+            v-for="dict in getIntDictOptions(DICT_TYPE.COMMON_STATUS)"
+            :key="dict.value as number"
             :label="dict.label"
             :value="parseInt(dict.value)"
           />
