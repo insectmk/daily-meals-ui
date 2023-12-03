@@ -48,8 +48,7 @@
         >
           <Icon icon="ep:download" class="mr-5px" /> 导出
         </el-button>
-
-        <el-button type="info" plain @click="handleJobLog" v-hasPermi="['infra:job:query']">
+        <el-button type="info" plain @click="handleJobLog()" v-hasPermi="['infra:job:query']">
           <Icon icon="ep:zoom-in" class="mr-5px" /> 执行日志
         </el-button>
       </el-form-item>
@@ -264,15 +263,28 @@ const handleCommand = (command, row) => {
 /** 导出按钮操作 */
 const handleExport = async () => {
   try {
-    // 导出的二次确认
-    await message.exportConfirm()
-    // 发起导出
-    exportLoading.value = true
-    const data = await JobApi.exportJobApi(queryParams)
-    download.excel(data, '定时任务.xls')
-  } catch {
-  } finally {
-    exportLoading.value = false
+    // 二次确认
+    await message.confirm('确认要立即执行一次' + row.name + '?', t('common.reminder'))
+    // 提交执行
+    await JobApi.runJob(row.id)
+    message.success('执行成功')
+    // 刷新列表
+    await getList()
+  } catch {}
+}
+
+/** 查看操作 */
+const detailRef = ref()
+const openDetail = (id: number) => {
+  detailRef.value.open(id)
+}
+
+/** 跳转执行日志 */
+const handleJobLog = (id?: number) => {
+  if (id && id > 0) {
+    push('/job/job-log?id=' + id)
+  } else {
+    push('/job/job-log')
   }
 }
 
