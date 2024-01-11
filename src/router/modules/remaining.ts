@@ -490,8 +490,7 @@ const remainingRouter: AppRouteRecordRaw[] = [
           title: '模板装修',
           noCache: true,
           hidden: true,
-          // TODO @疯狂：建议 menu 那的 /mall/promotion/diy-template/diy-template 改成 /mall/promotion/diy/template
-          activeMenu: '/mall/promotion/diy-template/diy-template'
+          activeMenu: '/mall/promotion/diy/template'
         },
         component: () => import('@/views/mall/promotion/diy/template/decorate.vue')
       },
@@ -502,8 +501,7 @@ const remainingRouter: AppRouteRecordRaw[] = [
           title: '页面装修',
           noCache: true,
           hidden: true,
-          // TODO @疯狂：建议 menu 那的 /mall/promotion/diy-template/diy-page 改成 /mall/promotion/diy/page
-          activeMenu: '/mall/promotion/diy-template/diy-page'
+          activeMenu: '/mall/promotion/diy/page'
         },
         component: () => import('@/views/mall/promotion/diy/page/decorate.vue')
       }
