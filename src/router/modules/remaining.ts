@@ -542,6 +542,16 @@ const remainingRouter: AppRouteRecordRaw[] = [
           hidden: true
         },
         component: () => import('@/views/crm/product/detail/index.vue')
+      },
+      {
+        path: 'message',
+        name: 'CrmMessage',
+        meta: {
+          title: '待办事项',
+          noCache: true,
+          hidden: true
+        },
+        component: () => import('@/views/crm/message/index.vue')
       }
     ]
   }
