@@ -520,7 +520,7 @@ const remainingRouter: AppRouteRecordRaw[] = [
           title: '客户详情',
           noCache: true,
           hidden: true,
-          activeMenu: '/crm/customer/index'
+          activeMenu: '/crm/customer'
         },
         component: () => import('@/views/crm/customer/detail/index.vue')
       },
