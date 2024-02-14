@@ -93,8 +93,8 @@ const leftSides = ref([
 const sideClick = (item: any) => {
   leftType.value = item.infoType
 }
-// TODO @dhb52: 侧边栏样式，在黑暗模式下，颜色会不对。是不是可以读取主题色哈；
 </script>
+
 <style lang="scss" scoped>
 .side-item-list {
   top: 0;
@@ -102,8 +102,8 @@ const sideClick = (item: any) => {
   left: 0;
   z-index: 1;
   font-size: 14px;
-  background-color: white;
-  border: 1px solid #e6e6e6;
+  background-color: var(--el-bg-color);
+  border: 1px solid var(--el-border-color);
   border-radius: 5px;
 
   .side-item {
@@ -112,21 +112,17 @@ const sideClick = (item: any) => {
     padding: 0 20px;
     line-height: 50px;
     cursor: pointer;
-
-    i {
-      color: #999;
-    }
   }
 }
 
 .side-item-default {
-  color: #333;
+  color: var(--el-text-color-primary);
   border-right: 2px solid transparent;
 }
 
 .side-item-select {
-  color: #409eff;
-  background-color: #ecf5ff;
+  color: var(--el-color-primary);
+  background-color: var(--el-color-primary-light-9);
   border-right: 2px solid var(--el-color-primary);
 }
 
