@@ -259,10 +259,10 @@
           :data="importForm"
         >
           <el-option
-            v-for="dict in getIntDictOptions(DICT_TYPE.BPM_MODEL_CATEGORY)"
-            :key="dict.value"
-            :label="dict.label"
-            :value="dict.value"
+            v-for="category in categoryList"
+            :key="category.code"
+            :label="category.name"
+            :value="category.code"
           />
         </el-select>
       </el-form-item>
@@ -295,11 +295,7 @@
           </el-button>
         </template>
       </el-table-column>
-      <el-table-column label="流程分类" align="center" prop="category" width="100">
-        <template #default="scope">
-          <dict-tag :type="DICT_TYPE.BPM_MODEL_CATEGORY" :value="scope.row.category" />
-        </template>
-      </el-table-column>
+      <el-table-column label="流程分类" align="center" prop="categoryName" width="100" />
       <el-table-column label="表单信息" align="center" prop="formType" width="200">
         <template #default="scope">
           <el-button
@@ -444,7 +440,6 @@
 </template>
 
 <script lang="ts" setup>
-import { DICT_TYPE, getIntDictOptions } from '@/utils/dict'
 import { dateFormatter, formatDate } from '@/utils/formatTime'
 import { MyProcessViewer } from '@/components/bpmnProcessDesigner/package'
 import * as ModelApi from '@/api/bpm/model'
@@ -452,6 +447,7 @@ import * as FormApi from '@/api/bpm/form'
 import ModelForm from './ModelForm.vue'
 import ModelImportForm from '@/views/bpm/model/ModelImportForm.vue'
 import { setConfAndFields2 } from '@/utils/formCreate'
+import { CategoryApi } from '@/api/bpm/category'
 
 defineOptions({ name: 'BpmModel' })
 
@@ -470,6 +466,7 @@ const queryParams = reactive({
   category: undefined
 })
 const queryFormRef = ref() // 搜索的表单
+const categoryList = ref([]) // 流程分类列表
 
 /** 查询列表 */
 const getList = async () => {
@@ -748,7 +745,9 @@ const handleBpmnDetail = async (row) => {
 }
 
 /** 初始化 **/
-onMounted(() => {
-  getList()
+onMounted(async () => {
+  await getList()
+  // 查询流程分类列表
+  categoryList.value = await CategoryApi.getCategorySimpleList()
 })
 </script>
