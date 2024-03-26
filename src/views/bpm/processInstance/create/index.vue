@@ -2,55 +2,47 @@
   <doc-alert title="流程发起、取消、重新发起" url="https://doc.iocoder.cn/bpm/process-instance/" />
 
   <!-- 第一步，通过流程定义的列表，选择对应的流程 -->
-  <ContentWrap v-if="!selectProcessDefinition" v-loading="loading">
-    <el-tabs tab-position="left" v-model="categoryActive">
-      <el-tab-pane
-        :label="category.name"
-        :name="category.code"
-        :key="category.code"
-        v-for="category in categoryList"
-      >
-        <el-row :gutter="20">
-          <el-col
-            :lg="6"
-            :sm="12"
-            :xs="24"
-            v-for="definition in categoryProcessDefinitionList"
-            :key="definition.id"
-          >
-            <el-card
-              shadow="hover"
-              class="mb-20px cursor-pointer"
-              @click="handleSelect(definition)"
-            >
-              <template #default>
-                <div class="flex">
-                  <el-image :src="definition.icon" class="w-32px h-32px" />
-                  <el-text class="!ml-10px" size="large">{{ definition.name }}</el-text>
-                </div>
-              </template>
-            </el-card>
-          </el-col>
-        </el-row>
-      </el-tab-pane>
-    </el-tabs>
+  <ContentWrap v-if="!selectProcessInstance">
+    <el-table v-loading="loading" :data="list">
+      <el-table-column align="center" label="流程名称" prop="name" />
+      <el-table-column align="center" label="流程分类" prop="category">
+        <template #default="scope">
+          <dict-tag :type="DICT_TYPE.BPM_MODEL_CATEGORY" :value="scope.row.category" />
+        </template>
+      </el-table-column>
+      <el-table-column align="center" label="流程版本" prop="version">
+        <template #default="scope">
+          <el-tag>v{{ scope.row.version }}</el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column align="center" label="流程描述" prop="description" />
+      <el-table-column align="center" label="操作">
+        <template #default="scope">
+          <el-button link type="primary" @click="handleSelect(scope.row)">
+            <Icon icon="ep:plus" />
+            选择
+          </el-button>
+        </template>
+      </el-table-column>
+    </el-table>
   </ContentWrap>
 
   <!-- 第二步，填写表单，进行流程的提交 -->
   <ContentWrap v-else>
     <el-card class="box-card">
       <div class="clearfix">
-        <span class="el-icon-document">申请信息【{{ selectProcessDefinition.name }}】</span>
-        <el-button style="float: right" type="primary" @click="selectProcessDefinition = undefined">
-          <Icon icon="ep:delete" /> 选择其它流程
+        <span class="el-icon-document">申请信息【{{ selectProcessInstance.name }}】</span>
+        <el-button style="float: right" type="primary" @click="selectProcessInstance = undefined">
+          <Icon icon="ep:delete" />
+          选择其它流程
         </el-button>
       </div>
-      <el-col :span="16" :offset="6" style="margin-top: 20px">
-        <form-create
-          :rule="detailForm.rule"
+      <el-col :offset="6" :span="16" style="margin-top: 20px">
+        <my-form-create
           v-model:api="fApi"
           v-model="detailForm.value"
           :option="detailForm.option"
+          :rule="detailForm.rule"
           @submit="submitForm"
         >
           <template #type-startUserSelect>
