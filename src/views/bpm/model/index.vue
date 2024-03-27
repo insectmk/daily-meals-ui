@@ -88,7 +88,7 @@
       </el-table-column>
       <el-table-column align="center" label="流程分类" prop="category" width="100">
         <template #default="scope">
-          <el-image :src="scope.row.icon" class="w-32px h-32px" />
+          <el-image :src="scope.row.icon" class="h-32px w-32px" />
         </template>
       </el-table-column>
       <el-table-column align="center" label="表单信息" prop="formType" width="200">
@@ -179,7 +179,8 @@
             v-hasPermi="['bpm:task-assign-rule:query']"
             link
             type="primary"
-            @click="handleAssignRule(scope.row)"
+            @click="handleSimpleDesign(scope.row)"
+            v-hasPermi="['bpm:model:update']"
           >
             仿钉钉设计流程
           </el-button>
