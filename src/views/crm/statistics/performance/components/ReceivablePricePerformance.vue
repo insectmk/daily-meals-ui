@@ -1,4 +1,4 @@
-<!-- 客户总量统计 -->
+<!-- 员工业绩统计 -->
 <template>
   <!-- Echarts图 -->
   <el-card shadow="never">
@@ -186,6 +186,7 @@ const loadData = async () => {
 
   // 2.2 更新列表数据
   list.value = performanceList
+  convertListData()
   loading.value = false
 }
 
@@ -200,8 +201,9 @@ const tableData = reactive([
 ])
 
 // 定义 init 方法
-const init = () => {
-  const columnObj = { label: '日期', prop: 'title' }
+const convertListData = () => {
+  const columnObj = {label: '日期', prop: 'title'}
+  columnsData.splice(0, columnsData.length)//清空数组
   columnsData.push(columnObj)
 
   list.value.forEach((item, index) => {
@@ -210,10 +212,8 @@ const init = () => {
     tableData[0]['prop' + index] = item.currentMonthCount
     tableData[1]['prop' + index] = item.lastMonthCount
     tableData[2]['prop' + index] = item.lastYearCount
-    tableData[3]['prop' + index] =
-      item.lastYearCount !== 0 ? (item.currentMonthCount / item.lastYearCount).toFixed(2) : 'NULL'
-    tableData[4]['prop' + index] =
-      item.lastMonthCount !== 0 ? (item.currentMonthCount / item.lastMonthCount).toFixed(2) : 'NULL'
+    tableData[3]['prop' + index] = item.lastMonthCount !== 0 ? (item.currentMonthCount / item.lastMonthCount).toFixed(2) : 'NULL'
+    tableData[4]['prop' + index] = item.lastYearCount !== 0 ? (item.currentMonthCount / item.lastYearCount).toFixed(2) : 'NULL'
   })
 }
 
@@ -222,6 +222,5 @@ defineExpose({ loadData })
 /** 初始化 */
 onMounted(async () => {
   await loadData()
-  init()
 })
 </script>
