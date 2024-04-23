@@ -17,6 +17,7 @@
         :prop="item.prop"
         align="center"
       >
+        <!-- TODO @scholar：IDEA 爆红的处理 -->
         <template #default="scope">
           {{ scope.row[item.prop] }}
         </template>
@@ -120,6 +121,7 @@ const echartsOption = reactive<EChartsOption>({
       type: 'value',
       name: '',
       axisTick: {
+        // TODO @scholar：IDEA 爆红的处理
         alignWithLabel: true,
         lineStyle: {
           width: 0
@@ -191,7 +193,8 @@ const loadData = async () => {
 }
 
 // 初始化数据
-const columnsData = reactive([])
+// TODO @scholar：加个 as any[]，避免 idea 爆红
+const columnsData = reactive([] as any[])
 const tableData = reactive([
   { title: '当月回款金额统计（元）' },
   { title: '上月回款金额统计（元）' },
@@ -202,8 +205,8 @@ const tableData = reactive([
 
 // 定义 init 方法
 const convertListData = () => {
-  const columnObj = {label: '日期', prop: 'title'}
-  columnsData.splice(0, columnsData.length)//清空数组
+  const columnObj = { label: '日期', prop: 'title' }
+  columnsData.splice(0, columnsData.length) //清空数组
   columnsData.push(columnObj)
 
   list.value.forEach((item, index) => {
@@ -212,8 +215,11 @@ const convertListData = () => {
     tableData[0]['prop' + index] = item.currentMonthCount
     tableData[1]['prop' + index] = item.lastMonthCount
     tableData[2]['prop' + index] = item.lastYearCount
-    tableData[3]['prop' + index] = item.lastMonthCount !== 0 ? (item.currentMonthCount / item.lastMonthCount).toFixed(2) : 'NULL'
-    tableData[4]['prop' + index] = item.lastYearCount !== 0 ? (item.currentMonthCount / item.lastYearCount).toFixed(2) : 'NULL'
+    // TODO @scholar：百分比，使用 erpCalculatePercentage 直接计算；如果是 0，则返回 0，统一就好哈；
+    tableData[3]['prop' + index] =
+      item.lastMonthCount !== 0 ? (item.currentMonthCount / item.lastMonthCount).toFixed(2) : 'NULL'
+    tableData[4]['prop' + index] =
+      item.lastYearCount !== 0 ? (item.currentMonthCount / item.lastYearCount).toFixed(2) : 'NULL'
   })
 }
 
