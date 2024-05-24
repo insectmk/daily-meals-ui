@@ -103,7 +103,7 @@ import MessageLoading from './MessageLoading.vue'
 import MessageNewChat from './MessageNewChat.vue'
 import {ChatMessageApi, ChatMessageVO} from '@/api/ai/chat/message'
 import {ChatConversationApi, ChatConversationVO} from '@/api/ai/chat/conversation'
-import {getUserProfile, ProfileVO} from '@/api/system/user/profile'
+import { getUserProfile, ProfileVO } from '@/api/system/user/profile'
 import {useClipboard} from '@vueuse/core'
 import ChatConversationUpdateForm from "@/views/ai/chat/components/ChatConversationUpdateForm.vue";
 import {Download, Top} from "@element-plus/icons-vue";
