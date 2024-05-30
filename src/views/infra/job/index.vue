@@ -203,9 +203,27 @@ const resetQuery = () => {
 }
 
 /** 添加/修改操作 */
-const modalRef = ref()
-const openModal = (type: string, id?: number) => {
-  modalRef.value.openModal(type, id)
+const formRef = ref()
+const openForm = (type: string, id?: number) => {
+  formRef.value.open(type, id)
+}
+
+/** 修改状态操作 */
+const handleChangeStatus = async (row: JobApi.JobVO) => {
+  try {
+    // 修改状态的二次确认
+    const text = row.status === InfraJobStatusEnum.STOP ? '开启' : '关闭'
+    await message.confirm(
+      '确认要' + text + '定时任务编号为"' + row.id + '"的数据项?',
+      t('common.reminder')
+    )
+    const status =
+      row.status === InfraJobStatusEnum.STOP ? InfraJobStatusEnum.NORMAL : InfraJobStatusEnum.STOP
+    await JobApi.updateJobStatus(row.id, status)
+    message.success(text + '成功')
+    // 刷新列表
+    await getList()
+  } catch {}
 }
 
 /** 删除按钮操作 */
