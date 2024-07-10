@@ -1,4 +1,5 @@
 import { fetchEventSource } from '@microsoft/fetch-event-source'
+import request from '@/config/axios'
 
 import { getAccessToken } from '@/utils/auth'
 import { config } from '@/config/axios/config'
@@ -13,6 +14,12 @@ export interface WriteVO {
   format: number // 格式
   tone: number // 语气
   language: number // 语言
+  userId?: number // 用户编号
+  platform?: string // 平台
+  model?: string // 模型
+  generatedContent?: string // 生成的内容
+  errorMessage: string // 错误信息
+  createTime?: Date // 创建时间
 }
 
 export interface AiWritePageReqVO extends PageParam {
@@ -22,60 +29,15 @@ export interface AiWritePageReqVO extends PageParam {
   createTime?: [string, string] // 创建时间
 }
 
-export interface AiWriteRespVo {
-  id: number
-  userId: number
-  type: number
-  platform: string
-  model: string
-  prompt: string
-  generatedContent: string
-  originalContent: string
-  length: number
-  format: number
-  tone: number
-  language: number
-  errorMessage: string
-  createTime: string
-}
+// AI 写作 API
+export const WriteApi = {
+  // 查询AI 写作分页
+  getWritePage: async (params: any) => {
+    return await request.get({ url: `/ai/write/page`, params })
+  },
 
-const WriteApi = {
-  writeStream: ({
-    data,
-    onClose,
-    onMessage,
-    onError,
-    ctrl
-  }: {
-    data: WriteVO
-    onMessage?: (res: any) => void
-    onError?: (...args: any[]) => void
-    onClose?: (...args: any[]) => void
-    ctrl: AbortController
-  }) => {
-    const token = getAccessToken()
-    return fetchEventSource(`${config.base_url}/ai/write/generate-stream`, {
-      method: 'post',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`
-      },
-      openWhenHidden: true,
-      body: JSON.stringify(data),
-      onmessage: onMessage,
-      onerror: onError,
-      onclose: onClose,
-      signal: ctrl.signal
-    })
-  },
-  // 获取写作列表
-  getWritePage: (params: AiWritePageReqVO) => {
-    return request.get<PageResult<AiWriteRespVo[]>>({ url: `/ai/write/page`, params })
-  },
-  // 删除写作
-  deleteWrite(id: number) {
-    return request.delete({ url: `/ai/write/delete`, params: { id } })
+  // 删除AI 写作
+  deleteWrite: async (id: number) => {
+    return await request.delete({ url: `/ai/write/delete?id=` + id })
   }
 }
-
-export default WriteApi
