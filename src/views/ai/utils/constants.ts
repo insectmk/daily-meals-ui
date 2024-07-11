@@ -30,7 +30,7 @@ export const OtherPlatformEnum:ImageModelVO [] = [
   },
   {
     key: AiPlatformEnum.YI_YAN,
-    name: '百度图片'
+    name: '百度千帆'
   }
 ]
 
@@ -264,6 +264,14 @@ export const TongYiWanXiangModels: ImageModelVO[] = [
     name: 'wanx-sketch-to-image-v1'
   }
 ]
+
+export const QianFanModels: ImageModelVO[] = [
+  {
+    key: 'sd_xl',
+    name: 'sd_xl'
+  }
+]
+
 
 export const StableDiffusionClipGuidancePresets: ImageModelVO[] = [
   {
