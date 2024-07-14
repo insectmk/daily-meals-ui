@@ -36,8 +36,41 @@ export const WriteApi = {
     return await request.get({ url: `/ai/write/page`, params })
   },
 
-  // 删除AI 写作
-  deleteWrite: async (id: number) => {
-    return await request.delete({ url: `/ai/write/delete?id=` + id })
+export const WriteApi = {
+  writeStream: ({
+    data,
+    onClose,
+    onMessage,
+    onError,
+    ctrl
+  }: {
+    data: WriteVO
+    onMessage?: (res: any) => void
+    onError?: (...args: any[]) => void
+    onClose?: (...args: any[]) => void
+    ctrl: AbortController
+  }) => {
+    const token = getAccessToken()
+    return fetchEventSource(`${config.base_url}/ai/write/generate-stream`, {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      openWhenHidden: true,
+      body: JSON.stringify(data),
+      onmessage: onMessage,
+      onerror: onError,
+      onclose: onClose,
+      signal: ctrl.signal
+    })
+  },
+  // 获取写作列表
+  getWritePage: (params: AiWritePageReqVO) => {
+    return request.get<PageResult<AiWriteRespVo[]>>({ url: `/ai/write/page`, params })
+  },
+  // 删除写作
+  deleteWrite(id: number) {
+    return request.delete({ url: `/ai/write/delete`, params: { id } })
   }
 }
