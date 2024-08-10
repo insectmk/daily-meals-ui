@@ -605,8 +605,7 @@ const remainingRouter: AppRouteRecordRaw[] = [
         meta: {
           title: '绘图作品',
           icon: 'ep:home-filled',
-          noCache: false,
-          affix: true
+          noCache: false
         }
       }
     ]
