@@ -196,6 +196,7 @@
                 </div>
               </el-radio-group>
             </el-form-item>
+
             <el-divider content-position="left">审批人拒绝时</el-divider>
             <el-form-item prop="rejectHandlerType">
               <el-radio-group v-model="configForm.rejectHandlerType">
@@ -206,7 +207,6 @@
                 </div>
               </el-radio-group>
             </el-form-item>
-
             <el-form-item
               v-if="configForm.rejectHandlerType == RejectHandlerType.RETURN_USER_TASK"
               label="驳回节点"
@@ -221,6 +221,7 @@
                 />
               </el-select>
             </el-form-item>
+
             <el-divider content-position="left">审批人超时未处理时</el-divider>
             <el-form-item label="启用开关" prop="timeoutHandlerEnable">
               <el-switch
@@ -279,6 +280,37 @@
               v-if="configForm.timeoutHandlerEnable && configForm.timeoutHandlerType === 1"
             >
               <el-input-number v-model="configForm.maxRemindCount" :min="1" :max="10" />
+            </el-form-item>
+
+            <el-divider content-position="left">审批人为空时</el-divider>
+            <el-form-item prop="assignEmptyHandlerType">
+              <el-radio-group v-model="configForm.assignEmptyHandlerType">
+                <div class="flex-col">
+                  <div v-for="(item, index) in ASSIGN_EMPTY_HANDLER_TYPES" :key="index">
+                    <el-radio :key="item.value" :value="item.value" :label="item.label" />
+                  </div>
+                </div>
+              </el-radio-group>
+            </el-form-item>
+            <el-form-item
+              v-if="configForm.assignEmptyHandlerType == AssignEmptyHandlerType.ASSIGN_USER"
+              label="指定用户"
+              prop="assignEmptyHandlerUserIds"
+              span="24"
+            >
+              <el-select
+                v-model="configForm.assignEmptyHandlerUserIds"
+                clearable
+                multiple
+                style="width: 100%"
+              >
+                <el-option
+                  v-for="item in userOptions"
+                  :key="item.id"
+                  :label="item.nickname"
+                  :value="item.id"
+                />
+              </el-select>
             </el-form-item>
 
             <el-divider content-position="left">审批人与提交人为同一人时</el-divider>
@@ -382,7 +414,9 @@ import {
   OPERATION_BUTTON_NAME,
   ButtonSetting,
   ASSIGN_START_USER_HANDLER_TYPES,
-  TimeoutHandlerType
+  TimeoutHandlerType,
+  ASSIGN_EMPTY_HANDLER_TYPES,
+  AssignEmptyHandlerType
 } from '../consts'
 
 import {
@@ -448,7 +482,10 @@ const formRules = reactive({
   timeoutHandlerEnable: [{ required: true }],
   timeoutHandlerType: [{ required: true }],
   timeDuration: [{ required: true, message: '超时时间不能为空', trigger: 'blur' }],
-  maxRemindCount: [{ required: true, message: '提醒次数不能为空', trigger: 'blur' }]
+  maxRemindCount: [{ required: true, message: '提醒次数不能为空', trigger: 'blur' }],
+  assignEmptyHandlerType: [{ required: true }],
+  assignEmptyHandlerUserIds: [{ required: true, message: '用户不能为空', trigger: 'change' }],
+  assignStartUserHandlerType: [{ required: true }]
 })
 
 const {
@@ -547,7 +584,15 @@ const saveConfig = async () => {
     timeDuration: isoTimeDuration.value,
     maxRemindCount: cTimeoutMaxRemindCount.value
   }
-  // 设置用户任务的审批人与发起人相同时
+  // 设置审批人为空时
+  currentNode.value.assignEmptyHandler = {
+    type: configForm.value.assignEmptyHandlerType!,
+    userIds:
+      configForm.value.assignEmptyHandlerType === AssignEmptyHandlerType.ASSIGN_USER
+        ? configForm.value.assignEmptyHandlerUserIds
+        : undefined
+  }
+  // 设置审批人与发起人相同时
   currentNode.value.assignStartUserHandlerType = configForm.value.assignStartUserHandlerType
   // 设置表单权限
   currentNode.value.fieldsPermission = fieldsPermissionConfig.value
@@ -571,7 +616,7 @@ const showUserTaskNodeConfig = (node: SimpleFlowNode) => {
   } else {
     notAllowedMultiApprovers.value = false
   }
-  //1.2 设置审批方式
+  // 1.2 设置审批方式
   configForm.value.approveMethod = node.approveMethod!
   if (node.approveMethod == ApproveMethodType.APPROVE_BY_RATIO) {
     configForm.value.approveRatio = node.approveRatio!
@@ -593,7 +638,10 @@ const showUserTaskNodeConfig = (node: SimpleFlowNode) => {
   }
   configForm.value.timeoutHandlerType = node.timeoutHandler?.type
   configForm.value.maxRemindCount = node.timeoutHandler?.maxRemindCount
-  // 1.5 设置用户任务的审批人与发起人相同时
+  // 1.5 设置审批人为空时
+  configForm.value.assignEmptyHandlerType = node.assignEmptyHandler?.type
+  configForm.value.assignEmptyHandlerUserIds = node.assignEmptyHandler?.userIds
+  // 1.6 设置用户任务的审批人与发起人相同时
   configForm.value.assignStartUserHandlerType = node.assignStartUserHandlerType
   // 2. 操作按钮设置
   buttonsSetting.value = cloneDeep(node.buttonsSetting) || DEFAULT_BUTTON_SETTING
