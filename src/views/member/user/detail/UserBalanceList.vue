@@ -1,10 +1,9 @@
 <template>
   <ContentWrap>
-    <el-table v-loading="loading" :data="list" :stripe="true" :show-overflow-tooltip="true">
-      <el-table-column label="编号" align="center" prop="id" />
-      <el-table-column label="钱包编号" align="center" prop="walletId" />
-      <el-table-column label="关联业务标题" align="center" prop="title" />
-      <el-table-column label="交易金额" align="center" prop="price">
+    <el-table v-loading="loading" :data="list" :show-overflow-tooltip="true" :stripe="true">
+      <el-table-column align="center" label="编号" prop="id" />
+      <el-table-column align="center" label="关联业务标题" prop="title" />
+      <el-table-column align="center" label="交易金额" prop="price">
         <template #default="{ row }"> {{ fenToYuan(row.price) }} 元</template>
       </el-table-column>
       <el-table-column label="钱包余额" align="center" prop="balance">
