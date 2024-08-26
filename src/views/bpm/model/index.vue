@@ -54,23 +54,6 @@
           <Icon class="mr-5px" icon="ep:search" />
           搜索
         </el-button>
-        <el-button @click="resetQuery">
-          <Icon class="mr-5px" icon="ep:refresh" />
-          重置
-        </el-button>
-        <el-button
-          v-hasPermi="['bpm:model:create']"
-          plain
-          type="primary"
-          @click="openForm('create')"
-        >
-          <Icon class="mr-5px" icon="ep:plus" />
-          新建流程
-        </el-button>
-        <el-button v-hasPermi="['bpm:model:import']" plain type="success" @click="openImportForm">
-          <Icon class="mr-5px" icon="ep:upload" />
-          导入流程
-        </el-button>
       </el-form-item>
     </el-form>
   </ContentWrap>
@@ -223,9 +206,6 @@
   <!-- 表单弹窗：添加/修改流程 -->
   <ModelForm ref="formRef" @success="getList" />
 
-  <!-- 表单弹窗：导入流程 -->
-  <ModelImportForm ref="importFormRef" @success="getList" />
-
   <!-- 弹窗：表单详情 -->
   <Dialog v-model="formDetailVisible" title="表单详情" width="800">
     <my-form-create :option="formDetailPreview.option" :rule="formDetailPreview.rule" />
@@ -249,7 +229,6 @@ import { MyProcessViewer } from '@/components/bpmnProcessDesigner/package'
 import * as ModelApi from '@/api/bpm/model'
 import * as FormApi from '@/api/bpm/form'
 import ModelForm from './ModelForm.vue'
-import ModelImportForm from '@/views/bpm/model/ModelImportForm.vue'
 import { setConfAndFields2 } from '@/utils/formCreate'
 import { CategoryApi } from '@/api/bpm/category'
 
@@ -300,12 +279,6 @@ const resetQuery = () => {
 const formRef = ref()
 const openForm = (type: string, id?: number) => {
   formRef.value.open(type, id)
-}
-
-/** 添加/修改操作 */
-const importFormRef = ref()
-const openImportForm = () => {
-  importFormRef.value.open()
 }
 
 /** 删除按钮操作 */
