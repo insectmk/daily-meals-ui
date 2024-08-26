@@ -50,9 +50,15 @@
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button @click="handleQuery">
-          <Icon class="mr-5px" icon="ep:search" />
-          搜索
+        <el-button @click="handleQuery"><Icon icon="ep:search" class="mr-5px" /> 搜索</el-button>
+        <el-button @click="resetQuery"><Icon icon="ep:refresh" class="mr-5px" /> 重置</el-button>
+        <el-button
+          type="primary"
+          plain
+          @click="openForm('create')"
+          v-hasPermi="['bpm:model:create']"
+        >
+          <Icon icon="ep:plus" class="mr-5px" /> 新建
         </el-button>
       </el-form-item>
     </el-form>
@@ -140,7 +146,7 @@
           </template>
         </el-table-column>
       </el-table-column>
-      <el-table-column label="操作" align="center" min-width="240" fixed="right">
+      <el-table-column label="操作" align="center" width="250" fixed="right">
         <template #default="scope">
           <el-button
             v-hasPermi="['bpm:model:update']"
@@ -148,7 +154,7 @@
             type="primary"
             @click="openForm('update', scope.row.id)"
           >
-            修改流程
+            修改
           </el-button>
           <el-button
             v-hasPermi="['bpm:model:update']"
@@ -156,16 +162,7 @@
             type="primary"
             @click="handleDesign(scope.row)"
           >
-            设计流程
-          </el-button>
-          <el-button
-            v-hasPermi="['bpm:task-assign-rule:query']"
-            link
-            type="primary"
-            @click="handleSimpleDesign(scope.row)"
-            v-hasPermi="['bpm:model:update']"
-          >
-            仿钉钉设计流程
+            设计
           </el-button>
           <el-button
             v-hasPermi="['bpm:model:deploy']"
@@ -173,7 +170,7 @@
             type="primary"
             @click="handleDeploy(scope.row)"
           >
-            发布流程
+            发布
           </el-button>
           <el-button
             v-hasPermi="['bpm:process-definition:query']"
@@ -181,7 +178,7 @@
             type="primary"
             @click="handleDefinitionList(scope.row)"
           >
-            流程定义
+            历史
           </el-button>
           <el-button
             v-hasPermi="['bpm:model:delete']"
@@ -231,6 +228,7 @@ import * as FormApi from '@/api/bpm/form'
 import ModelForm from './ModelForm.vue'
 import { setConfAndFields2 } from '@/utils/formCreate'
 import { CategoryApi } from '@/api/bpm/category'
+import { BpmModelType } from '@/utils/constants'
 
 defineOptions({ name: 'BpmModel' })
 
@@ -315,21 +313,21 @@ const handleChangeState = async (row) => {
 
 /** 设计流程 */
 const handleDesign = (row) => {
-  push({
-    name: 'BpmModelEditor',
-    query: {
-      modelId: row.id
-    }
-  })
-}
-
-const handleSimpleDesign = (row) => {
-  push({
-    name: 'SimpleWorkflowDesignEditor',
-    query: {
-      modelId: row.id
-    }
-  })
+  if (row.type == BpmModelType.BPMN) {
+    push({
+      name: 'BpmModelEditor',
+      query: {
+        modelId: row.id
+      }
+    })
+  } else {
+    push({
+      name: 'SimpleWorkflowDesignEditor',
+      query: {
+        modelId: row.id
+      }
+    })
+  }
 }
 
 /** 发布流程 */
