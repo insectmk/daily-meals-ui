@@ -618,14 +618,25 @@ const remainingRouter: AppRouteRecordRaw[] = [
     ]
   },
   {
-    path: '/:pathMatch(.*)*',
-    component: () => import('@/views/Error/404.vue'),
-    name: '',
+    path: '/iot',
+    component: Layout,
+    name: 'IOT',
     meta: {
-      title: '404',
-      hidden: true,
-      breadcrumb: false
-    }
+      hidden: true
+    },
+    children: [
+      {
+        path: 'product/detail/:id',
+        name: 'IotProductDetail',
+        meta: {
+          title: '产品详情',
+          noCache: true,
+          hidden: true,
+          activeMenu: '/iot/product'
+        },
+        component: () => import('@/views/iot/product/detail/index.vue')
+      }
+    ]
   }
 ]
 
