@@ -67,20 +67,14 @@
   <!-- 列表 -->
   <ContentWrap>
     <el-table v-loading="loading" :data="list">
-      <el-table-column align="center" label="流程标识" prop="key" width="200" />
-      <el-table-column align="center" label="流程名称" prop="name" width="200">
-        <template #default="scope">
-          <el-button link type="primary" @click="handleBpmnDetail(scope.row)">
-            <span>{{ scope.row.name }}</span>
-          </el-button>
-        </template>
-      </el-table-column>
-      <el-table-column align="center" label="流程分类" prop="category" width="100">
+      <el-table-column label="流程名称" align="center" prop="name" min-width="200" />
+      <el-table-column label="流程图标" align="center" prop="icon" min-width="100">
         <template #default="scope">
           <el-image :src="scope.row.icon" class="h-32px w-32px" />
         </template>
       </el-table-column>
-      <el-table-column align="center" label="表单信息" prop="formType" width="200">
+      <el-table-column label="流程分类" align="center" prop="categoryName" min-width="100" />
+      <el-table-column label="表单信息" align="center" prop="formType" min-width="200">
         <template #default="scope">
           <el-button
             v-if="scope.row.formType === 10"
@@ -101,52 +95,36 @@
           <label v-else>暂无表单</label>
         </template>
       </el-table-column>
-      <el-table-column
-        :formatter="dateFormatter"
-        align="center"
-        label="创建时间"
-        prop="createTime"
-        width="180"
-      />
-      <el-table-column align="center" label="最新部署的流程定义">
-        <el-table-column
-          align="center"
-          label="流程版本"
-          prop="processDefinition.version"
-          width="100"
-        >
-          <template #default="scope">
-            <el-tag v-if="scope.row.processDefinition">
-              v{{ scope.row.processDefinition.version }}
-            </el-tag>
-            <el-tag v-else type="warning">未部署</el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column
-          align="center"
-          label="激活状态"
-          prop="processDefinition.version"
-          width="85"
-        >
-          <template #default="scope">
-            <el-switch
-              v-if="scope.row.processDefinition"
-              v-model="scope.row.processDefinition.suspensionState"
-              :active-value="1"
-              :inactive-value="2"
-              @change="handleChangeState(scope.row)"
-            />
-          </template>
-        </el-table-column>
-        <el-table-column align="center" label="部署时间" prop="deploymentTime" width="180">
-          <template #default="scope">
-            <span v-if="scope.row.processDefinition">
-              {{ formatDate(scope.row.processDefinition.deploymentTime) }}
-            </span>
-          </template>
-        </el-table-column>
+      <!--      <el-table-column label="激活状态" align="center" prop="processDefinition.version" width="85">-->
+      <!--        <template #default="scope">-->
+      <!--          <el-switch-->
+      <!--            v-if="scope.row.processDefinition"-->
+      <!--            v-model="scope.row.processDefinition.suspensionState"-->
+      <!--            :active-value="1"-->
+      <!--            :inactive-value="2"-->
+      <!--            @change="handleChangeState(scope.row)"-->
+      <!--          />-->
+      <!--        </template>-->
+      <!--      </el-table-column>-->
+      <el-table-column label="最后发布" align="center" prop="deploymentTime" min-width="250">
+        <template #default="scope">
+          <span v-if="scope.row.processDefinition">
+            {{ formatDate(scope.row.processDefinition.deploymentTime) }}
+          </span>
+          <el-tag v-if="scope.row.processDefinition" class="ml-10px">
+            v{{ scope.row.processDefinition.version }}
+          </el-tag>
+          <el-tag v-else type="warning">未部署</el-tag>
+          <el-tag
+            v-if="scope.row.processDefinition.suspensionState === 2"
+            type="warning"
+            class="ml-10px"
+          >
+            已停用
+          </el-tag>
+        </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="250" fixed="right">
+      <el-table-column label="操作" align="center" width="200" fixed="right">
         <template #default="scope">
           <el-button
             v-hasPermi="['bpm:model:update']"
@@ -159,6 +137,7 @@
           <el-button
             v-hasPermi="['bpm:model:update']"
             link
+            class="!ml-5px"
             type="primary"
             @click="handleDesign(scope.row)"
           >
@@ -167,27 +146,42 @@
           <el-button
             v-hasPermi="['bpm:model:deploy']"
             link
+            class="!ml-5px"
             type="primary"
             @click="handleDeploy(scope.row)"
           >
             发布
           </el-button>
-          <el-button
-            v-hasPermi="['bpm:process-definition:query']"
-            link
-            type="primary"
-            @click="handleDefinitionList(scope.row)"
+          <el-dropdown
+            class="!align-middle ml-5px"
+            @command="(command) => handleCommand(command, scope.row)"
+            v-hasPermi="['bpm:process-definition:query', 'bpm:model:update', 'bpm:model:delete']"
           >
-            历史
-          </el-button>
-          <el-button
-            v-hasPermi="['bpm:model:delete']"
-            link
-            type="danger"
-            @click="handleDelete(scope.row.id)"
-          >
-            删除
-          </el-button>
+            <el-button type="primary" link>更多</el-button>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item
+                  command="handleDefinitionList"
+                  v-if="checkPermi(['bpm:process-definition:query'])"
+                >
+                  历史
+                </el-dropdown-item>
+                <el-dropdown-item
+                  command="handleChangeState"
+                  v-if="checkPermi(['bpm:model:update'])"
+                >
+                  {{ scope.row.processDefinition.suspensionState === 1 ? '停用' : '启用' }}
+                </el-dropdown-item>
+                <el-dropdown-item
+                  type="danger"
+                  command="handleDelete"
+                  v-if="checkPermi(['bpm:model:delete'])"
+                >
+                  删除
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
         </template>
       </el-table-column>
     </el-table>
@@ -207,28 +201,17 @@
   <Dialog v-model="formDetailVisible" title="表单详情" width="800">
     <my-form-create :option="formDetailPreview.option" :rule="formDetailPreview.rule" />
   </Dialog>
-
-  <!-- 弹窗：流程模型图的预览 -->
-  <Dialog v-model="bpmnDetailVisible" title="流程图" width="800">
-    <MyProcessViewer
-      key="designer"
-      v-model="bpmnXML"
-      :prefix="bpmnControlForm.prefix"
-      :value="bpmnXML as any"
-      v-bind="bpmnControlForm"
-    />
-  </Dialog>
 </template>
 
 <script lang="ts" setup>
-import { dateFormatter, formatDate } from '@/utils/formatTime'
-import { MyProcessViewer } from '@/components/bpmnProcessDesigner/package'
+import { formatDate } from '@/utils/formatTime'
 import * as ModelApi from '@/api/bpm/model'
 import * as FormApi from '@/api/bpm/form'
 import ModelForm from './ModelForm.vue'
 import { setConfAndFields2 } from '@/utils/formCreate'
 import { CategoryApi } from '@/api/bpm/category'
 import { BpmModelType } from '@/utils/constants'
+import { checkPermi } from '@/utils/permission'
 
 defineOptions({ name: 'BpmModel' })
 
@@ -273,6 +256,23 @@ const resetQuery = () => {
   handleQuery()
 }
 
+/** '更多'操作按钮 */
+const handleCommand = (command: string, row: any) => {
+  switch (command) {
+    case 'handleDefinitionList':
+      handleDefinitionList(row)
+      break
+    case 'handleDelete':
+      handleDelete(row)
+      break
+    case 'handleChangeState':
+      handleChangeState(row)
+      break
+    default:
+      break
+  }
+}
+
 /** 添加/修改操作 */
 const formRef = ref()
 const openForm = (type: string, id?: number) => {
@@ -280,12 +280,12 @@ const openForm = (type: string, id?: number) => {
 }
 
 /** 删除按钮操作 */
-const handleDelete = async (id: number) => {
+const handleDelete = async (row: any) => {
   try {
     // 删除的二次确认
     await message.delConfirm()
     // 发起删除
-    await ModelApi.deleteModel(id)
+    await ModelApi.deleteModel(row.id)
     message.success(t('common.delSuccess'))
     // 刷新列表
     await getList()
@@ -293,22 +293,22 @@ const handleDelete = async (id: number) => {
 }
 
 /** 更新状态操作 */
-const handleChangeState = async (row) => {
+const handleChangeState = async (row: any) => {
   const state = row.processDefinition.suspensionState
+  const newState = state === 1 ? 2 : 1
   try {
     // 修改状态的二次确认
     const id = row.id
-    const statusState = state === 1 ? '激活' : '挂起'
+    debugger
+    const statusState = state === 1 ? '停用' : '启用'
     const content = '是否确认' + statusState + '流程名字为"' + row.name + '"的数据项?'
     await message.confirm(content)
     // 发起修改状态
-    await ModelApi.updateModelState(id, state)
+    await ModelApi.updateModelState(id, newState)
+    message.success(statusState + '成功')
     // 刷新列表
     await getList()
-  } catch {
-    // 取消后，进行恢复按钮
-    row.processDefinition.suspensionState = state === 1 ? 2 : 1
-  }
+  } catch {}
 }
 
 /** 设计流程 */
@@ -371,161 +371,6 @@ const handleFormDetail = async (row) => {
       path: row.formCustomCreatePath
     })
   }
-}
-
-// 流程图的详情按钮操作
-const handleBpmnDetail = (row) => {
-  // TODO 芋艿：流程组件开发中
-  console.log(row)
-  ModelApi.getModelApi(row).then((response) => {
-    console.log(response, 'response')
-    bpmnXML.value = response.bpmnXml
-    // 弹窗打开
-    showBpmnOpen.value = true
-  })
-  // message.success('流程组件开发中，预计 2 月底完成')
-}
-
-// 点击任务分配按钮
-const handleAssignRule = (row) => {
-  router.push({
-    name: 'BpmTaskAssignRuleList',
-    query: {
-      modelId: row.id
-    }
-  })
-}
-
-// ========== 新建/修改流程 ==========
-const dialogVisible = ref(false)
-const dialogTitle = ref('新建模型')
-const dialogLoading = ref(false)
-const saveForm = ref()
-const saveFormRef = ref<FormInstance>()
-
-// 设置标题
-const setDialogTile = async (type: string) => {
-  dialogTitle.value = t('action.' + type)
-  dialogVisible.value = true
-}
-
-// 新增操作
-const handleCreate = async () => {
-  resetForm()
-  await setDialogTile('create')
-}
-
-// 修改操作
-const handleUpdate = async (rowId: number) => {
-  resetForm()
-  await setDialogTile('edit')
-  // 设置数据
-  saveForm.value = await ModelApi.getModelApi(rowId)
-  if (saveForm.value.category == null) {
-    saveForm.value.category = '1'
-  } else {
-    saveForm.value.category = saveForm.value.category
-  }
-}
-
-// 提交按钮
-const submitForm = async () => {
-  // 参数校验
-  const elForm = unref(saveFormRef)
-  if (!elForm) return
-  const valid = await elForm.validate()
-  if (!valid) return
-
-  // 提交请求
-  dialogLoading.value = true
-  try {
-    const data = saveForm.value as ModelApi.ModelVO
-    if (!data.id) {
-      await ModelApi.createModelApi(data)
-      message.success(t('common.createSuccess'))
-    } else {
-      await ModelApi.updateModelApi(data)
-      message.success(t('common.updateSuccess'))
-    }
-    dialogVisible.value = false
-  } finally {
-    // 刷新列表
-    await reload()
-    dialogLoading.value = false
-  }
-}
-
-// 重置表单
-const resetForm = () => {
-  saveForm.value = {
-    formType: 10,
-    name: '',
-    courseSort: '',
-    description: '',
-    formId: '',
-    formCustomCreatePath: '',
-    formCustomViewPath: ''
-  }
-  saveFormRef.value?.resetFields()
-}
-
-// ========== 删除 / 更新状态 / 发布流程 ==========
-// 删除流程
-const handleDelete = (rowId) => {
-  message.delConfirm('是否删除该流程！！').then(async () => {
-    await ModelApi.deleteModelApi(rowId)
-    message.success(t('common.delSuccess'))
-    // 刷新列表
-    reload()
-  })
-}
-
-// 更新状态操作
-const handleChangeState = (row) => {
-  const id = row.id
-  const state = row.processDefinition.suspensionState
-  const statusState = state === 1 ? '激活' : '挂起'
-  const content = '是否确认' + statusState + '流程名字为"' + row.name + '"的数据项?'
-  message
-    .confirm(content)
-    .then(async () => {
-      await ModelApi.updateModelStateApi(id, state)
-      message.success(t('部署成功'))
-      // 刷新列表
-      reload()
-    })
-    .catch(() => {
-      // 取消后，进行恢复按钮
-      row.processDefinition.suspensionState = state === 1 ? 2 : 1
-    })
-}
-
-// 发布流程
-const handleDeploy = (row) => {
-  message.confirm('是否部署该流程！！').then(async () => {
-    await ModelApi.deployModelApi(row.id)
-    message.success(t('部署成功'))
-    // 刷新列表
-    reload()
-  })
-}
-
-// ========== 导入流程 ==========
-const uploadRef = ref<UploadInstance>()
-let importUrl = import.meta.env.VITE_BASE_URL + import.meta.env.VITE_API_URL + '/bpm/model/import'
-const uploadHeaders = ref()
-const importDialogVisible = ref(false)
-const uploadDisabled = ref(false)
-const importFormRef = ref<FormInstance>()
-const importForm = ref({
-  key: '',
-  name: '',
-  description: ''
-})
-const handleBpmnDetail = async (row) => {
-  const data = await ModelApi.getModel(row.id)
-  bpmnXML.value = data.bpmnXml || ''
-  bpmnDetailVisible.value = true
 }
 
 /** 初始化 **/
