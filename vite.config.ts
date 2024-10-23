@@ -55,28 +55,15 @@ export default ({ command, mode }: ConfigEnv): UserConfig => {
           find: 'vue-i18n',
           replacement: 'vue-i18n/dist/vue-i18n.cjs.js'
         },
-        {
-          find: /\@\//,
-          replacement: `${pathResolve('src')}/`
-        }
-      ]
-    },
-    build: {
-      minify: 'terser',
-      outDir: env.VITE_OUT_DIR || 'dist',
-      sourcemap: env.VITE_SOURCEMAP === 'true' ? 'inline' : false,
-      // brotliSize: false,
-      terserOptions: {
-        compress: {
-          drop_debugger: env.VITE_DROP_DEBUGGER === 'true',
-          drop_console: env.VITE_DROP_CONSOLE === 'true'
-        }
-      },
-      rollupOptions: {
-        output: {
-          manualChunks: {
-            echarts: ['echarts'] // 将 echarts 单独打包，参考 https://gitee.com/yudaocode/yudao-ui-admin-vue3/issues/IAB1SX 讨论
-          }
+        // 项目使用的vite插件。 单独提取到build/vite/plugin中管理
+        plugins: createVitePlugins(),
+        css: {
+            preprocessorOptions: {
+                scss: {
+                    additionalData: '@use "@/styles/variables.scss" as *;',
+                    javascriptEnabled: true
+                }
+            }
         },
       },
     },
