@@ -44,21 +44,21 @@
       </el-form-item>
 
       <el-form-item label="" prop="status" :style="{ position: 'absolute', right: '130px' }">
-            <el-select
-              v-model="queryParams.status"
-              placeholder="请选择流程状态"
-              clearable
-              class="!w-155px"
-              @change="handleQuery"
-            >
-              <el-option
-                v-for="dict in getIntDictOptions(DICT_TYPE.BPM_PROCESS_INSTANCE_STATUS)"
-                :key="dict.value"
-                :label="dict.label"
-                :value="dict.value"
-              />
-            </el-select>
-          </el-form-item>      
+        <el-select
+          v-model="queryParams.status"
+          placeholder="请选择流程状态"
+          clearable
+          class="!w-155px"
+          @change="handleQuery"
+        >
+          <el-option
+            v-for="dict in getIntDictOptions(DICT_TYPE.BPM_PROCESS_INSTANCE_STATUS)"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
+        </el-select>
+      </el-form-item>
 
       <!-- 高级筛选 -->
       <!-- TODO @ tuituji：style 可以使用 unocss -->
@@ -115,10 +115,9 @@
               class="!w-240px"
             />
           </el-form-item>
+          <!-- TODO tuituiji：参考钉钉，1）按照清空、取消、确认排序。2）右对齐。3）确认增加 primary -->
           <el-form-item class="bold-label" label-position="top">
             <el-button @click="resetQuery"> 清空</el-button>
-            <el-button @click="showPopover = false"> 取消</el-button>
-            <el-button @click="handleQuery" type="primary"> 确认</el-button>
           </el-form-item>
         </el-popover>
       </el-form-item>
@@ -137,7 +136,7 @@
         fixed="left"
       />
       <!-- TODO @芋艿：摘要 -->
-      <!-- TODO @tuituji：流程状态。可见需求文档里  Re:没看懂；回复：1）就是审批中的时候，展示审批人；2）审批结束的时候，就展示状态 -->
+      <!-- TODO tuituiji：参考钉钉；1）审批中时，展示审批任务；2）非审批中，展示状态 -->
       <el-table-column label="流程状态" prop="status" width="120">
         <template #default="scope">
           <dict-tag :type="DICT_TYPE.BPM_PROCESS_INSTANCE_STATUS" :value="scope.row.status" />
@@ -281,7 +280,7 @@ const handleCreate = async (row?: ProcessInstanceVO) => {
 }
 
 /** 查看详情 */
-const handleDetail = (row: any) => {
+const handleDetail = (row: ProcessInstanceVO) => {
   router.push({
     name: 'BpmProcessInstanceDetail',
     query: {
@@ -291,7 +290,7 @@ const handleDetail = (row: any) => {
 }
 
 /** 取消按钮操作 */
-const handleCancel = async (row: any) => {
+const handleCancel = async (row: ProcessInstanceVO) => {
   // 二次确认
   const { value } = await ElMessageBox.prompt('请输入取消原因', '取消流程', {
     confirmButtonText: t('common.ok'),
