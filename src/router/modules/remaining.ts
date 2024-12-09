@@ -661,7 +661,7 @@ const remainingRouter: AppRouteRecordRaw[] = [
     },
     children: [
       {
-        path: 'product/detail/:id',
+        path: 'product/product/detail/:id',
         name: 'IoTProductDetail',
         meta: {
           title: '产品详情',
