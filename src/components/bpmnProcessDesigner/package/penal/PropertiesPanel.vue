@@ -256,10 +256,3 @@ watch(
   }
 )
 </script>
-<style lang="scss">
-.process-panel__container {
-  position: absolute;
-  top: 90px;
-  right: 60px;
-}
-</style>
