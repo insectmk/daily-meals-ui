@@ -37,7 +37,7 @@ import { DataSpecsDataType, dataTypeOptions } from '../config'
 import { isEmpty } from '@/utils/is'
 
 /** 数组型的 dataSpecs 配置组件 */
-defineOptions({ name: 'ThingModelArrayTypeDataSpecs' })
+defineOptions({ name: 'ThinkModelArrayTypeDataSpecs' })
 
 const props = defineProps<{ modelValue: any }>()
 const emits = defineEmits(['update:modelValue'])
