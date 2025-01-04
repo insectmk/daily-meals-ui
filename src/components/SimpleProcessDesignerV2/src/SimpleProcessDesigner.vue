@@ -40,7 +40,7 @@ defineOptions({
   name: 'SimpleProcessDesigner'
 })
 
-const emits = defineEmits(['success']) // 保存成功事件
+const emits = defineEmits(['success', 'init-finished']) // 保存成功事件
 
 const props = defineProps({
   modelId: {
@@ -259,6 +259,7 @@ onMounted(async () => {
     }
   } finally {
     loading.value = false
+    emits('init-finished')
   }
 })
 
