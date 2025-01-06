@@ -55,6 +55,11 @@ const props = defineProps({
     type: String,
     required: false
   },
+  // 可发起流程的人员编号
+  startUserIds: {
+    type: Array,
+    required: false
+  },
   value: {
     type: [String, Object],
     required: false
@@ -86,6 +91,7 @@ provide('startUserIds', props.startUserIds)
 
 const message = useMessage() // 国际化
 const processNodeTree = ref<SimpleFlowNode | undefined>()
+provide('processNodeTree', processNodeTree)
 const errorDialogVisible = ref(false)
 let errorNodes: SimpleFlowNode[] = []
 
