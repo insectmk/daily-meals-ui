@@ -356,6 +356,15 @@
                 </div>
               </el-radio-group>
             </el-form-item>
+
+            <el-divider content-position="left">是否需要签名</el-divider>
+            <el-form-item prop="signEnable">
+              <el-switch
+                v-model="configForm.signEnable"
+                active-text="是"
+                inactive-text="否"
+              />
+            </el-form-item>
           </el-form>
         </div>
       </el-tab-pane>
@@ -856,6 +865,8 @@ const saveConfig = async () => {
     header: configForm.value.taskCompleteListenerHeader,
     body: configForm.value.taskCompleteListenerBody
   }
+  // 签名
+  currentNode.value.signEnable = configForm.value.signEnable
 
   currentNode.value.showText = showText
   settingVisible.value = false
@@ -923,6 +934,8 @@ const showUserTaskNodeConfig = (node: SimpleFlowNode) => {
   configForm.value.taskCompleteListenerPath = node.taskCompleteListener!.path
   configForm.value.taskCompleteListenerHeader = node.taskCompleteListener?.header ?? []
   configForm.value.taskCompleteListenerBody = node.taskCompleteListener?.body ?? []
+  // 6. 签名
+  configForm.value.signEnable = node.signEnable ?? false
 }
 
 defineExpose({ openDrawer, showUserTaskNodeConfig }) // 暴露方法给父组件
