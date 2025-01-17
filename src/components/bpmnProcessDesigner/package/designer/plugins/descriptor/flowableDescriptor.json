@@ -1440,16 +1440,13 @@
       ]
     },
     {
-      "name": "SignEnable",
-      "superClass": ["Element"],
-      "meta": {
-        "allowedIn": ["bpmn:UserTask"]
-      },
+      "name": "SkipExpression",
+      "extends": ["bpmn:UserTask"],
       "properties": [
         {
-          "name": "value",
-          "type": "Boolean",
-          "isBody": true
+          "name": "skipExpression",
+          "isAttr": true,
+          "type": "String"
         }
       ]
     }
