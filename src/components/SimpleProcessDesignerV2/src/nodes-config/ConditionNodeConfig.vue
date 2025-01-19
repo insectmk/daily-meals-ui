@@ -67,6 +67,7 @@ const props = defineProps({
   }
 })
 const settingVisible = ref(false)
+const currentNode = ref<SimpleFlowNode>(props.conditionNode)
 const condition = ref<any>()
 const open = () => {
   condition.value = {

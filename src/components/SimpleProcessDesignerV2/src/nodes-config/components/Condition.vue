@@ -1,7 +1,7 @@
 <template>
   <el-form ref="formRef" :model="condition" :rules="formRules" label-position="top">
     <el-form-item label="配置方式" prop="conditionType">
-      <el-radio-group v-model="condition.conditionType">
+      <el-radio-group v-model="condition.conditionType" @change="changeConditionType">
         <el-radio
           v-for="(dict, indexConditionType) in conditionConfigTypes"
           :key="indexConditionType"
@@ -12,7 +12,7 @@
         </el-radio>
       </el-radio-group>
     </el-form-item>
-    <el-form-item v-if="condition.conditionType === ConditionType.RULE" label="条件规则">
+    <el-form-item v-if="condition.conditionType === ConditionType.RULE && condition.conditionGroups" label="条件规则">
       <div class="condition-group-tool">
         <div class="flex items-center">
           <div class="mr-4">条件组关系</div>
@@ -114,7 +114,7 @@
           color="#0089ff"
           icon="ep:plus"
           :size="24"
-          @click="addConditionGroup(condition.conditionGroups.conditions)"
+          @click="addConditionGroup(condition.conditionGroups?.conditions)"
         />
       </div>
     </el-form-item>
@@ -138,6 +138,7 @@ import {
   COMPARISON_OPERATORS,
   CONDITION_CONFIG_TYPES,
   ConditionType,
+  DEFAULT_CONDITION_GROUP_VALUE,
   ProcessVariableEnum
 } from '../../consts'
 import { BpmModelFormType } from '@/utils/constants'
@@ -187,6 +188,14 @@ const formRules = reactive({
 })
 const formRef = ref() // 表单 Ref
 
+/** 切换条件配置方式 */
+const changeConditionType = () => {
+  if (condition.value.conditionType === ConditionType.RULE) {
+    if (!condition.value.conditionGroups) {
+      condition.value.conditionGroups = DEFAULT_CONDITION_GROUP_VALUE
+    }
+  }
+}
 const deleteConditionGroup = (conditions, index) => {
   conditions.splice(index, 1)
 }
