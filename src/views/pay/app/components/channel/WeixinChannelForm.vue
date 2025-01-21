@@ -26,10 +26,24 @@
             :style="{ width: '100%' }"
           />
         </el-form-item>
-        <el-form-item label-width="180px" label="商户号" prop="config.mchId">
+        <el-form-item label-width="180px">
+          <a
+            href="https://pay.weixin.qq.com/index.php/extend/merchant_appid/mapay_platform/account_manage"
+            target="_blank"
+          >
+            前往微信商户平台查看 APPID
+          </a>
+        </el-form-item>
+        <el-form-item label="商户号" label-width="180px" prop="config.mchId">
           <el-input v-model="formData.config.mchId" :style="{ width: '100%' }" />
         </el-form-item>
-        <el-form-item label-width="180px" label="渠道状态" prop="status">
+
+        <el-form-item label-width="180px">
+          <a href="https://pay.weixin.qq.com/index.php/extend/pay_setting" target="_blank">
+            前往微信商户平台查看商户号
+          </a>
+        </el-form-item>
+        <el-form-item label="渠道状态" label-width="180px" prop="status">
           <el-radio-group v-model="formData.status">
             <el-radio
               v-for="dict in getDictOptions(DICT_TYPE.COMMON_STATUS)"
@@ -122,6 +136,14 @@
               placeholder="请输入证书序列号"
               clearable
             />
+          </el-form-item>
+          <el-form-item label-width="180px">
+            <a
+              href="https://pay.weixin.qq.com/index.php/core/cert/api_cert#/api-cert-manage"
+              target="_blank"
+            >
+              前往微信商户平台查看证书序列号
+            </a>
           </el-form-item>
         </div>
         <el-form-item label-width="180px" label="备注" prop="remark">
