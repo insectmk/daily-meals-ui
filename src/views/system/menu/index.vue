@@ -273,6 +273,7 @@ const columns: Column[] = [
     cellRenderer: ({ rowData }) => {
       return h(
         'div',
+        {},
         [
           hasPermission(['system:menu:update']) &&
             h(
@@ -282,7 +283,7 @@ const columns: Column[] = [
                 type: 'primary',
                 onClick: () => openForm('update', rowData.id)
               },
-              '修改'
+              () => '修改'
             ),
           hasPermission(['system:menu:create']) &&
             h(
@@ -292,7 +293,7 @@ const columns: Column[] = [
                 type: 'primary',
                 onClick: () => openForm('create', undefined, rowData.id)
               },
-              '新增'
+              () => '新增'
             ),
           hasPermission(['system:menu:delete']) &&
             h(
@@ -302,7 +303,7 @@ const columns: Column[] = [
                 type: 'danger',
                 onClick: () => handleDelete(rowData.id)
               },
-              '删除'
+              () => '删除'
             )
         ].filter(Boolean)
       )
