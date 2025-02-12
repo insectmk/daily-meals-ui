@@ -1,3 +1,4 @@
+<!-- TODO @lesan：涉及到“审批”关键字，需要换成“办理”，建议通过一个变量控制哈 -->
 <template>
   <el-drawer
     :append-to-body="true"
@@ -448,6 +449,7 @@
           </div>
         </div>
       </el-tab-pane>
+      <!-- TODO @lesan：办理时，应该还是有字段权限 -->
       <el-tab-pane label="表单字段权限" name="fields" v-if="formType === 10">
         <div class="field-setting-pane">
           <div class="field-setting-desc">字段权限</div>
