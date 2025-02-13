@@ -58,7 +58,16 @@
                   >
                     <template #default>
                       <div class="flex">
-                        <el-image :src="definition.icon" class="w-32px h-32px" />
+                        <el-image
+                          v-if="definition.icon"
+                          :src="definition.icon"
+                          class="w-32px h-32px"
+                        />
+                        <div v-else class="flow-icon">
+                          <span style="font-size: 12px; color: #fff">
+                            {{ subString(definition.name, 0, 2) }}
+                          </span>
+                        </div>
                         <el-text class="!ml-10px" size="large">{{ definition.name }}</el-text>
                       </div>
                     </template>
@@ -88,6 +97,7 @@ import * as ProcessInstanceApi from '@/api/bpm/processInstance'
 import { CategoryApi, CategoryVO } from '@/api/bpm/category'
 import ProcessDefinitionDetail from './ProcessDefinitionDetail.vue'
 import { groupBy } from 'lodash-es'
+import { subString } from '@/utils/index'
 
 defineOptions({ name: 'BpmProcessInstanceCreate' })
 
