@@ -177,6 +177,10 @@
     color: #ca3a31;
   }
 
+  .handle {
+    color: #330099;
+  }
+
   .handler-item-text {
     margin-top: 4px;
     width: 80px;
@@ -293,6 +297,10 @@
 
           &.router-node {
             color: #ca3a31;
+          }
+
+          &.transactor-task {
+            color: #330099;
           }
         }
 
