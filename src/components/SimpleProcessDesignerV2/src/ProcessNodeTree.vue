@@ -60,6 +60,12 @@
     :flow-node="currentNode"
     @update:flow-node="handleModelValueUpdate"
   />
+  <!-- 子流程节点 -->
+  <ChildProcessNode
+    v-if="currentNode && currentNode.type === NodeType.CHILD_PROCESS_NODE"
+    :flow-node="currentNode"
+    @update:flow-node="handleModelValueUpdate"
+  />
   <!-- 递归显示孩子节点  -->
   <ProcessNodeTree
     v-if="currentNode && currentNode.childNode"
@@ -85,6 +91,7 @@ import InclusiveNode from './nodes/InclusiveNode.vue'
 import DelayTimerNode from './nodes/DelayTimerNode.vue'
 import RouterNode from './nodes/RouterNode.vue'
 import TriggerNode from './nodes/TriggerNode.vue'
+import ChildProcessNode from './nodes/ChildProcessNode.vue'
 import { SimpleFlowNode, NodeType } from './consts'
 import { useWatchNode } from './node'
 defineOptions({
