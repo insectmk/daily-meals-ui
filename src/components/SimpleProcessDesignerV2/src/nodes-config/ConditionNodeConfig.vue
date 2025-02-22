@@ -63,26 +63,42 @@ const props = defineProps({
 })
 const settingVisible = ref(false)
 const currentNode = ref<SimpleFlowNode>(props.conditionNode)
-const condition = ref<any>()
-const open = () => {
-  condition.value = {
-    conditionType: currentNode.value.conditionType,
-    conditionExpression: currentNode.value.conditionExpression ?? '',
-    conditionGroups: currentNode.value.conditionGroups ?? {
+const condition = ref<any>({
+  conditionType: ConditionType.RULE, // 设置默认值
+  conditionExpression: '',
+  conditionGroups: {
+    and: true,
+    conditions: [{
       and: true,
-      conditions: [
-        {
+      rules: [{
+        opCode: '==',
+        leftSide: '',
+        rightSide: ''
+      }]
+    }]
+  }
+})
+const open = () => {
+  // 如果有已存在的配置则使用，否则使用默认值
+  if (currentNode.value.conditionSetting) {
+    condition.value = JSON.parse(JSON.stringify(currentNode.value.conditionSetting))
+  } else {
+    // 重置为默认值
+    condition.value = {
+      conditionType: ConditionType.RULE,
+      conditionExpression: '',
+      conditionGroups: {
+        and: true,
+        conditions: [{
           and: true,
-          rules: [
-            {
-              opCode: '==',
-              leftSide: '',
-              rightSide: ''
-            }
-          ]
-        }
-      ]
-    },
+          rules: [{
+            opCode: '==',
+            leftSide: '',
+            rightSide: ''
+          }]
+        }]
+      }
+    }
   }
   settingVisible.value = true
 }
@@ -141,15 +157,13 @@ const saveConfig = async () => {
       return false
     }
     currentNode.value.showText = showText
-    currentNode.value.conditionType = condition.value.conditionType
-    if (currentNode.value.conditionType === ConditionType.EXPRESSION) {
-      currentNode.value.conditionGroups = undefined
-      currentNode.value.conditionExpression = condition.value.conditionExpression
-    }
-    if (currentNode.value.conditionType === ConditionType.RULE) {
-      currentNode.value.conditionExpression = undefined
-      currentNode.value.conditionGroups = condition.value.conditionGroups
-    }
+    // 深拷贝保存的条件设置,避免引用问题
+    currentNode.value.conditionSetting = JSON.parse(JSON.stringify({
+      ...currentNode.value.conditionSetting,
+      conditionType: condition.value?.conditionType,
+      conditionExpression: condition.value?.conditionType === ConditionType.EXPRESSION ? condition.value?.conditionExpression : undefined,
+      conditionGroups: condition.value?.conditionType === ConditionType.RULE ? condition.value?.conditionGroups : undefined
+    }))
   }
   settingVisible.value = false
   return true
