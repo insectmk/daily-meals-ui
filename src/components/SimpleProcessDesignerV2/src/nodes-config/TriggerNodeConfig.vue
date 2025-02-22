@@ -403,18 +403,10 @@ const changeTriggerType = () => {
             response: []
           }
     configForm.value.formSettings = undefined
-  } else if (configForm.value.type === TriggerTypeEnum.ASYNC_HTTP_REQUEST) {
-    configForm.value.httpRequestSetting =
-      originalSetting?.type === TriggerTypeEnum.ASYNC_HTTP_REQUEST && originalSetting.httpRequestSetting
-        ? originalSetting.httpRequestSetting
-        : {
-            url: '',
-            header: [],
-            body: [],
-            response: []
-          }
-    configForm.value.formSettings = undefined
-  }else if (configForm.value.type === TriggerTypeEnum.FORM_UPDATE) {
+    return
+  }
+
+  if (configForm.value.type === TriggerTypeEnum.FORM_UPDATE) {
     configForm.value.formSettings =
       originalSetting?.type === TriggerTypeEnum.FORM_UPDATE && originalSetting.formSettings
         ? originalSetting.formSettings
@@ -426,7 +418,11 @@ const changeTriggerType = () => {
             }
           ]
     configForm.value.httpRequestSetting = undefined
-  } else if (configForm.value.type === TriggerTypeEnum.FORM_DELETE) {
+    return
+  }
+
+  if (configForm.value.type === TriggerTypeEnum.FORM_DELETE) {
+    console.log('originalSetting?.type', originalSetting?.type)
     configForm.value.formSettings =
       originalSetting?.type === TriggerTypeEnum.FORM_DELETE && originalSetting.formSettings
         ? originalSetting.formSettings
@@ -438,6 +434,7 @@ const changeTriggerType = () => {
             }
           ]
     configForm.value.httpRequestSetting = undefined
+    return
   }
 }
 
