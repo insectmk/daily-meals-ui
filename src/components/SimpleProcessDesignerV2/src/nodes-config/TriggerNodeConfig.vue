@@ -36,6 +36,7 @@
           </el-select>
         </el-form-item>
         <!-- HTTP 请求触发器 -->
+        <!-- TODO @jason：可以考虑用 [].include 更简洁 -->
         <div
           v-if="
             (configForm.type === TriggerTypeEnum.HTTP_REQUEST ||
@@ -395,6 +396,21 @@ const changeTriggerType = () => {
   if (configForm.value.type === TriggerTypeEnum.HTTP_REQUEST) {
     configForm.value.httpRequestSetting =
       originalSetting?.type === TriggerTypeEnum.HTTP_REQUEST && originalSetting.httpRequestSetting
+        ? originalSetting.httpRequestSetting
+        : {
+            url: '',
+            header: [],
+            body: [],
+            response: []
+          }
+    configForm.value.formSettings = undefined
+    return
+  }
+
+  if (configForm.value.type === TriggerTypeEnum.ASYNC_HTTP_REQUEST) {
+    configForm.value.httpRequestSetting =
+      originalSetting?.type === TriggerTypeEnum.ASYNC_HTTP_REQUEST &&
+      originalSetting.httpRequestSetting
         ? originalSetting.httpRequestSetting
         : {
             url: '',
