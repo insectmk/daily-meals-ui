@@ -167,7 +167,7 @@ watch(
       // 加载最新的审批详情
       getApprovalDetail({
         id: props.selectProcessDefinition.id,
-        processVariablesStr: JSON.stringify(newValue.value) // 解决 GET 无法传递对象的问题，后端 String 再转 JSON
+        processVariablesStr: newValue.value // 解决 GET 无法传递对象的问题，后端 String 再转 JSON
       })
     }
   },
