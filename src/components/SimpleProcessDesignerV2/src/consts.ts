@@ -814,11 +814,13 @@ export const TRIGGER_TYPES: DictDataVO[] = [
 export type ChildProcessSetting = {
   calledProcessDefinitionKey: string
   calledProcessDefinitionName: string
-  async: boolean
-  inVariables?: IOParameter[]
-  outVariables?: IOParameter[]
-  skipStartUserNode: boolean
-  startUserSetting: StartUserSetting
+  async: boolean,
+  inVariables?: IOParameter[],
+  outVariables?: IOParameter[],
+  skipStartUserNode: boolean,
+  startUserSetting: StartUserSetting,
+  timeoutSetting: TimeoutSetting,
+  multiInstanceSetting: MultiInstanceSetting,
 }
 export type IOParameter = {
   source: string
@@ -833,6 +835,13 @@ export type TimeoutSetting = {
   enable: boolean,
   type?: DelayTypeEnum,
   timeExpression?: string,
+}
+export type MultiInstanceSetting = {
+  enable: boolean,
+  sequential?: boolean,
+  completeRatio?: number,
+  sourceType?: ChildProcessMultiInstanceSourceTypeEnum,
+  source?: string,
 }
 export enum ChildProcessStartUserTypeEnum {
   /**
@@ -866,4 +875,23 @@ export const CHILD_PROCESS_START_USER_EMPTY_TYPE = [
   { label: '同主流程发起人', value: ChildProcessStartUserEmptyTypeEnum.MAIN_PROCESS_START_USER },
   { label: '子流程管理员', value: ChildProcessStartUserEmptyTypeEnum.CHILD_PROCESS_ADMIN },
   { label: '主流程管理员', value: ChildProcessStartUserEmptyTypeEnum.MAIN_PROCESS_ADMIN }
+]
+export enum ChildProcessMultiInstanceSourceTypeEnum {
+  /**
+   * 固定数量
+   */
+  FIXED_QUANTITY = 1,
+  /**
+   * 数字表单
+   */
+  DIGITAL_FORM = 2,
+  /**
+   * 多项表单
+   */
+  MULTI_FORM = 3,
+}
+export const CHILD_PROCESS_MULTI_INSTANCE_SOURCE_TYPE = [
+  { label: '固定数量', value: ChildProcessMultiInstanceSourceTypeEnum.FIXED_QUANTITY },
+  { label: '数字表单', value: ChildProcessMultiInstanceSourceTypeEnum.DIGITAL_FORM },
+  { label: '多项表单', value: ChildProcessMultiInstanceSourceTypeEnum.MULTI_FORM }
 ]
