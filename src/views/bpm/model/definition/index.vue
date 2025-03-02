@@ -67,6 +67,18 @@
         prop="deploymentTime"
         width="180"
       />
+      <el-table-column label="操作" align="center">
+        <template #default="scope">
+          <el-button
+            link
+            type="primary"
+            @click="openModelForm(scope.row.id)"
+            v-hasPermi="['bpm:model:update']"
+          >
+            恢复
+          </el-button>
+        </template>
+      </el-table-column>
     </el-table>
     <!-- 分页 -->
     <Pagination
@@ -133,6 +145,14 @@ const handleFormDetail = async (row: any) => {
       path: row.formCustomCreatePath
     })
   }
+}
+
+/** 恢复流程模型弹窗 */
+const openModelForm = async (id?: number) => {
+  await push({
+    name: 'BpmModelUpdate',
+    params: { id, type: 'definition' }
+  })
 }
 
 /** 初始化 **/
