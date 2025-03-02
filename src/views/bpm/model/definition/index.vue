@@ -3,44 +3,61 @@
 
   <ContentWrap>
     <el-table v-loading="loading" :data="list">
-      <el-table-column align="center" label="定义编号" prop="id" width="400" />
-      <el-table-column align="center" label="流程名称" prop="name" width="200">
-        <template #default="scope">
-          <el-button link type="primary" @click="handleBpmnDetail(scope.row)">
-            <span>{{ scope.row.name }}</span>
-          </el-button>
+      <el-table-column label="定义编号" align="center" prop="id" min-width="250" />
+      <el-table-column label="流程名称" align="center" prop="name" min-width="150" />
+      <el-table-column label="流程图标" align="center" min-width="50">
+        <template #default="{ row }">
+          <el-image v-if="row.icon" :src="row.icon" class="h-24px w-24pxrounded" />
         </template>
       </el-table-column>
-      <el-table-column align="center" label="定义分类" prop="category" width="100">
-        <template #default="scope">
-          <dict-tag :type="DICT_TYPE.BPM_MODEL_CATEGORY" :value="scope.row.category" />
+      <el-table-column label="可见范围" prop="startUserIds" min-width="100">
+        <template #default="{ row }">
+          <el-text v-if="!row.startUsers?.length"> 全部可见 </el-text>
+          <el-text v-else-if="row.startUsers.length === 1">
+            {{ row.startUsers[0].nickname }}
+          </el-text>
+          <el-text v-else>
+            <el-tooltip
+              class="box-item"
+              effect="dark"
+              placement="top"
+              :content="row.startUsers.map((user: any) => user.nickname).join('、')"
+            >
+              {{ row.startUsers[0].nickname }}等 {{ row.startUsers.length }} 人可见
+            </el-tooltip>
+          </el-text>
         </template>
       </el-table-column>
-      <el-table-column align="center" label="表单信息" prop="formType" width="200">
+      <el-table-column label="流程类型" prop="modelType" min-width="120">
+        <template #default="{ row }">
+          <dict-tag :value="row.modelType" :type="DICT_TYPE.BPM_MODEL_TYPE" />
+        </template>
+      </el-table-column>
+      <el-table-column label="表单信息" prop="formType" min-width="150">
         <template #default="scope">
           <el-button
-            v-if="scope.row.formType === 10"
+            v-if="scope.row.formType === BpmModelFormType.NORMAL"
+            type="primary"
             link
             type="primary"
             @click="handleFormDetail(scope.row)"
           >
             <span>{{ scope.row.formName }}</span>
           </el-button>
-          <el-button v-else link type="primary" @click="handleFormDetail(scope.row)">
+          <el-button
+            v-else-if="scope.row.formType === BpmModelFormType.CUSTOM"
+            type="primary"
+            link
+            @click="handleFormDetail(scope.row)"
+          >
             <span>{{ scope.row.formCustomCreatePath }}</span>
           </el-button>
+          <label v-else>暂无表单</label>
         </template>
       </el-table-column>
-      <el-table-column align="center" label="流程版本" prop="processDefinition.version" width="80">
+      <el-table-column label="流程版本" align="center" min-width="80">
         <template #default="scope">
-          <el-tag v-if="scope.row">v{{ scope.row.version }}</el-tag>
-          <el-tag v-else type="warning">未部署</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column align="center" label="状态" prop="version" width="80">
-        <template #default="scope">
-          <el-tag v-if="scope.row.suspensionState === 1" type="success">激活</el-tag>
-          <el-tag v-if="scope.row.suspensionState === 2" type="warning">挂起</el-tag>
+          <el-tag>v{{ scope.row.version }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column
@@ -50,25 +67,6 @@
         prop="deploymentTime"
         width="180"
       />
-      <el-table-column
-        align="center"
-        label="定义描述"
-        prop="description"
-        show-overflow-tooltip
-        width="300"
-      />
-      <el-table-column align="center" fixed="right" label="操作" width="150">
-        <template #default="scope">
-          <el-button
-            v-hasPermi="['bpm:task-assign-rule:query']"
-            link
-            type="primary"
-            @click="handleAssignRule(scope.row)"
-          >
-            分配规则
-          </el-button>
-        </template>
-      </el-table-column>
     </el-table>
     <!-- 分页 -->
     <Pagination
@@ -83,18 +81,14 @@
   <Dialog v-model="formDetailVisible" title="表单详情" width="800">
     <my-form-create :option="formDetailPreview.option" :rule="formDetailPreview.rule" />
   </Dialog>
-
-  <!-- 弹窗：流程模型图的预览 -->
-  <Dialog title="流程图" v-model="bpmnDetailVisible" width="800">
-    <MyProcessViewer style="height: 700px" key="designer" :xml="bpmnXml" />
-  </Dialog>
 </template>
 
 <script lang="ts" setup>
 import { dateFormatter } from '@/utils/formatTime'
-import { MyProcessViewer } from '@/components/bpmnProcessDesigner/package'
 import * as DefinitionApi from '@/api/bpm/definition'
 import { setConfAndFields2 } from '@/utils/formCreate'
+import { DICT_TYPE } from '@/utils/dict'
+import { BpmModelFormType } from '@/utils/constants'
 
 defineOptions({ name: 'BpmProcessDefinition' })
 
@@ -129,7 +123,7 @@ const formDetailPreview = ref({
   option: {}
 })
 const handleFormDetail = async (row: any) => {
-  if (row.formType == 10) {
+  if (row.formType == BpmModelFormType.NORMAL) {
     // 设置表单
     setConfAndFields2(formDetailPreview, row.formConf, row.formFields)
     // 弹窗打开
@@ -141,19 +135,21 @@ const handleFormDetail = async (row: any) => {
   }
 }
 
-/** 流程图的详情按钮操作 */
-const bpmnDetailVisible = ref(false)
-const bpmnXml = ref('')
-const handleBpmnDetail = async (row: any) => {
-  // 设置可见
-  bpmnXml.value = ''
-  bpmnDetailVisible.value = true
-  // 加载 BPMN XML
-  bpmnXml.value = (await DefinitionApi.getProcessDefinition(row.id))?.bpmnXml
-}
-
 /** 初始化 **/
 onMounted(() => {
   getList()
 })
 </script>
+
+<style lang="scss" scoped>
+.flow-icon {
+  display: flex;
+  width: 38px;
+  height: 38px;
+  margin-right: 10px;
+  background-color: var(--el-color-primary);
+  border-radius: 0.25rem;
+  align-items: center;
+  justify-content: center;
+}
+</style>
