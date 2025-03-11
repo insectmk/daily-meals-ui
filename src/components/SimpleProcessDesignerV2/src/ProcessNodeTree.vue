@@ -50,8 +50,8 @@
     :flow-node="currentNode"
     @update:flow-node="handleModelValueUpdate"
   />
-   <!-- 触发器节点 -->
-   <TriggerNode
+  <!-- 触发器节点 -->
+  <TriggerNode
     v-if="currentNode && currentNode.type === NodeType.TRIGGER_NODE"
     :flow-node="currentNode"
     @update:flow-node="handleModelValueUpdate"

@@ -43,11 +43,7 @@
   </el-drawer>
 </template>
 <script setup lang="ts">
-import {
-  SimpleFlowNode,
-  ConditionType,
-  COMPARISON_OPERATORS,
-} from '../consts'
+import { SimpleFlowNode, ConditionType, COMPARISON_OPERATORS } from '../consts'
 import { getDefaultConditionNodeName } from '../utils'
 import { useFormFieldsAndStartUser } from '../node'
 import Condition from './components/Condition.vue'
@@ -110,8 +106,6 @@ const blurEvent = () => {
     currentNode.value.name ||
     getDefaultConditionNodeName(props.nodeIndex, currentNode.value?.conditionSetting?.defaultFlow)
 }
-
-const currentNode = ref<SimpleFlowNode>(props.conditionNode)
 
 defineExpose({ open }) // 提供 open 方法，用于打开弹窗
 

@@ -334,13 +334,13 @@ onMounted(async () => {
   // 如果配送方式为快递，则查询物流公司
   if (formData.value.deliveryType === DeliveryTypeEnum.EXPRESS.type) {
     deliveryExpressList.value = await DeliveryExpressApi.getSimpleDeliveryExpressList()
-    if (formData.value.logisticsId) {
+    if (form.value.logisticsId) {
       expressTrackList.value = await TradeOrderApi.getExpressTrackList(formData.value.id!)
     }
   } else if (formData.value.deliveryType === DeliveryTypeEnum.PICK_UP.type) {
-    if (formData.value.pickUpStoreId) {
-      pickUpStore.value = await DeliveryPickUpStoreApi.getDeliveryPickUpStore(formData.value.pickUpStoreId)
-    }
+    pickUpStore.value = await DeliveryPickUpStoreApi.getDeliveryPickUpStore(
+      formData.value.pickUpStoreId
+    )
   }
 })
 </script>

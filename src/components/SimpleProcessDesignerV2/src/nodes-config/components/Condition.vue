@@ -12,7 +12,10 @@
         </el-radio>
       </el-radio-group>
     </el-form-item>
-    <el-form-item v-if="condition.conditionType === ConditionType.RULE && condition.conditionGroups" label="条件规则">
+    <el-form-item
+      v-if="condition.conditionType === ConditionType.RULE && condition.conditionGroups"
+      label="条件规则"
+    >
       <div class="condition-group-tool">
         <div class="flex items-center">
           <div class="mr-4">条件组关系</div>

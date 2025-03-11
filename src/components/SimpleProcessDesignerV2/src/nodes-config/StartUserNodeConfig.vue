@@ -36,7 +36,8 @@
             placement="top"
             :content="getUserNicknames(startUserIds)"
           >
-            {{ getUserNicknames(startUserIds.slice(0,2)) }} 等 {{ startUserIds.length }} 人可发起流程
+            {{ getUserNicknames(startUserIds.slice(0, 2)) }} 等
+            {{ startUserIds.length }} 人可发起流程
           </el-tooltip>
         </el-text>
       </el-tab-pane>

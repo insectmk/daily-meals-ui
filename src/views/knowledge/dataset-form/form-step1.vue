@@ -6,7 +6,7 @@
     </div>
 
     <!-- 数据源选择 -->
-    <div class="resource-btn" >导入已有文本</div>
+    <div class="resource-btn">导入已有文本</div>
 
     <!-- 上传文件区域 -->
     <el-form>
@@ -24,7 +24,9 @@
           <i class="el-icon-upload"></i>
           <div class="el-upload__text">拖拽文件至此，或者 <em>选择文件</em></div>
           <div class="el-upload__tip">
-            已支持 TXT、MARKDOWN、PDF、HTML、XLSX、XLS、DOCX、CSV、EML、MSG、PPTX、PPT、XML、EPUB，每个文件不超过 15MB。
+            已支持
+            TXT、MARKDOWN、PDF、HTML、XLSX、XLS、DOCX、CSV、EML、MSG、PPTX、PPT、XML、EPUB，每个文件不超过
+            15MB。
           </div>
         </el-upload>
       </div>

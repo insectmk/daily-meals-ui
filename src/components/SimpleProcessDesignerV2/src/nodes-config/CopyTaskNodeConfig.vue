@@ -134,7 +134,7 @@
                   :key="idx"
                   :label="item.title"
                   :value="item.field"
-                  :disabled ="!item.required"
+                  :disabled="!item.required"
                 />
               </el-select>
             </el-form-item>
@@ -149,7 +149,7 @@
                   :key="idx"
                   :label="item.title"
                   :value="item.field"
-                  :disabled ="!item.required"
+                  :disabled="!item.required"
                 />
               </el-select>
             </el-form-item>

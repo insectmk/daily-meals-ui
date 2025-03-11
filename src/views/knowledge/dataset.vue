@@ -63,7 +63,9 @@ const handleCurrentChange = (val) => {
 
 <style scoped>
 .knowledge-base-container {
-  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+  font-family:
+    'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑',
+    Arial, sans-serif;
   position: absolute;
   padding: 20px;
   margin: 0 auto;
@@ -81,7 +83,8 @@ const handleCurrentChange = (val) => {
   margin-bottom: auto; /* Pushes pagination to the bottom */
 }
 
-.create-card, .document-card {
+.create-card,
+.document-card {
   flex: 1 1 360px; /* Allow cards to grow and shrink */
   min-width: 0;
   max-width: 400px;
@@ -105,7 +108,7 @@ const handleCurrentChange = (val) => {
 
 .create-icon {
   font-size: 24px;
-  color: #409EFF;
+  color: #409eff;
 }
 
 .create-text {

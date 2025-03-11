@@ -25,6 +25,7 @@
 
 <script setup lang="ts">
 import SimpleProcessModel from './SimpleProcessModel.vue'
+import { updateBpmSimpleModel, getBpmSimpleModel } from '@/api/bpm/simple'
 import { SimpleFlowNode, NodeType, NodeId, NODE_DEFAULT_TEXT } from './consts'
 import { getModel } from '@/api/bpm/model'
 import { getForm, FormVO } from '@/api/bpm/form'
@@ -34,7 +35,6 @@ import * as DeptApi from '@/api/system/dept'
 import * as PostApi from '@/api/system/post'
 import * as UserApi from '@/api/system/user'
 import * as UserGroupApi from '@/api/bpm/userGroup'
-import { BpmModelFormType } from '@/utils/constants'
 
 defineOptions({
   name: 'SimpleProcessDesigner'
@@ -168,7 +168,7 @@ onMounted(async () => {
       const bpmnModel = await getModel(props.modelId)
       if (bpmnModel) {
         formType.value = bpmnModel.formType
-        if (formType.value === BpmModelFormType.NORMAL && bpmnModel.formId) {
+        if (formType.value === 10) {
           const bpmnForm = (await getForm(bpmnModel.formId)) as unknown as FormVO
           formFields.value = bpmnForm?.fields
           console.log('formFields.value', formFields.value)

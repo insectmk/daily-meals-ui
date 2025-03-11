@@ -142,9 +142,9 @@ export default {
     qrcode: '扫描二维码登录',
     btnRegister: '注册',
     SmsSendMsg: '验证码已发送',
-    resetPassword: "重置密码",
-    resetPasswordSuccess: "重置密码成功",
-    invalidTenantName: "无效的租户名称"
+    resetPassword: '重置密码',
+    resetPasswordSuccess: '重置密码成功',
+    invalidTenantName: '无效的租户名称'
   },
   captcha: {
     verification: '请完成安全验证',

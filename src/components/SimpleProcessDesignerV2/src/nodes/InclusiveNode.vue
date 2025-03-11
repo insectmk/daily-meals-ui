@@ -110,7 +110,13 @@
 <script setup lang="ts">
 import NodeHandler from '../NodeHandler.vue'
 import ProcessNodeTree from '../ProcessNodeTree.vue'
-import { SimpleFlowNode, NodeType, ConditionType, DEFAULT_CONDITION_GROUP_VALUE, NODE_DEFAULT_TEXT } from '../consts'
+import {
+  SimpleFlowNode,
+  NodeType,
+  ConditionType,
+  DEFAULT_CONDITION_GROUP_VALUE,
+  NODE_DEFAULT_TEXT
+} from '../consts'
 import { useTaskStatusClass } from '../node'
 import { getDefaultInclusiveConditionNodeName } from '../utils'
 import { generateUUID } from '@/utils'
@@ -153,7 +159,8 @@ const blurEvent = (index: number) => {
   showInputs.value[index] = false
   const conditionNode = currentNode.value.conditionNodes?.at(index) as SimpleFlowNode
   conditionNode.name =
-    conditionNode.name || getDefaultInclusiveConditionNodeName(index, conditionNode.conditionSetting?.defaultFlow)
+    conditionNode.name ||
+    getDefaultInclusiveConditionNodeName(index, conditionNode.conditionSetting?.defaultFlow)
 }
 
 // 点击条件名称

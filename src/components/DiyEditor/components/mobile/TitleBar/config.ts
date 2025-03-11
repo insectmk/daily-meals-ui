@@ -1,4 +1,4 @@
-import {ComponentStyle, DiyComponent} from '@/components/DiyEditor/util'
+import { ComponentStyle, DiyComponent } from '@/components/DiyEditor/util'
 
 /** 标题栏属性 */
 export interface TitleBarProperty {

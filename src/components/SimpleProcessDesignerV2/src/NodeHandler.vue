@@ -57,7 +57,7 @@
             </div>
             <div class="handler-item-text">触发器</div>
           </div>
-        </div> 
+        </div>
         <template #reference>
           <div class="add-icon"><Icon icon="ep:plus" /></div>
         </template>
@@ -78,7 +78,7 @@ import {
   SimpleFlowNode,
   DEFAULT_CONDITION_GROUP_VALUE
 } from './consts'
-import {generateUUID} from '@/utils'
+import { generateUUID } from '@/utils'
 
 defineOptions({
   name: 'NodeHandler'

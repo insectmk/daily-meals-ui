@@ -141,7 +141,11 @@
   </el-form-item>
 </template>
 <script setup lang="ts">
-import { HttpRequestParam, BPM_HTTP_REQUEST_PARAM_TYPES, BpmHttpRequestParamTypeEnum } from '../../consts'
+import {
+  HttpRequestParam,
+  BPM_HTTP_REQUEST_PARAM_TYPES,
+  BpmHttpRequestParamTypeEnum
+} from '../../consts'
 import { useFormFieldsAndStartUser } from '../../node'
 defineOptions({
   name: 'HttpRequestParamSetting'
