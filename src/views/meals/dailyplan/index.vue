@@ -43,15 +43,6 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="备注" prop="memo">
-        <el-input
-          v-model="queryParams.memo"
-          placeholder="请输入备注"
-          clearable
-          @keyup.enter="handleQuery"
-          class="!w-240px"
-        />
-      </el-form-item>
       <el-form-item label="创建时间" prop="createTime">
         <el-date-picker
           v-model="queryParams.createTime"
@@ -92,7 +83,13 @@
     <el-table v-loading="loading" :data="list" :stripe="true" :show-overflow-tooltip="true">
       <el-table-column label="编号" align="center" prop="id" />
       <el-table-column label="菜谱ID" align="center" prop="recipeId" />
-      <el-table-column label="计划日" align="center" prop="planDate" />
+      <el-table-column
+        label="计划日"
+        align="center"
+        prop="planDate"
+        :formatter="dateFormatter"
+        width="180px"
+      />
       <el-table-column label="餐次类型" align="center" prop="mealType">
         <template #default="scope">
           <dict-tag :type="DICT_TYPE.MEALS_MEAL_TYPE" :value="scope.row.mealType" />

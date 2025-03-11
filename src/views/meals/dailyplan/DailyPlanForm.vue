@@ -29,7 +29,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="备注" prop="memo">
-        <el-input v-model="formData.memo" placeholder="请输入备注" />
+        <el-input v-model="formData.memo" type="textarea" placeholder="请输入备注" />
       </el-form-item>
     </el-form>
     <template #footer>
