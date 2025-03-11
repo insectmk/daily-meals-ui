@@ -113,6 +113,14 @@ export enum DICT_TYPE {
   TERMINAL = 'terminal', // 终端
   DATE_INTERVAL = 'date_interval', // 数据间隔
 
+  // ========== Meals 模块 每日饭菜 ==========
+  MEALS_RECIPE_LEVEL = 'meals_recipe_level', // 烹饪难度
+  MEALS_RECIPE_TYPE = 'meals_recipe_type', // 食谱类型
+  MEALS_RECIPE_TAG = 'meals_recipe_tag', // 食谱标签
+  MEALS_FOOD_TYPE = 'meals_food_type', // 食材类型
+  MEALS_FOOD_UNIT = 'meals_food_unit', // 食材单位
+  MEALS_MEAL_TYPE = 'meals_meal_type', // 餐次类型
+
   // ========== SYSTEM 模块 ==========
   SYSTEM_USER_SEX = 'system_user_sex',
   SYSTEM_MENU_TYPE = 'system_menu_type',
