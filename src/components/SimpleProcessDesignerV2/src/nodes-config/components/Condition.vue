@@ -77,7 +77,16 @@
                     :label="field.title"
                     :value="field.field"
                     :disabled="!field.required"
-                  />
+                  >
+                    <el-tooltip
+                      content="表单字段非必填时不能作为流程分支条件"
+                      effect="dark"
+                      placement="right-start"
+                      v-if="!field.required"
+                    >
+                      <span>{{ field.title }}</span>
+                    </el-tooltip>
+                  </el-option>
                 </el-select>
               </el-form-item>
             </div>
