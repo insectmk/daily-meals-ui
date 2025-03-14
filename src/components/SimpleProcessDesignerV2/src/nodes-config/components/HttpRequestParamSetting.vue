@@ -1,5 +1,5 @@
 <template>
-  <el-form-item label="请求头">
+  <el-form-item label-position="top" label="请求头">
     <div class="flex pt-2" v-for="(item, index) in props.header" :key="index">
       <div class="mr-2">
         <el-form-item
@@ -69,7 +69,7 @@
       <Icon icon="ep:plus" class="mr-5px" />添加一行
     </el-button>
   </el-form-item>
-  <el-form-item label="请求体">
+  <el-form-item label-position="top" label="请求体">
     <div class="flex pt-2" v-for="(item, index) in props.body" :key="index">
       <div class="mr-2">
         <el-form-item
