@@ -1,8 +1,8 @@
 {
-  "name": "yudao-ui-admin-vue3",
-  "version": "2.4.1-snapshot",
+  "name": "daily-meals-ui",
+  "version": "0.1.0",
   "description": "基于vue3、vite4、element-plus、typesScript",
-  "author": "xingyu",
+  "author": "InsectMk",
   "private": false,
   "scripts": {
     "i": "pnpm install",
