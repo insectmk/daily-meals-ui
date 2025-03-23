@@ -119,6 +119,7 @@ import { getDefaultConditionNodeName } from '../utils'
 import { useTaskStatusClass } from '../node'
 import { generateUUID } from '@/utils'
 import ConditionNodeConfig from '../nodes-config/ConditionNodeConfig.vue'
+import { cloneDeep } from 'lodash-es'
 const { proxy } = getCurrentInstance() as any
 defineOptions({
   name: 'ExclusiveNode'
@@ -188,7 +189,7 @@ const addCondition = () => {
       conditionSetting: {
         defaultFlow: false,
         conditionType: ConditionType.RULE,
-        conditionGroups: DEFAULT_CONDITION_GROUP_VALUE
+        conditionGroups: cloneDeep(DEFAULT_CONDITION_GROUP_VALUE)
       }
     }
     conditionNodes.splice(lastIndex, 0, conditionData)
