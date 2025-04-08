@@ -7,7 +7,6 @@ export interface RecipeVO {
   recipeDesc: string // 简介
   recipeStep: string // 教程
   recipeType: number // 菜谱类型
-  recipeTag: number // 标签
   recipeLevel: number // 烹饪难度
   sort: number // 排序
   memo: string // 备注
@@ -46,7 +45,7 @@ export const RecipeApi = {
     return await request.download({ url: `/meals/recipe/export-excel`, params })
   },
 
-// ==================== 子表（菜谱食材） ====================
+  // ==================== 子表（菜谱食材） ====================
 
   // 获得菜谱食材分页
   getRecipeFoodPage: async (params) => {

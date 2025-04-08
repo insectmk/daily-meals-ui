@@ -26,16 +26,6 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="标签" prop="recipeTag">
-        <el-checkbox-group v-model="formData.recipeTag">
-          <el-checkbox
-            v-for="dict in getIntDictOptions(DICT_TYPE.MEALS_RECIPE_TAG)"
-            :key="dict.value"
-            :label="dict.label"
-            :value="dict.value"
-          />
-        </el-checkbox-group>
-      </el-form-item>
       <el-form-item label="烹饪难度" prop="recipeLevel">
         <el-input v-model="formData.recipeLevel" placeholder="请输入烹饪难度" />
       </el-form-item>
@@ -83,7 +73,6 @@ const formData = ref({
   recipeDesc: undefined,
   recipeStep: undefined,
   recipeType: undefined,
-  recipeTag: [],
   recipeLevel: undefined,
   sort: undefined,
   memo: undefined,
@@ -149,7 +138,6 @@ const resetForm = () => {
     recipeDesc: undefined,
     recipeStep: undefined,
     recipeType: undefined,
-    recipeTag: [],
     recipeLevel: undefined,
     sort: undefined,
     memo: undefined,
