@@ -27,7 +27,14 @@
         </el-select>
       </el-form-item>
       <el-form-item label="烹饪难度" prop="recipeLevel">
-        <el-input v-model="formData.recipeLevel" placeholder="请输入烹饪难度" />
+        <el-select v-model="formData.recipeLevel" placeholder="请选择烹饪难度">
+          <el-option
+            v-for="dict in getIntDictOptions(DICT_TYPE.MEALS_RECIPE_LEVEL)"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
+        </el-select>
       </el-form-item>
       <el-form-item label="排序" prop="sort">
         <el-input v-model="formData.sort" placeholder="请输入排序" />
