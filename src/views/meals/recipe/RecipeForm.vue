@@ -36,6 +36,12 @@
           />
         </el-select>
       </el-form-item>
+      <el-form-item label="商品封面图" prop="picUrl">
+        <UploadImg v-model="formData.picUrl" :disabled="isDetail" height="80px" />
+      </el-form-item>
+      <el-form-item label="商品轮播图" prop="sliderPicUrls">
+        <UploadImgs v-model="formData.sliderPicUrls" :disabled="isDetail" />
+      </el-form-item>
       <el-form-item label="排序" prop="sort">
         <el-input v-model="formData.sort" placeholder="请输入排序" />
       </el-form-item>
@@ -83,7 +89,9 @@ const formData = ref({
   recipeLevel: undefined,
   sort: undefined,
   memo: undefined,
-  status: undefined
+  status: undefined,
+  picUrl: '', // 菜谱封面图
+  sliderPicUrls: [] // 菜谱轮播图
 })
 const formRules = reactive({
   name: [{ required: true, message: '名称不能为空', trigger: 'blur' }],
@@ -91,7 +99,8 @@ const formRules = reactive({
   recipeStep: [{ required: true, message: '教程不能为空', trigger: 'blur' }],
   recipeType: [{ required: true, message: '菜谱类型不能为空', trigger: 'change' }],
   recipeLevel: [{ required: true, message: '烹饪难度不能为空', trigger: 'blur' }],
-  status: [{ required: true, message: '状态不能为空', trigger: 'blur' }]
+  status: [{ required: true, message: '状态不能为空', trigger: 'blur' }],
+  picUrl: [{ required: true, message: '菜谱封面图不能为空', trigger: 'blur' }]
 })
 const formRef = ref() // 表单 Ref
 

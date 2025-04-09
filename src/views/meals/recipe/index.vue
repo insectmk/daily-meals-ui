@@ -42,12 +42,7 @@
         />
       </el-form-item>
       <el-form-item label="状态" prop="status">
-        <el-select
-          v-model="queryParams.status"
-          placeholder="请选择状态"
-          clearable
-          class="!w-240px"
-        >
+        <el-select v-model="queryParams.status" placeholder="请选择状态" clearable class="!w-240px">
           <el-option
             v-for="dict in getIntDictOptions(DICT_TYPE.COMMON_STATUS)"
             :key="dict.value"
@@ -102,7 +97,25 @@
       @current-change="handleCurrentChange"
     >
       <el-table-column label="编号" align="center" prop="id" />
-      <el-table-column label="名称" align="center" prop="name" />
+      <el-table-column label="菜谱信息" min-width="300">
+        <template #default="{ row }">
+          <div class="flex">
+            <el-image
+              fit="cover"
+              :src="row.picUrl"
+              class="flex-none w-50px h-50px"
+              @click="imagePreview(row.picUrl)"
+            />
+            <div class="ml-4 overflow-hidden">
+              <el-tooltip effect="dark" :content="row.name" placement="top">
+                <div>
+                  {{ row.name }}
+                </div>
+              </el-tooltip>
+            </div>
+          </div>
+        </template>
+      </el-table-column>
       <el-table-column label="简介" align="center" prop="recipeDesc" />
       <el-table-column label="教程" align="center" prop="recipeStep" />
       <el-table-column label="菜谱类型" align="center" prop="recipeType">
@@ -274,4 +287,11 @@ const handleCurrentChange = (row) => {
 onMounted(() => {
   getList()
 })
+
+/** 商品图预览 */
+const imagePreview = (imgUrl: string) => {
+  createImageViewer({
+    urlList: [imgUrl]
+  })
+}
 </script>

@@ -11,6 +11,8 @@ export interface RecipeVO {
   sort: number // 排序
   memo: string // 备注
   status: number // 状态
+  picUrl: string // 菜谱封面图
+  sliderPicUrls: string[] // 菜谱轮播图
 }
 
 // 菜谱 API
