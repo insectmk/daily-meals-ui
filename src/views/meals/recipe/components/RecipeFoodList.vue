@@ -11,8 +11,13 @@
     </el-button>
     <el-table v-loading="loading" :data="list" :stripe="true" :show-overflow-tooltip="true">
       <el-table-column label="编号" align="center" prop="id" />
-      <el-table-column label="食材" align="center" prop="foodId" />
+      <el-table-column label="食材" align="center" prop="foodName" />
       <el-table-column label="量" align="center" prop="amount" />
+      <el-table-column label="单位" align="center" prop="foodUnit">
+        <template #default="scope">
+          <dict-tag :type="DICT_TYPE.MEALS_FOOD_UNIT" :value="scope.row.foodUnit" />
+        </template>
+      </el-table-column>
       <el-table-column label="备注" align="center" prop="memo" />
       <el-table-column
         label="创建时间"
@@ -57,6 +62,7 @@
 import { dateFormatter } from '@/utils/formatTime'
 import { RecipeApi } from '@/api/meals/recipe'
 import RecipeFoodForm from './RecipeFoodForm.vue'
+import { DICT_TYPE } from '@/utils/dict'
 
 const { t } = useI18n() // 国际化
 const message = useMessage() // 消息弹窗
