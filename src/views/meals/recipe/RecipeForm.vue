@@ -37,10 +37,10 @@
         </el-select>
       </el-form-item>
       <el-form-item label="商品封面图" prop="picUrl">
-        <UploadImg v-model="formData.picUrl" :disabled="isDetail" height="80px" />
+        <UploadImg v-model="formData.picUrl" height="80px" />
       </el-form-item>
       <el-form-item label="商品轮播图" prop="sliderPicUrls">
-        <UploadImgs v-model="formData.sliderPicUrls" :disabled="isDetail" />
+        <UploadImgs v-model="formData.sliderPicUrls" />
       </el-form-item>
       <el-form-item label="排序" prop="sort">
         <el-input v-model="formData.sort" placeholder="请输入排序" />
@@ -157,7 +157,9 @@ const resetForm = () => {
     recipeLevel: undefined,
     sort: undefined,
     memo: undefined,
-    status: undefined
+    status: undefined,
+    picUrl: '', // 菜谱封面图
+    sliderPicUrls: [] // 菜谱轮播图
   }
   formRef.value?.resetFields()
 }

@@ -7,8 +7,8 @@
       label-width="100px"
       v-loading="formLoading"
     >
-       <el-form-item label="食材ID" prop="foodId">
-        <el-input v-model="formData.foodId" placeholder="请输入食材ID" />
+      <el-form-item label="食材" prop="foodId">
+        <RecipeFoodSelect v-model="formData.foodId" />
       </el-form-item>
       <el-form-item label="量" prop="amount">
         <el-input v-model="formData.amount" placeholder="请输入量" />

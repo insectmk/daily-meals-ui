@@ -11,7 +11,7 @@
     </el-button>
     <el-table v-loading="loading" :data="list" :stripe="true" :show-overflow-tooltip="true">
       <el-table-column label="编号" align="center" prop="id" />
-       <el-table-column label="食材ID" align="center" prop="foodId" />
+      <el-table-column label="食材" align="center" prop="foodId" />
       <el-table-column label="量" align="center" prop="amount" />
       <el-table-column label="备注" align="center" prop="memo" />
       <el-table-column
@@ -50,8 +50,8 @@
       @pagination="getList"
     />
   </ContentWrap>
-    <!-- 表单弹窗：添加/修改 -->
-    <RecipeFoodForm ref="formRef" @success="getList" />
+  <!-- 表单弹窗：添加/修改 -->
+  <RecipeFoodForm ref="formRef" @success="getList" />
 </template>
 <script setup lang="ts">
 import { dateFormatter } from '@/utils/formatTime'
@@ -83,7 +83,7 @@ watch(
     queryParams.recipeId = val
     handleQuery()
   },
-    { immediate: true, deep: true }
+  { immediate: true, deep: true }
 )
 
 /** 查询列表 */

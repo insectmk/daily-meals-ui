@@ -11,6 +11,11 @@ export interface FoodVO {
 
 // 食材 API
 export const FoodApi = {
+  // 获取食材精简信息列表
+  getSimpleFoodList: async () => {
+    return await request.get({ url: `/meals/food/list-all-simple` })
+  },
+
   // 查询食材分页
   getFoodPage: async (params: any) => {
     return await request.get({ url: `/meals/food/page`, params })
