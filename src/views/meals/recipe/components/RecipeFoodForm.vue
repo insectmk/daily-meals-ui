@@ -8,7 +8,10 @@
       v-loading="formLoading"
     >
       <el-form-item label="食材" prop="foodId">
-        <RecipeFoodSelect v-model="formData.foodId" />
+        <RecipeFoodSelect v-model="formData.foodId" @change="onFoodChange" />
+      </el-form-item>
+      <el-form-item label="单位">
+        <dict-tag :type="DICT_TYPE.MEALS_FOOD_UNIT" :value="formData.foodUnit" />
       </el-form-item>
       <el-form-item label="量" prop="amount">
         <el-input v-model="formData.amount" placeholder="请输入量" />
@@ -25,6 +28,8 @@
 </template>
 <script setup lang="ts">
 import { RecipeApi } from '@/api/meals/recipe'
+import { FoodApi } from '@/api/meals/food'
+import { DICT_TYPE } from '@/utils/dict'
 
 const { t } = useI18n() // 国际化
 const message = useMessage() // 消息弹窗
@@ -38,6 +43,7 @@ const formData = ref({
   recipeId: undefined,
   foodId: undefined,
   amount: undefined,
+  foodUnit: undefined, // 食材单位
   memo: undefined
 })
 const formRules = reactive({
@@ -46,6 +52,17 @@ const formRules = reactive({
   amount: [{ required: true, message: '量不能为空', trigger: 'blur' }]
 })
 const formRef = ref() // 表单 Ref
+
+/**
+ * 当食材改变时
+ * @param value
+ */
+const onFoodChange = (value: number) => {
+  // 获取食材信息，并将单位赋值给表单
+  FoodApi.getFood(value).then((res) => {
+    formData.value.foodUnit = res.foodUnit
+  })
+}
 
 /** 打开弹窗 */
 const open = async (type: string, id?: number, recipeId: number) => {
@@ -97,7 +114,8 @@ const resetForm = () => {
     recipeId: undefined,
     foodId: undefined,
     amount: undefined,
-    memo: undefined
+    memo: undefined,
+    foodUnit: undefined
   }
   formRef.value?.resetFields()
 }
