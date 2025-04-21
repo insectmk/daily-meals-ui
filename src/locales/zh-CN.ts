@@ -416,9 +416,9 @@ export default {
     },
     info: {
       title: '基本信息',
-      basicInfo: '基本资料',
-      resetPwd: '修改密码',
-      userSocial: '社交信息'
+      basicInfo: '基本设置',
+      resetPwd: '密码设置',
+      userSocial: '社交绑定'
     },
     rules: {
       nickname: '请输入用户昵称',
