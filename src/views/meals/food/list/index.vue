@@ -17,34 +17,30 @@
           class="!w-240px"
         />
       </el-form-item>
-      <el-form-item label="菜谱类型" prop="recipeType">
+      <el-form-item label="分类" prop="foodType">
         <el-select
-          v-model="queryParams.recipeType"
-          placeholder="请选择菜谱类型"
+          v-model="queryParams.foodType"
+          placeholder="请选择分类"
           clearable
           class="!w-240px"
         >
           <el-option
-            v-for="dict in getIntDictOptions(DICT_TYPE.MEALS_RECIPE_TYPE)"
+            v-for="dict in getIntDictOptions(DICT_TYPE.MEALS_FOOD_TYPE)"
             :key="dict.value"
             :label="dict.label"
             :value="dict.value"
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="烹饪难度" prop="recipeLevel">
-        <el-input
-          v-model="queryParams.recipeLevel"
-          placeholder="请输入烹饪难度"
+      <el-form-item label="单位" prop="foodUnit">
+        <el-select
+          v-model="queryParams.foodUnit"
+          placeholder="请选择单位"
           clearable
-          @keyup.enter="handleQuery"
           class="!w-240px"
-        />
-      </el-form-item>
-      <el-form-item label="状态" prop="status">
-        <el-select v-model="queryParams.status" placeholder="请选择状态" clearable class="!w-240px">
+        >
           <el-option
-            v-for="dict in getIntDictOptions(DICT_TYPE.COMMON_STATUS)"
+            v-for="dict in getIntDictOptions(DICT_TYPE.MEALS_FOOD_UNIT)"
             :key="dict.value"
             :label="dict.label"
             :value="dict.value"
@@ -69,7 +65,7 @@
           type="primary"
           plain
           @click="openForm('create')"
-          v-hasPermi="['meals:recipe:create']"
+          v-hasPermi="['meals:food:create']"
         >
           <Icon icon="ep:plus" class="mr-5px" /> 新增
         </el-button>
@@ -78,7 +74,7 @@
           plain
           @click="handleExport"
           :loading="exportLoading"
-          v-hasPermi="['meals:recipe:export']"
+          v-hasPermi="['meals:food:export']"
         >
           <Icon icon="ep:download" class="mr-5px" /> 导出
         </el-button>
@@ -88,58 +84,20 @@
 
   <!-- 列表 -->
   <ContentWrap>
-    <el-table
-      v-loading="loading"
-      :data="list"
-      :stripe="true"
-      :show-overflow-tooltip="true"
-      highlight-current-row
-      @current-change="handleCurrentChange"
-    >
+    <el-table v-loading="loading" :data="list" :stripe="true" :show-overflow-tooltip="true">
       <el-table-column label="编号" align="center" prop="id" />
-      <el-table-column label="菜谱信息" min-width="300">
-        <template #default="{ row }">
-          <div class="flex">
-            <el-image
-              fit="cover"
-              :src="row.picUrl"
-              class="flex-none w-50px h-50px"
-              @click="imagePreview(row.picUrl)"
-            />
-            <div class="ml-4 overflow-hidden">
-              <el-tooltip effect="dark" :content="row.name" placement="top">
-                <div>
-                  {{ row.name }}
-                </div>
-              </el-tooltip>
-            </div>
-          </div>
-        </template>
-      </el-table-column>
-      <el-table-column label="简介" align="center" prop="recipeDesc" />
-      <el-table-column label="教程" align="center" prop="recipeStep" />
-      <el-table-column label="菜谱类型" align="center" prop="recipeType">
+      <el-table-column label="名称" align="center" prop="name" />
+      <el-table-column label="分类" align="center" prop="foodType">
         <template #default="scope">
-          <dict-tag :type="DICT_TYPE.MEALS_RECIPE_TYPE" :value="scope.row.recipeType" />
+          <dict-tag :type="DICT_TYPE.MEALS_FOOD_TYPE" :value="scope.row.foodType" />
         </template>
       </el-table-column>
-      <el-table-column label="标签" align="center" prop="recipeTag">
+      <el-table-column label="单位" align="center" prop="foodUnit">
         <template #default="scope">
-          <dict-tag :type="DICT_TYPE.MEALS_RECIPE_TAG" :value="scope.row.recipeTag" />
+          <dict-tag :type="DICT_TYPE.MEALS_FOOD_UNIT" :value="scope.row.foodUnit" />
         </template>
       </el-table-column>
-      <el-table-column label="烹饪难度" align="center" prop="recipeLevel">
-        <template #default="scope">
-          <dict-tag :type="DICT_TYPE.MEALS_RECIPE_LEVEL" :value="scope.row.recipeLevel" />
-        </template>
-      </el-table-column>
-      <el-table-column label="排序" align="center" prop="sort" />
       <el-table-column label="备注" align="center" prop="memo" />
-      <el-table-column label="状态" align="center" prop="status">
-        <template #default="scope">
-          <dict-tag :type="DICT_TYPE.COMMON_STATUS" :value="scope.row.status" />
-        </template>
-      </el-table-column>
       <el-table-column
         label="创建时间"
         align="center"
@@ -153,7 +111,7 @@
             link
             type="primary"
             @click="openForm('update', scope.row.id)"
-            v-hasPermi="['meals:recipe:update']"
+            v-hasPermi="['meals:food:update']"
           >
             编辑
           </el-button>
@@ -161,7 +119,7 @@
             link
             type="danger"
             @click="handleDelete(scope.row.id)"
-            v-hasPermi="['meals:recipe:delete']"
+            v-hasPermi="['meals:food:delete']"
           >
             删除
           </el-button>
@@ -178,42 +136,31 @@
   </ContentWrap>
 
   <!-- 表单弹窗：添加/修改 -->
-  <RecipeForm ref="formRef" @success="getList" />
-  <!-- 子表的列表 -->
-  <ContentWrap>
-    <el-tabs model-value="recipeFood">
-      <el-tab-pane label="菜谱食材" name="recipeFood">
-        <RecipeFoodList :recipe-id="currentRow.id" />
-      </el-tab-pane>
-    </el-tabs>
-  </ContentWrap>
+  <FoodForm ref="formRef" @success="getList" />
 </template>
 
 <script setup lang="ts">
 import { getIntDictOptions, DICT_TYPE } from '@/utils/dict'
 import { dateFormatter } from '@/utils/formatTime'
 import download from '@/utils/download'
-import { RecipeApi, RecipeVO } from '@/api/meals/recipe'
-import RecipeForm from './RecipeForm.vue'
-import RecipeFoodList from './components/RecipeFoodList.vue'
+import { FoodApi, FoodVO } from '@/api/meals/food'
+import FoodForm from './FoodForm.vue'
 
-/** 菜谱 列表 */
-defineOptions({ name: 'Recipe' })
+/** 食材 列表 */
+defineOptions({ name: 'FoodList' })
 
 const message = useMessage() // 消息弹窗
 const { t } = useI18n() // 国际化
 
 const loading = ref(true) // 列表的加载中
-const list = ref<RecipeVO[]>([]) // 列表的数据
+const list = ref<FoodVO[]>([]) // 列表的数据
 const total = ref(0) // 列表的总页数
 const queryParams = reactive({
   pageNo: 1,
   pageSize: 10,
   name: undefined,
-  recipeType: undefined,
-  recipeTag: undefined,
-  recipeLevel: undefined,
-  status: undefined,
+  foodType: undefined,
+  foodUnit: undefined,
   createTime: []
 })
 const queryFormRef = ref() // 搜索的表单
@@ -223,7 +170,7 @@ const exportLoading = ref(false) // 导出的加载中
 const getList = async () => {
   loading.value = true
   try {
-    const data = await RecipeApi.getRecipePage(queryParams)
+    const data = await FoodApi.getFoodPage(queryParams)
     list.value = data.list
     total.value = data.total
   } finally {
@@ -255,7 +202,7 @@ const handleDelete = async (id: number) => {
     // 删除的二次确认
     await message.delConfirm()
     // 发起删除
-    await RecipeApi.deleteRecipe(id)
+    await FoodApi.deleteFood(id)
     message.success(t('common.delSuccess'))
     // 刷新列表
     await getList()
@@ -269,29 +216,16 @@ const handleExport = async () => {
     await message.exportConfirm()
     // 发起导出
     exportLoading.value = true
-    const data = await RecipeApi.exportRecipe(queryParams)
-    download.excel(data, '菜谱.xls')
+    const data = await FoodApi.exportFood(queryParams)
+    download.excel(data, '食材.xls')
   } catch {
   } finally {
     exportLoading.value = false
   }
 }
 
-/** 选中行操作 */
-const currentRow = ref({}) // 选中行
-const handleCurrentChange = (row) => {
-  currentRow.value = row
-}
-
 /** 初始化 **/
 onMounted(() => {
   getList()
 })
-
-/** 商品图预览 */
-const imagePreview = (imgUrl: string) => {
-  createImageViewer({
-    urlList: [imgUrl]
-  })
-}
 </script>

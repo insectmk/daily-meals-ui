@@ -30,7 +30,7 @@
 import { RecipeApi } from '@/api/meals/recipe'
 import { FoodApi } from '@/api/meals/food'
 import { DICT_TYPE } from '@/utils/dict'
-import RecipeFoodSelect from '@/views/meals/food/components/RecipeFoodSelect.vue'
+import RecipeFoodSelect from '@/views/meals/food/list/components/RecipeFoodSelect.vue'
 
 const { t } = useI18n() // 国际化
 const message = useMessage() // 消息弹窗
