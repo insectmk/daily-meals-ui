@@ -140,7 +140,7 @@ const resetForm = () => {
 /** 获得菜谱分类树 */
 const getRecipeCategoryTree = async () => {
   recipeCategoryTree.value = []
-  const data = await RecipeCategoryApi.getRecipeCategoryList()
+  const data = await RecipeCategoryApi.getRecipeCategoryList({})
   const root: Tree = { id: 0, name: '顶级菜谱分类', children: [] }
   root.children = handleTree(data, 'id', 'parentId')
   recipeCategoryTree.value.push(root)

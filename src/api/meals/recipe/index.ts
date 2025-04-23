@@ -7,6 +7,7 @@ export interface RecipeVO {
   recipeDesc: string // 简介
   recipeStep: string // 教程
   recipeType: number // 菜谱类型
+  recipeCategory: number[] // 菜谱分类
   recipeLevel: number // 烹饪难度
   sort: number // 排序
   memo: string // 备注

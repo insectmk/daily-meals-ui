@@ -26,6 +26,17 @@
           />
         </el-select>
       </el-form-item>
+      <el-form-item label="菜谱分类" prop="recipeCategory">
+        <el-cascader
+          v-model="formData.recipeCategory"
+          :options="categoryList"
+          :props="{ ...defaultProps, multiple: true }"
+          class="w-80"
+          clearable
+          filterable
+          placeholder="请选择菜谱分类"
+        />
+      </el-form-item>
       <el-form-item label="烹饪难度" prop="recipeLevel">
         <el-select v-model="formData.recipeLevel" placeholder="请选择烹饪难度">
           <el-option
@@ -69,6 +80,9 @@
 <script setup lang="ts">
 import { getIntDictOptions, DICT_TYPE } from '@/utils/dict'
 import { RecipeApi, RecipeVO } from '@/api/meals/recipe'
+import { defaultProps, handleTree } from '@/utils/tree'
+import { CategoryVO } from '@/api/mall/product/category'
+import { RecipeCategoryApi } from '@/api/meals/recipecategory'
 
 /** 菜谱 表单 */
 defineOptions({ name: 'RecipeForm' })
@@ -85,6 +99,7 @@ const formData = ref({
   name: undefined,
   recipeDesc: undefined,
   recipeStep: undefined,
+  recipeCategory: undefined, // 菜谱分类
   recipeType: undefined,
   recipeLevel: undefined,
   sort: undefined,
@@ -97,6 +112,7 @@ const formRules = reactive({
   name: [{ required: true, message: '名称不能为空', trigger: 'blur' }],
   recipeDesc: [{ required: true, message: '简介不能为空', trigger: 'blur' }],
   recipeStep: [{ required: true, message: '教程不能为空', trigger: 'blur' }],
+  recipeCategory: [{ required: true, message: '菜谱分类不能为空', trigger: 'change' }],
   recipeType: [{ required: true, message: '菜谱类型不能为空', trigger: 'change' }],
   recipeLevel: [{ required: true, message: '烹饪难度不能为空', trigger: 'blur' }],
   status: [{ required: true, message: '状态不能为空', trigger: 'blur' }],
@@ -163,4 +179,12 @@ const resetForm = () => {
   }
   formRef.value?.resetFields()
 }
+
+/** 初始化 */
+const categoryList = ref<CategoryVO[]>([]) // 商品分类树
+onMounted(async () => {
+  // 获得菜谱分类树
+  const data = await RecipeCategoryApi.getRecipeCategoryList({})
+  categoryList.value = handleTree(data, 'id')
+})
 </script>
