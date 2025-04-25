@@ -8,6 +8,7 @@ import { useAccess } from '@vben/access';
 import { getRangePickerDefaultProps, handleTree } from '@vben/utils';
 
 import { getRecipeCategoryList } from '#/api/meals/recipecategory';
+import { DICT_TYPE, getDictOptions } from '#/utils/dict';
 
 const { hasAccessByCodes } = useAccess();
 
@@ -24,7 +25,7 @@ export function useFormSchema(): VbenFormSchema[] {
     },
     {
       fieldName: 'parentId',
-      label: '上级示例分类',
+      label: '上级菜谱分类',
       component: 'ApiTreeSelect',
       componentProps: {
         allowClear: true,
@@ -32,7 +33,7 @@ export function useFormSchema(): VbenFormSchema[] {
           const data = await getRecipeCategoryList({});
           data.unshift({
             id: 0,
-            name: '顶级示例分类',
+            name: '顶级菜谱分类',
           });
           return handleTree(data);
         },
@@ -40,18 +41,51 @@ export function useFormSchema(): VbenFormSchema[] {
         labelField: 'name',
         valueField: 'id',
         childrenField: 'children',
-        placeholder: '请选择上级示例分类',
+        placeholder: '请选择上级菜谱分类',
         treeDefaultExpandAll: true,
       },
       rules: 'selectRequired',
     },
     {
       fieldName: 'name',
-      label: '名字',
+      label: '分类名称',
       rules: 'required',
       component: 'Input',
       componentProps: {
-        placeholder: '请输入名字',
+        placeholder: '请输入分类名称',
+      },
+    },
+    {
+      fieldName: 'picUrl',
+      label: '移动端分类图',
+      rules: 'required',
+      component: 'ImageUpload',
+    },
+    {
+      fieldName: 'sort',
+      label: '分类排序',
+      component: 'InputNumber',
+      componentProps: {
+        placeholder: '排序号',
+      },
+    },
+    {
+      fieldName: 'status',
+      label: '开启状态',
+      rules: 'required',
+      component: 'RadioGroup',
+      componentProps: {
+        options: getDictOptions(DICT_TYPE.COMMON_STATUS, 'number'),
+        buttonStyle: 'solid',
+        optionType: 'button',
+      },
+    },
+    {
+      fieldName: 'memo',
+      label: '备注',
+      component: 'Textarea',
+      componentProps: {
+        placeholder: '请输入备注',
       },
     },
   ];
@@ -62,7 +96,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
   return [
     {
       fieldName: 'name',
-      label: '名字',
+      label: '分类名称',
       component: 'Input',
       componentProps: {
         allowClear: true,
@@ -70,12 +104,13 @@ export function useGridFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'parentId',
-      label: '父级编号',
-      component: 'Input',
+      fieldName: 'status',
+      label: '开启状态',
+      component: 'RadioGroup',
       componentProps: {
+        options: getDictOptions(DICT_TYPE.COMMON_STATUS, 'number'),
         allowClear: true,
-        placeholder: '请输入父级编号',
+        placeholder: '请选择开启状态',
       },
     },
     {
@@ -96,19 +131,37 @@ export function useGridColumns(
 ): VxeTableGridOptions<MealsRecipeCategoryApi.RecipeCategory>['columns'] {
   return [
     {
-      field: 'id',
-      title: '编号',
-      minWidth: 120,
-    },
-    {
       field: 'name',
-      title: '名字',
+      title: '分类名称',
       minWidth: 120,
       treeNode: true,
     },
     {
-      field: 'parentId',
-      title: '父级编号',
+      field: 'picUrl',
+      title: '分类图标',
+      minWidth: 80,
+      maxWidth: 80,
+      cellRender: {
+        name: 'CellImage',
+      },
+    },
+    {
+      field: 'memo',
+      title: '备注',
+      minWidth: 120,
+    },
+    {
+      field: 'status',
+      title: '开启状态',
+      minWidth: 120,
+      cellRender: {
+        name: 'CellDict',
+        props: { type: DICT_TYPE.COMMON_STATUS },
+      },
+    },
+    {
+      field: 'sort',
+      title: '分类排序',
       minWidth: 120,
     },
     {
@@ -128,7 +181,7 @@ export function useGridColumns(
       cellRender: {
         attrs: {
           nameField: 'id',
-          nameTitle: '示例分类',
+          nameTitle: '菜谱分类',
           onClick: onActionClick,
         },
         name: 'CellOperation',
