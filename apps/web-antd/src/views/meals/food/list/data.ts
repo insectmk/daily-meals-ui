@@ -24,45 +24,39 @@ export function useFormSchema(): VbenFormSchema[] {
     },
     {
       fieldName: 'name',
-      label: '名字',
+      label: '名称',
       rules: 'required',
       component: 'Input',
       componentProps: {
-        placeholder: '请输入名字',
+        placeholder: '请输入名称',
       },
     },
     {
-      fieldName: 'sex',
-      label: '性别',
+      fieldName: 'foodType',
+      label: '分类',
       rules: 'required',
-      component: 'RadioGroup',
+      component: 'Select',
       componentProps: {
-        options: getDictOptions(DICT_TYPE.SYSTEM_USER_SEX, 'number'),
+        options: getDictOptions(DICT_TYPE.MEALS_FOOD_TYPE, 'number'),
         buttonStyle: 'solid',
         optionType: 'button',
       },
     },
     {
-      fieldName: 'birthday',
-      label: '出生年',
+      fieldName: 'foodUnit',
+      label: '单位',
       rules: 'required',
-      component: 'DatePicker',
+      component: 'Select',
       componentProps: {
-        showTime: true,
-        format: 'YYYY-MM-DD HH:mm:ss',
-        valueFormat: 'x',
+        options: getDictOptions(DICT_TYPE.MEALS_FOOD_UNIT, 'number'),
+        buttonStyle: 'solid',
+        optionType: 'button',
       },
     },
     {
-      fieldName: 'description',
-      label: '简介',
-      rules: 'required',
-      component: 'RichTextarea',
-    },
-    {
-      fieldName: 'avatar',
-      label: '头像',
-      component: 'ImageUpload',
+      fieldName: 'memo',
+      label: '备注',
+      component: 'Textarea',
     },
   ];
 }
@@ -72,21 +66,31 @@ export function useGridFormSchema(): VbenFormSchema[] {
   return [
     {
       fieldName: 'name',
-      label: '名字',
+      label: '名称',
       component: 'Input',
       componentProps: {
         allowClear: true,
-        placeholder: '请输入名字',
+        placeholder: '请输入名称',
       },
     },
     {
-      fieldName: 'sex',
-      label: '性别',
+      fieldName: 'foodType',
+      label: '分类',
       component: 'Select',
       componentProps: {
         allowClear: true,
-        options: getDictOptions(DICT_TYPE.SYSTEM_USER_SEX, 'number'),
-        placeholder: '请选择性别',
+        options: getDictOptions(DICT_TYPE.MEALS_FOOD_TYPE, 'number'),
+        placeholder: '请选择分类',
+      },
+    },
+    {
+      fieldName: 'foodUnit',
+      label: '单位',
+      component: 'Select',
+      componentProps: {
+        allowClear: true,
+        options: getDictOptions(DICT_TYPE.MEALS_FOOD_UNIT, 'number'),
+        placeholder: '请选择单位',
       },
     },
     {
@@ -113,32 +117,30 @@ export function useGridColumns(
     },
     {
       field: 'name',
-      title: '名字',
+      title: '名称',
       minWidth: 120,
     },
     {
-      field: 'sex',
-      title: '性别',
+      field: 'foodType',
+      title: '分类',
       minWidth: 120,
       cellRender: {
         name: 'CellDict',
-        props: { type: DICT_TYPE.SYSTEM_USER_SEX },
+        props: { type: DICT_TYPE.MEALS_FOOD_TYPE },
       },
     },
     {
-      field: 'birthday',
-      title: '出生年',
+      field: 'foodUnit',
+      title: '单位',
       minWidth: 120,
-      formatter: 'formatDateTime',
+      cellRender: {
+        name: 'CellDict',
+        props: { type: DICT_TYPE.MEALS_FOOD_UNIT },
+      },
     },
     {
-      field: 'description',
-      title: '简介',
-      minWidth: 120,
-    },
-    {
-      field: 'avatar',
-      title: '头像',
+      field: 'memo',
+      title: '备注',
       minWidth: 120,
     },
     {
@@ -158,7 +160,7 @@ export function useGridColumns(
       cellRender: {
         attrs: {
           nameField: 'id',
-          nameTitle: '示例联系人',
+          nameTitle: '食材',
           onClick: onActionClick,
         },
         name: 'CellOperation',
