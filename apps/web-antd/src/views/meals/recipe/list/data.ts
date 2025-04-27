@@ -422,6 +422,11 @@ export function useRecipeFoodGridColumns(
       },
     },
     {
+      field: 'amount',
+      title: '量',
+      minWidth: 80,
+    },
+    {
       field: 'memo',
       title: '备注',
       minWidth: 240,

@@ -5,8 +5,9 @@ import type { OnActionClickFn } from '#/adapter/vxe-table';
 import type { MealsFoodApi } from '#/api/meals/food';
 
 import { useAccess } from '@vben/access';
-import { getRangePickerDefaultProps } from '@vben/utils';
+import { getRangePickerDefaultProps, handleTree } from '@vben/utils';
 
+import { getFoodCategoryList } from '#/api/meals/foodcategory';
 import { DICT_TYPE, getDictOptions } from '#/utils/dict';
 
 const { hasAccessByCodes } = useAccess();
@@ -40,6 +41,30 @@ export function useFormSchema(): VbenFormSchema[] {
         options: getDictOptions(DICT_TYPE.MEALS_FOOD_TYPE, 'number'),
         buttonStyle: 'solid',
         optionType: 'button',
+      },
+    },
+    {
+      fieldName: 'foodCategory',
+      label: '食材分类',
+      rules: 'selectRequired',
+      component: 'ApiTreeSelect',
+      componentProps: {
+        multiple: true,
+        allowClear: true,
+        api: async () => {
+          const data = await getFoodCategoryList({});
+          data.unshift({
+            id: 0,
+            name: '顶级食材分类',
+          });
+          return handleTree(data);
+        },
+        class: 'w-full',
+        labelField: 'name',
+        valueField: 'id',
+        childrenField: 'children',
+        placeholder: '请选择食材分类',
+        treeDefaultExpandAll: true,
       },
     },
     {
