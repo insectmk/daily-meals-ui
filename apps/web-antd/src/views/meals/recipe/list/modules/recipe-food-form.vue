@@ -41,7 +41,7 @@ const [Modal, modalApi] = useVbenModal({
     modalApi.lock();
     // 提交表单
     const data = (await formApi.getValues()) as MealsRecipeApi.RecipeFood;
-    data.studentId = formData.value?.studentId;
+    data.recipeId = formData.value?.recipeId;
     try {
       await (formData.value?.id
         ? updateRecipeFood(data)

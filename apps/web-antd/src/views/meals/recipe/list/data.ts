@@ -7,7 +7,7 @@ import type { MealsRecipeApi } from '#/api/meals/recipe';
 import { useAccess } from '@vben/access';
 import { getRangePickerDefaultProps, handleTree } from '@vben/utils';
 
-import { getSimpleFoodList } from '#/api/meals/food';
+import { getFood, getSimpleFoodList } from '#/api/meals/food';
 import { getRecipeCategoryList } from '#/api/meals/recipecategory';
 import { DICT_TYPE, getDictOptions } from '#/utils/dict';
 
@@ -294,7 +294,7 @@ export function useGridColumns(
   ];
 }
 
-// ==================== 子表（学生课程） ====================
+// ==================== 子表（菜谱食材） ====================
 
 /** 新增/修改的表单 */
 export function useRecipeFoodFormSchema(): VbenFormSchema[] {
@@ -313,7 +313,6 @@ export function useRecipeFoodFormSchema(): VbenFormSchema[] {
       rules: 'selectRequired',
       component: 'ApiSelect',
       componentProps: {
-        multiple: true,
         allowClear: true,
         api: async () => {
           return await getSimpleFoodList();
@@ -329,13 +328,29 @@ export function useRecipeFoodFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'foodUnit',
       label: '单位',
-      rules: 'required',
       component: 'Select',
       componentProps: {
         options: getDictOptions(DICT_TYPE.MEALS_FOOD_UNIT, 'number'),
         disabled: true,
         buttonStyle: 'solid',
         optionType: 'button',
+      },
+      dependencies: {
+        // foodId改变，则食材单位相应改变
+        triggerFields: ['foodId'],
+        componentProps: async (values) => {
+          if (!values.foodId) return {};
+          // 食材改变，更改食材单位信息
+          const foodData = await getFood(values.foodId);
+          values.foodUnit = foodData.foodUnit;
+          // 可直接传空，可用下面注释代码的指定
+          return {};
+          /* return {
+            options: getDictOptions(DICT_TYPE.MEALS_FOOD_UNIT, 'number'),
+            buttonStyle: 'solid',
+            optionType: 'button',
+          };*/
+        },
       },
     },
     {
