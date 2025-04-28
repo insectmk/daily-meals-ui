@@ -52,17 +52,6 @@ export function useFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'recipeType',
-      label: '菜谱类型',
-      rules: 'required',
-      component: 'Select',
-      componentProps: {
-        options: getDictOptions(DICT_TYPE.MEALS_RECIPE_TYPE, 'number'),
-        buttonStyle: 'solid',
-        optionType: 'button',
-      },
-    },
-    {
       fieldName: 'recipeCategory',
       label: '菜谱分类',
       rules: 'selectRequired',
@@ -156,16 +145,6 @@ export function useGridFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'recipeType',
-      label: '菜谱类型',
-      component: 'Select',
-      componentProps: {
-        allowClear: true,
-        options: getDictOptions(DICT_TYPE.MEALS_RECIPE_TYPE, 'number'),
-        placeholder: '请选择菜谱类型',
-      },
-    },
-    {
       fieldName: 'recipeLevel',
       label: '烹饪难度',
       component: 'Select',
@@ -220,15 +199,6 @@ export function useGridColumns(
       field: 'recipeStep',
       title: '教程',
       minWidth: 240,
-    },
-    {
-      field: 'recipeType',
-      title: '菜谱类型',
-      minWidth: 120,
-      cellRender: {
-        name: 'CellDict',
-        props: { type: DICT_TYPE.MEALS_RECIPE_TYPE },
-      },
     },
     {
       field: 'recipeLevel',
