@@ -111,17 +111,6 @@ export function useFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'status',
-      label: '状态',
-      rules: 'required',
-      component: 'RadioGroup',
-      componentProps: {
-        options: getDictOptions(DICT_TYPE.COMMON_STATUS, 'number'),
-        buttonStyle: 'solid',
-        optionType: 'button',
-      },
-    },
-    {
       fieldName: 'sort',
       label: '排序',
       component: 'InputNumber',
@@ -213,15 +202,6 @@ export function useGridColumns(
       field: 'memo',
       title: '备注',
       minWidth: 180,
-    },
-    {
-      field: 'status',
-      title: '状态',
-      minWidth: 120,
-      cellRender: {
-        name: 'CellDict',
-        props: { type: DICT_TYPE.COMMON_STATUS },
-      },
     },
     {
       field: 'sort',
