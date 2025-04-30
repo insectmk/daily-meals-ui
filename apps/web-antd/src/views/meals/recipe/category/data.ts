@@ -58,7 +58,6 @@ export function useFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'picUrl',
       label: '移动端分类图',
-      rules: 'required',
       component: 'ImageUpload',
     },
     {
