@@ -9,25 +9,25 @@ import { message } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
 import {
-  createRecipeMenu,
-  getRecipeMenu,
-  updateRecipeMenu,
+  createMenuRecipe,
+  getMenuRecipe,
+  updateMenuRecipe,
 } from '#/api/meals/recipemenu';
 import { $t } from '#/locales';
 
-import { useFormSchema } from '../data';
+import { useMenuRecipeFormSchema } from '../data';
 
 const emit = defineEmits(['success']);
-const formData = ref<MealsRecipeMenuApi.RecipeMenu>();
+const formData = ref<MealsRecipeMenuApi.MenuRecipe>();
 const getTitle = computed(() => {
   return formData.value?.id
-    ? $t('ui.actionTitle.edit', ['菜谱'])
-    : $t('ui.actionTitle.create', ['菜谱']);
+    ? $t('ui.actionTitle.edit', ['菜单菜谱'])
+    : $t('ui.actionTitle.create', ['菜单菜谱']);
 });
 
 const [Form, formApi] = useVbenForm({
   layout: 'horizontal',
-  schema: useFormSchema(),
+  schema: useMenuRecipeFormSchema(),
   showDefaultActions: false,
 });
 
@@ -37,13 +37,15 @@ const [Modal, modalApi] = useVbenModal({
     if (!valid) {
       return;
     }
+
     modalApi.lock();
     // 提交表单
-    const data = (await formApi.getValues()) as MealsRecipeMenuApi.RecipeMenu;
+    const data = (await formApi.getValues()) as MealsRecipeMenuApi.MenuRecipe;
+    data.recipeMenuId = formData.value?.recipeMenuId;
     try {
       await (formData.value?.id
-        ? updateRecipeMenu(data)
-        : createRecipeMenu(data));
+        ? updateMenuRecipe(data)
+        : createMenuRecipe(data));
       // 关闭并提示
       await modalApi.close();
       emit('success');
@@ -62,14 +64,14 @@ const [Modal, modalApi] = useVbenModal({
     }
 
     // 加载数据
-    let data = modalApi.getData<MealsRecipeMenuApi.RecipeMenu>();
+    let data = modalApi.getData<MealsRecipeMenuApi.MenuRecipe>();
     if (!data) {
       return;
     }
     if (data.id) {
       modalApi.lock();
       try {
-        data = await getRecipeMenu(data.id);
+        data = await getMenuRecipe(data.id);
       } finally {
         modalApi.lock(false);
       }

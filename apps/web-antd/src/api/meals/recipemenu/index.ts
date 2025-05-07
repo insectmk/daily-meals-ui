@@ -12,7 +12,14 @@ export namespace MealsRecipeMenuApi {
     subtitle: string; // 副标题
     menuDesc: string; // 菜单描述
     picUrl: string; // 菜单封面图
-    recipeIds: number[]; // 菜单菜谱ID集合
+    memo: string; // 备注
+  }
+
+  /** 菜单菜谱 */
+  export interface MenuRecipe {
+    id: number; // 编号
+    recipeMenuId: number; // 菜谱菜单编号
+    recipeId: number; // 菜谱编号
     memo: string; // 备注
   }
 }
@@ -51,4 +58,35 @@ export function deleteRecipeMenu(id: number) {
 /** 导出菜谱菜单 Excel */
 export function exportRecipeMenu(params: any) {
   return requestClient.download(`/meals/recipe-menu/export-excel`, params);
+}
+
+/** ==================== 子表（菜单菜谱） ====================
+
+ /** 获得菜单菜谱分页 */
+export function getMenuRecipePage(params: PageParam) {
+  return requestClient.get<PageResult<MealsRecipeMenuApi.MenuRecipe>>(
+    `/meals/recipe-menu/menu-recipe/page`,
+    { params },
+  );
+}
+/** 新增菜谱食材 */
+export function createMenuRecipe(data: MealsRecipeMenuApi.MenuRecipe) {
+  return requestClient.post(`/meals/recipe-menu/menu-recipe/create`, data);
+}
+
+/** 修改菜谱食材 */
+export function updateMenuRecipe(data: MealsRecipeMenuApi.MenuRecipe) {
+  return requestClient.put(`/meals/recipe-menu/menu-recipe/update`, data);
+}
+
+/** 删除菜谱食材 */
+export function deleteMenuRecipe(id: number) {
+  return requestClient.delete(`/meals/recipe-menu/menu-recipe/delete?id=${id}`);
+}
+
+/** 获得菜谱食材 */
+export function getMenuRecipe(id: number) {
+  return requestClient.get<MealsRecipeMenuApi.MenuRecipe>(
+    `/meals/recipe-menu/menu-recipe/get?id=${id}`,
+  );
 }

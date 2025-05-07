@@ -5,9 +5,9 @@ import type { OnActionClickFn } from '#/adapter/vxe-table';
 import type { MealsRecipeMenuApi } from '#/api/meals/recipemenu';
 
 import { useAccess } from '@vben/access';
-import { getRangePickerDefaultProps, handleTree } from '@vben/utils';
+import { getRangePickerDefaultProps } from '@vben/utils';
 
-import { getRecipeCategoryList } from '#/api/meals/recipecategory';
+import { getSimpleFoodList } from '#/api/meals/food';
 
 const { hasAccessByCodes } = useAccess();
 
@@ -47,30 +47,6 @@ export function useFormSchema(): VbenFormSchema[] {
       label: '菜单描述',
       rules: 'required',
       component: 'RichTextarea',
-    },
-    {
-      fieldName: 'recipeIds',
-      label: '菜单菜谱',
-      rules: 'selectRequired',
-      component: 'ApiTreeSelect',
-      componentProps: {
-        multiple: true,
-        allowClear: true,
-        api: async () => {
-          const data = await getRecipeCategoryList({});
-          data.unshift({
-            id: 0,
-            name: '顶级菜谱',
-          });
-          return handleTree(data);
-        },
-        class: 'w-full',
-        labelField: 'name',
-        valueField: 'id',
-        childrenField: 'children',
-        placeholder: '请选择菜谱分类',
-        treeDefaultExpandAll: true,
-      },
     },
     {
       fieldName: 'memo',
@@ -165,6 +141,119 @@ export function useGridColumns(
         attrs: {
           nameField: 'id',
           nameTitle: '菜谱菜单',
+          onClick: onActionClick,
+        },
+        name: 'CellOperation',
+        options: [
+          {
+            code: 'edit',
+            show: hasAccessByCodes(['meals:recipe-menu:update']),
+          },
+          {
+            code: 'delete',
+            show: hasAccessByCodes(['meals:recipe-menu:delete']),
+          },
+        ],
+      },
+    },
+  ];
+}
+
+// ==================== 子表（菜单菜谱） ====================
+
+/** 新增/修改的表单 */
+export function useMenuRecipeFormSchema(): VbenFormSchema[] {
+  return [
+    {
+      fieldName: 'id',
+      component: 'Input',
+      dependencies: {
+        triggerFields: [''],
+        show: () => false,
+      },
+    },
+    {
+      fieldName: 'recipeId',
+      label: '菜谱',
+      rules: 'selectRequired',
+      component: 'ApiSelect',
+      componentProps: {
+        allowClear: true,
+        api: async () => {
+          return await getSimpleFoodList();
+        },
+        class: 'w-full',
+        labelField: 'name',
+        valueField: 'id',
+        childrenField: 'children',
+        placeholder: '请选择菜谱分类',
+        treeDefaultExpandAll: true,
+      },
+    },
+    {
+      fieldName: 'memo',
+      label: '备注',
+      component: 'Textarea',
+      componentProps: {
+        placeholder: '请输入备注',
+      },
+    },
+  ];
+}
+
+/** 列表的搜索表单 */
+export function useMenuRecipeGridFormSchema(): VbenFormSchema[] {
+  return [
+    {
+      fieldName: 'createTime',
+      label: '创建时间',
+      component: 'RangePicker',
+      componentProps: {
+        ...getRangePickerDefaultProps(),
+        allowClear: true,
+      },
+    },
+  ];
+}
+
+/** 列表的字段 */
+export function useMenuRecipeGridColumns(
+  onActionClick?: OnActionClickFn<MealsRecipeMenuApi.MenuRecipe>,
+): VxeTableGridOptions<MealsRecipeMenuApi.MenuRecipe>['columns'] {
+  return [
+    {
+      field: 'id',
+      title: '编号',
+      minWidth: 120,
+    },
+    {
+      field: 'recipeId',
+      title: '菜谱编号',
+      minWidth: 80,
+    },
+    {
+      field: 'memo',
+      title: '备注',
+      minWidth: 240,
+    },
+    {
+      field: 'createTime',
+      title: '创建时间',
+      minWidth: 120,
+      formatter: 'formatDateTime',
+    },
+    {
+      field: 'operation',
+      title: '操作',
+      minWidth: 200,
+      align: 'center',
+      fixed: 'right',
+      headerAlign: 'center',
+      showOverflow: false,
+      cellRender: {
+        attrs: {
+          nameField: 'id',
+          nameTitle: '菜单菜谱',
           onClick: onActionClick,
         },
         name: 'CellOperation',
