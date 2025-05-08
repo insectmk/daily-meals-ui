@@ -227,9 +227,18 @@ export function useMenuRecipeGridColumns(
       minWidth: 120,
     },
     {
-      field: 'recipeId',
-      title: '菜谱编号',
-      minWidth: 80,
+      field: 'recipeName',
+      title: '菜谱名称',
+      minWidth: 240,
+    },
+    {
+      field: 'recipePicUrl',
+      title: '菜谱封面',
+      minWidth: 120,
+      maxWidth: 120,
+      cellRender: {
+        name: 'CellImage',
+      },
     },
     {
       field: 'memo',
