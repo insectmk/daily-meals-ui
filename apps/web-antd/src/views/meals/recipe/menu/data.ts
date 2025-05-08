@@ -7,7 +7,7 @@ import type { MealsRecipeMenuApi } from '#/api/meals/recipemenu';
 import { useAccess } from '@vben/access';
 import { getRangePickerDefaultProps } from '@vben/utils';
 
-import { getSimpleFoodList } from '#/api/meals/food';
+import { getSimpleRecipeList } from '#/api/meals/recipe';
 
 const { hasAccessByCodes } = useAccess();
 
@@ -180,7 +180,7 @@ export function useMenuRecipeFormSchema(): VbenFormSchema[] {
       componentProps: {
         allowClear: true,
         api: async () => {
-          return await getSimpleFoodList();
+          return await getSimpleRecipeList();
         },
         class: 'w-full',
         labelField: 'name',

@@ -64,6 +64,11 @@ export function exportRecipe(params: any) {
   return requestClient.download(`/meals/recipe/export-excel`, params);
 }
 
+/** 查询菜谱精简信息列表 */
+export function getSimpleRecipeList() {
+  return requestClient.get('/meals/recipe/list-all-simple');
+}
+
 /** ==================== 子表（菜谱食材） ====================
 
 /** 获得菜谱食材分页 */
