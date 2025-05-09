@@ -363,18 +363,14 @@ export function useRecipeFoodGridColumns(
       minWidth: 120,
     },
     {
-      field: 'foodUnit',
-      title: '食材单位',
-      minWidth: 120,
-      cellRender: {
-        name: 'CellDict',
-        props: { type: DICT_TYPE.MEALS_FOOD_UNIT },
-      },
-    },
-    {
       field: 'amount',
       title: '量',
       minWidth: 80,
+    },
+    {
+      field: 'foodUnit',
+      title: '食材单位',
+      minWidth: 120,
     },
     {
       field: 'memo',
