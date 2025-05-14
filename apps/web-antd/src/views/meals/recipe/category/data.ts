@@ -5,9 +5,10 @@ import type { OnActionClickFn } from '#/adapter/vxe-table';
 import type { MealsRecipeCategoryApi } from '#/api/meals/recipecategory';
 
 import { useAccess } from '@vben/access';
-import { getRangePickerDefaultProps, handleTree } from '@vben/utils';
+import { handleTree } from '@vben/utils';
 
 import { getRecipeCategoryList } from '#/api/meals/recipecategory';
+import { getRangePickerDefaultProps } from '#/utils';
 import { DICT_TYPE, getDictOptions } from '#/utils/dict';
 
 const { hasAccessByCodes } = useAccess();

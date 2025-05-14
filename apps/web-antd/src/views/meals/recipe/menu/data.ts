@@ -5,9 +5,9 @@ import type { OnActionClickFn } from '#/adapter/vxe-table';
 import type { MealsRecipeMenuApi } from '#/api/meals/recipemenu';
 
 import { useAccess } from '@vben/access';
-import { getRangePickerDefaultProps } from '@vben/utils';
 
 import { getSimpleRecipeList } from '#/api/meals/recipe';
+import { getRangePickerDefaultProps } from '#/utils';
 
 const { hasAccessByCodes } = useAccess();
 
