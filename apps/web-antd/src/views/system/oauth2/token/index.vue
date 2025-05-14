@@ -33,10 +33,7 @@ async function onDelete(row: SystemOAuth2TokenApi.OAuth2Token) {
   });
   try {
     await deleteOAuth2Token(row.accessToken);
-    message.success({
-      content: $t('ui.actionMessage.operationSuccess'),
-      key: 'action_process_msg',
-    });
+    message.success($t('ui.actionMessage.operationSuccess'));
     onRefresh();
   } catch {
     hideLoading();
@@ -88,10 +85,12 @@ const [Grid, gridApi] = useVbenVxeGrid({
 
 <template>
   <Page auto-content-height>
-    <DocAlert
-      title="OAuth 2.0（SSO 单点登录)"
-      url="https://doc.iocoder.cn/oauth2/"
-    />
+    <template #doc>
+      <DocAlert
+        title="OAuth 2.0（SSO 单点登录）"
+        url="https://doc.iocoder.cn/oauth2/"
+      />
+    </template>
 
     <Grid table-title="令牌列表" />
   </Page>

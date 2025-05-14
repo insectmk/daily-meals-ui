@@ -5,11 +5,11 @@ import type {
 } from '#/adapter/vxe-table';
 import type { InfraApiErrorLogApi } from '#/api/infra/api-error-log';
 
-import { Page, useVbenModal } from '@vben/common-ui';
+import { confirm, Page, useVbenModal } from '@vben/common-ui';
 import { Download } from '@vben/icons';
 import { downloadFileFromBlobPart } from '@vben/utils';
 
-import { Button, message, Modal } from 'ant-design-vue';
+import { Button, message } from 'ant-design-vue';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
@@ -19,7 +19,7 @@ import {
 } from '#/api/infra/api-error-log';
 import { DocAlert } from '#/components/doc-alert';
 import { $t } from '#/locales';
-import { InfraApiErrorLogProcessStatusEnum } from '#/utils/constants';
+import { InfraApiErrorLogProcessStatusEnum } from '#/utils';
 
 import { useGridColumns, useGridFormSchema } from './data';
 import Detail from './modules/detail.vue';
@@ -47,18 +47,13 @@ function onDetail(row: InfraApiErrorLogApi.ApiErrorLog) {
 
 /** 处理已处理 / 已忽略的操作 */
 async function onProcess(id: number, processStatus: number) {
-  Modal.confirm({
-    title: '确认操作',
+  confirm({
     content: `确认标记为${InfraApiErrorLogProcessStatusEnum.DONE ? '已处理' : '已忽略'}?`,
-    onOk: async () => {
-      await updateApiErrorLogStatus(id, processStatus);
-      // 关闭并提示
-      message.success({
-        content: $t('ui.actionMessage.operationSuccess'),
-        key: 'action_process_msg',
-      });
-      onRefresh();
-    },
+  }).then(async () => {
+    await updateApiErrorLogStatus(id, processStatus);
+    // 关闭并提示
+    message.success($t('ui.actionMessage.operationSuccess'));
+    onRefresh();
   });
 }
 
@@ -115,7 +110,9 @@ const [Grid, gridApi] = useVbenVxeGrid({
 
 <template>
   <Page auto-content-height>
-    <DocAlert title="系统日志" url="https://doc.iocoder.cn/system-log/" />
+    <template #doc>
+      <DocAlert title="系统日志" url="https://doc.iocoder.cn/system-log/" />
+    </template>
 
     <DetailModal @success="onRefresh" />
     <Grid table-title="API 错误日志列表">

@@ -28,6 +28,14 @@ interface AccessState {
    */
   isAccessChecked: boolean;
   /**
+   * 是否锁屏状态
+   */
+  isLockScreen: boolean;
+  /**
+   * 锁屏密码
+   */
+  lockScreenPassword?: string;
+  /**
    * 登录是否过期
    */
   loginExpired: boolean;
@@ -39,6 +47,10 @@ interface AccessState {
    * 登录租户编号
    */
   tenantId: null | number;
+  /**
+   * 访问租户编号
+   */
+  visitTenantId: null | number;
 }
 
 /**
@@ -65,6 +77,10 @@ export const useAccessStore = defineStore('core-access', {
       }
       return findMenu(this.accessMenus, path);
     },
+    lockScreen(password: string) {
+      this.isLockScreen = true;
+      this.lockScreenPassword = password;
+    },
     setAccessCodes(codes: string[]) {
       this.accessCodes = codes;
     },
@@ -89,10 +105,25 @@ export const useAccessStore = defineStore('core-access', {
     setTenantId(tenantId: null | number) {
       this.tenantId = tenantId;
     },
+    setVisitTenantId(visitTenantId: number) {
+      this.visitTenantId = visitTenantId;
+    },
+    unlockScreen() {
+      this.isLockScreen = false;
+      this.lockScreenPassword = undefined;
+    },
   },
   persist: {
     // 持久化
-    pick: ['accessToken', 'refreshToken', 'tenantId'],
+    pick: [
+      'accessToken',
+      'refreshToken',
+      'accessCodes',
+      'tenantId',
+      'visitTenantId',
+      'isLockScreen',
+      'lockScreenPassword',
+    ],
   },
   state: (): AccessState => ({
     accessCodes: [],
@@ -100,9 +131,12 @@ export const useAccessStore = defineStore('core-access', {
     accessRoutes: [],
     accessToken: null,
     isAccessChecked: false,
+    isLockScreen: false,
+    lockScreenPassword: undefined,
     loginExpired: false,
     refreshToken: null,
     tenantId: null,
+    visitTenantId: null,
   }),
 });
 

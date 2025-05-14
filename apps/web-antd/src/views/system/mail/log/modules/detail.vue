@@ -9,7 +9,7 @@ import { formatDateTime } from '@vben/utils';
 import { Descriptions } from 'ant-design-vue';
 
 import { DictTag } from '#/components/dict-tag';
-import { DICT_TYPE } from '#/utils/dict';
+import { DICT_TYPE } from '#/utils';
 
 const formData = ref<SystemMailLogApi.MailLog>();
 
@@ -28,7 +28,7 @@ const [Modal, modalApi] = useVbenModal({
     try {
       formData.value = data;
     } finally {
-      modalApi.lock(false);
+      modalApi.unlock();
     }
   },
 });
@@ -69,6 +69,7 @@ const [Modal, modalApi] = useVbenModal({
           {{ formData?.templateTitle }}
         </Descriptions.Item>
         <Descriptions.Item label="邮件内容" :span="2">
+          <!-- eslint-disable-next-line vue/no-v-html -->
           <div v-html="formData?.templateContent"></div>
         </Descriptions.Item>
         <Descriptions.Item label="发送状态">

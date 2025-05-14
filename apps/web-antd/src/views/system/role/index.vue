@@ -67,10 +67,7 @@ async function onDelete(row: SystemRoleApi.Role) {
   });
   try {
     await deleteRole(row.id as number);
-    message.success({
-      content: $t('ui.actionMessage.deleteSuccess', [row.name]),
-      key: 'action_process_msg',
-    });
+    message.success($t('ui.actionMessage.deleteSuccess', [row.name]));
     onRefresh();
   } catch {
     hideLoading();
@@ -141,11 +138,13 @@ const [Grid, gridApi] = useVbenVxeGrid({
 
 <template>
   <Page auto-content-height>
-    <DocAlert
-      title="功能权限"
-      url="https://doc.iocoder.cn/resource-permission"
-    />
-    <DocAlert title="数据权限" url="https://doc.iocoder.cn/data-permission" />
+    <template #doc>
+      <DocAlert
+        title="功能权限"
+        url="https://doc.iocoder.cn/resource-permission"
+      />
+      <DocAlert title="数据权限" url="https://doc.iocoder.cn/data-permission" />
+    </template>
 
     <FormModal @success="onRefresh" />
     <AssignDataPermissionFormModel @success="onRefresh" />

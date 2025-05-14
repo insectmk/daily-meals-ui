@@ -1,13 +1,12 @@
-import type { VxeTableGridOptions } from '@vben/plugins/vxe-table';
-
 import type { VbenFormSchema } from '#/adapter/form';
-import type { OnActionClickFn } from '#/adapter/vxe-table';
+import type { OnActionClickFn, VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { Demo02CategoryApi } from '#/api/infra/demo/demo02';
 
 import { useAccess } from '@vben/access';
-import { getRangePickerDefaultProps, handleTree } from '@vben/utils';
+import { handleTree } from '@vben/utils';
 
 import { getDemo02CategoryList } from '#/api/infra/demo/demo02';
+import { getRangePickerDefaultProps } from '#/utils';
 
 const { hasAccessByCodes } = useAccess();
 
@@ -36,7 +35,6 @@ export function useFormSchema(): VbenFormSchema[] {
           });
           return handleTree(data);
         },
-        class: 'w-full',
         labelField: 'name',
         valueField: 'id',
         childrenField: 'children',

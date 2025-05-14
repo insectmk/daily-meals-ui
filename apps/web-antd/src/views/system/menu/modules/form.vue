@@ -22,6 +22,13 @@ const getTitle = computed(() =>
 );
 
 const [Form, formApi] = useVbenForm({
+  commonConfig: {
+    componentProps: {
+      class: 'w-full',
+    },
+    formItemClass: 'col-span-2',
+    labelWidth: 100,
+  },
   layout: 'horizontal',
   schema: useFormSchema(),
   showDefaultActions: false,
@@ -41,12 +48,9 @@ const [Modal, modalApi] = useVbenModal({
       // 关闭并提示
       await modalApi.close();
       emit('success');
-      message.success({
-        content: $t('ui.actionMessage.operationSuccess'),
-        key: 'action_process_msg',
-      });
+      message.success($t('ui.actionMessage.operationSuccess'));
     } finally {
-      modalApi.lock(false);
+      modalApi.unlock();
     }
   },
   async onOpenChange(isOpen: boolean) {
@@ -64,7 +68,7 @@ const [Modal, modalApi] = useVbenModal({
       try {
         data = await getMenu(data.id as number);
       } finally {
-        modalApi.lock(false);
+        modalApi.unlock();
       }
     }
     // 设置到 values
@@ -75,7 +79,7 @@ const [Modal, modalApi] = useVbenModal({
 </script>
 
 <template>
-  <Modal :title="getTitle">
+  <Modal class="w-[40%]" :title="getTitle">
     <Form class="mx-4" />
   </Modal>
 </template>

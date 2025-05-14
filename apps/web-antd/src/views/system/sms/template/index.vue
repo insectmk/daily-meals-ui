@@ -69,10 +69,7 @@ async function onDelete(row: SystemSmsTemplateApi.SmsTemplate) {
   });
   try {
     await deleteSmsTemplate(row.id as number);
-    message.success({
-      content: $t('ui.actionMessage.deleteSuccess', [row.name]),
-      key: 'action_process_msg',
-    });
+    message.success($t('ui.actionMessage.deleteSuccess', [row.name]));
     onRefresh();
   } finally {
     hideLoading();
@@ -132,7 +129,9 @@ const [Grid, gridApi] = useVbenVxeGrid({
 
 <template>
   <Page auto-content-height>
-    <DocAlert title="短信配置" url="https://doc.iocoder.cn/sms/" />
+    <template #doc>
+      <DocAlert title="短信配置" url="https://doc.iocoder.cn/sms/" />
+    </template>
 
     <FormModal @success="onRefresh" />
     <SendModal />

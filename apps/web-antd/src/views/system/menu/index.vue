@@ -16,7 +16,7 @@ import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { deleteMenu, getMenuList } from '#/api/system/menu';
 import { DocAlert } from '#/components/doc-alert';
 import { $t } from '#/locales';
-import { SystemMenuTypeEnum } from '#/utils/constants';
+import { SystemMenuTypeEnum } from '#/utils';
 
 import { useGridColumns } from './data';
 import Form from './modules/form.vue';
@@ -55,10 +55,7 @@ async function onDelete(row: SystemMenuApi.Menu) {
   });
   try {
     await deleteMenu(row.id as number);
-    message.success({
-      content: $t('ui.actionMessage.deleteSuccess', [row.name]),
-      key: 'action_process_msg',
-    });
+    message.success($t('ui.actionMessage.deleteSuccess', [row.name]));
     onRefresh();
   } catch {
     hideLoading();
@@ -123,11 +120,13 @@ const [Grid, gridApi] = useVbenVxeGrid({
 
 <template>
   <Page auto-content-height>
-    <DocAlert
-      title="功能权限"
-      url="https://doc.iocoder.cn/resource-permission"
-    />
-    <DocAlert title="菜单路由" url="https://doc.iocoder.cn/vue3/route/" />
+    <template #doc>
+      <DocAlert
+        title="功能权限"
+        url="https://doc.iocoder.cn/resource-permission"
+      />
+      <DocAlert title="菜单路由" url="https://doc.iocoder.cn/vue3/route/" />
+    </template>
 
     <FormModal @success="onRefresh" />
     <Grid>

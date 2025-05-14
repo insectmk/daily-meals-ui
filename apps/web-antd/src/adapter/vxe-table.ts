@@ -4,7 +4,11 @@ import { h } from 'vue';
 
 import { IconifyIcon } from '@vben/icons';
 import { $te } from '@vben/locales';
-import { setupVbenVxeTable, useVbenVxeGrid } from '@vben/plugins/vxe-table';
+import {
+  AsyncComponents,
+  setupVbenVxeTable,
+  useVbenVxeGrid,
+} from '@vben/plugins/vxe-table';
 import { isFunction, isString } from '@vben/utils';
 
 import { Button, Image, Popconfirm, Switch } from 'ant-design-vue';
@@ -13,6 +17,8 @@ import { DictTag } from '#/components/dict-tag';
 import { $t } from '#/locales';
 
 import { useVbenForm } from './form';
+
+import '#/adapter/style.css';
 
 setupVbenVxeTable({
   configVxeTable: (vxeUI) => {
@@ -30,7 +36,7 @@ setupVbenVxeTable({
         },
         toolbarConfig: {
           import: false, // 是否导入
-          export: false, // 四否导出
+          export: false, // 是否导出
           refresh: true, // 是否刷新
           print: false, // 是否打印
           zoom: true, // 是否缩放
@@ -111,6 +117,7 @@ setupVbenVxeTable({
           loading: row[loadingKey] ?? false,
           'onUpdate:checked': onChange,
         };
+
         async function onChange(newVal: any) {
           row[loadingKey] = true;
           try {
@@ -122,6 +129,7 @@ setupVbenVxeTable({
             row[loadingKey] = false;
           }
         }
+
         return h(Switch, finallyProps);
       },
     });
@@ -259,11 +267,31 @@ setupVbenVxeTable({
 
     // 这里可以自行扩展 vxe-table 的全局配置，比如自定义格式化
     // vxeUI.formats.add
+    // add by 星语：数量格式化，例如说：金额
+    vxeUI.formats.add('formatAmount', {
+      cellFormatMethod({ cellValue }, digits = 2) {
+        if (cellValue === null || cellValue === undefined) {
+          return '';
+        }
+        if (isString(cellValue)) {
+          cellValue = Number.parseFloat(cellValue);
+        }
+        // 如果非 number，则直接返回空串
+        if (Number.isNaN(cellValue)) {
+          return '';
+        }
+        return cellValue.toFixed(digits);
+      },
+    });
   },
   useVbenForm,
 });
 
 export { useVbenVxeGrid };
+
+const [VxeTable, VxeColumn, VxeToolbar] = AsyncComponents;
+export { VxeColumn, VxeTable, VxeToolbar };
+
 // add by 芋艿：from https://github.com/vbenjs/vue-vben-admin/blob/main/playground/src/adapter/vxe-table.ts#L264-L270
 export type OnActionClickParams<T = Recordable<any>> = {
   code: string;

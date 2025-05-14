@@ -14,12 +14,17 @@ import { useFormSchema } from '../data';
 const emit = defineEmits(['success']);
 
 const [Form, formApi] = useVbenForm({
+  commonConfig: {
+    componentProps: {
+      class: 'w-full',
+    },
+    formItemClass: 'col-span-2',
+    labelWidth: 80,
+    hideLabel: true,
+  },
   layout: 'horizontal',
   schema: useFormSchema().map((item) => ({ ...item, label: '' })), // 去除label
   showDefaultActions: false,
-  commonConfig: {
-    hideLabel: true,
-  },
 });
 
 const [Modal, modalApi] = useVbenModal({
@@ -36,12 +41,9 @@ const [Modal, modalApi] = useVbenModal({
       // 关闭并提示
       await modalApi.close();
       emit('success');
-      message.success({
-        content: $t('ui.actionMessage.operationSuccess'),
-        key: 'action_process_msg',
-      });
+      message.success($t('ui.actionMessage.operationSuccess'));
     } finally {
-      modalApi.lock(false);
+      modalApi.unlock();
     }
   },
 });

@@ -1,6 +1,7 @@
 import type { RouteRecordRaw } from 'vue-router';
 
-import { DEFAULT_HOME_PATH, LOGIN_PATH } from '@vben/constants';
+import { LOGIN_PATH } from '@vben/constants';
+import { preferences } from '@vben/preferences';
 
 import { $t } from '#/locales';
 
@@ -34,7 +35,7 @@ const coreRoutes: RouteRecordRaw[] = [
     },
     name: 'Root',
     path: '/',
-    redirect: DEFAULT_HOME_PATH,
+    redirect: preferences.app.defaultHomePath,
     children: [],
   },
   {
@@ -87,6 +88,23 @@ const coreRoutes: RouteRecordRaw[] = [
         component: () => import('#/views/_core/authentication/register.vue'),
         meta: {
           title: $t('page.auth.register'),
+        },
+      },
+      {
+        name: 'SocialLogin',
+        path: 'social-login',
+        component: () =>
+          import('#/views/_core/authentication/social-login.vue'),
+        meta: {
+          title: $t('page.auth.login'),
+        },
+      },
+      {
+        name: 'SSOLogin',
+        path: 'sso-login',
+        component: () => import('#/views/_core/authentication/sso-login.vue'),
+        meta: {
+          title: $t('page.auth.login'),
         },
       },
     ],

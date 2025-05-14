@@ -7,11 +7,11 @@ import type { InfraJobApi } from '#/api/infra/job';
 
 import { useRouter } from 'vue-router';
 
-import { Page, useVbenModal } from '@vben/common-ui';
+import { confirm, Page, useVbenModal } from '@vben/common-ui';
 import { Download, History, Plus } from '@vben/icons';
 import { downloadFileFromBlobPart } from '@vben/utils';
 
-import { Button, message, Modal } from 'ant-design-vue';
+import { Button, message } from 'ant-design-vue';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
@@ -23,7 +23,7 @@ import {
 } from '#/api/infra/job';
 import { DocAlert } from '#/components/doc-alert';
 import { $t } from '#/locales';
-import { InfraJobStatusEnum } from '#/utils/constants';
+import { InfraJobStatusEnum } from '#/utils';
 
 import { useGridColumns, useGridFormSchema } from './data';
 import Detail from './modules/detail.vue';
@@ -74,32 +74,24 @@ async function onUpdateStatus(row: InfraJobApi.Job) {
       ? InfraJobStatusEnum.NORMAL
       : InfraJobStatusEnum.STOP;
   const statusText = status === InfraJobStatusEnum.NORMAL ? '启用' : '停用';
-  Modal.confirm({
-    title: '确认操作',
+
+  confirm({
     content: `确定${statusText} ${row.name} 吗？`,
-    onOk: async () => {
-      await updateJobStatus(row.id as number, status);
-      message.success({
-        content: $t('ui.actionMessage.operationSuccess'),
-        key: 'action_process_msg',
-      });
-      onRefresh();
-    },
+  }).then(async () => {
+    await updateJobStatus(row.id as number, status);
+    // 提示成功
+    message.success($t('ui.actionMessage.operationSuccess'));
+    onRefresh();
   });
 }
 
 /** 执行一次任务 */
 async function onTrigger(row: InfraJobApi.Job) {
-  Modal.confirm({
-    title: '确认操作',
+  confirm({
     content: `确定执行一次 ${row.name} 吗？`,
-    onOk: async () => {
-      await runJob(row.id as number);
-      message.success({
-        content: $t('ui.actionMessage.operationSuccess'),
-        key: 'action_process_msg',
-      });
-    },
+  }).then(async () => {
+    await runJob(row.id as number);
+    message.success($t('ui.actionMessage.operationSuccess'));
   });
 }
 
@@ -120,10 +112,7 @@ async function onDelete(row: InfraJobApi.Job) {
   });
   try {
     await deleteJob(row.id as number);
-    message.success({
-      content: $t('ui.actionMessage.deleteSuccess', [row.name]),
-      key: 'action_process_msg',
-    });
+    message.success($t('ui.actionMessage.deleteSuccess', [row.name]));
     onRefresh();
   } finally {
     hideLoading();
@@ -192,9 +181,11 @@ const [Grid, gridApi] = useVbenVxeGrid({
 
 <template>
   <Page auto-content-height>
-    <DocAlert title="定时任务" url="https://doc.iocoder.cn/job/" />
-    <DocAlert title="异步任务" url="https://doc.iocoder.cn/async-task/" />
-    <DocAlert title="消息队列" url="https://doc.iocoder.cn/message-queue/" />
+    <template #doc>
+      <DocAlert title="定时任务" url="https://doc.iocoder.cn/job/" />
+      <DocAlert title="异步任务" url="https://doc.iocoder.cn/async-task/" />
+      <DocAlert title="消息队列" url="https://doc.iocoder.cn/message-queue/" />
+    </template>
 
     <FormModal @success="onRefresh" />
     <DetailModal />

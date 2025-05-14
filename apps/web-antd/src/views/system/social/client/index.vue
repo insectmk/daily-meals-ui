@@ -50,10 +50,7 @@ async function onDelete(row: SystemSocialClientApi.SocialClient) {
   });
   try {
     await deleteSocialClient(row.id as number);
-    message.success({
-      content: $t('ui.actionMessage.deleteSuccess', [row.name]),
-      key: 'action_process_msg',
-    });
+    message.success($t('ui.actionMessage.deleteSuccess', [row.name]));
     onRefresh();
   } catch {
     hideLoading();
@@ -109,7 +106,9 @@ const [Grid, gridApi] = useVbenVxeGrid({
 
 <template>
   <Page auto-content-height>
-    <DocAlert title="三方登录" url="https://doc.iocoder.cn/social-user/" />
+    <template #doc>
+      <DocAlert title="三方登录" url="https://doc.iocoder.cn/social-user/" />
+    </template>
 
     <FormModal @success="onRefresh" />
     <Grid table-title="社交客户端列表">

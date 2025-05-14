@@ -8,11 +8,11 @@ import type { SystemUserApi } from '#/api/system/user';
 
 import { ref } from 'vue';
 
-import { Page, useVbenModal } from '@vben/common-ui';
+import { confirm, Page, useVbenModal } from '@vben/common-ui';
 import { Download, Plus, Upload } from '@vben/icons';
 import { downloadFileFromBlobPart } from '@vben/utils';
 
-import { Button, message, Modal } from 'ant-design-vue';
+import { Button, message } from 'ant-design-vue';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
@@ -23,7 +23,7 @@ import {
 } from '#/api/system/user';
 import { DocAlert } from '#/components/doc-alert';
 import { $t } from '#/locales';
-import { DICT_TYPE, getDictLabel } from '#/utils/dict';
+import { DICT_TYPE, getDictLabel } from '#/utils';
 
 import { useGridColumns, useGridFormSchema } from './data';
 import AssignRoleForm from './modules/assign-role-form.vue';
@@ -94,10 +94,7 @@ async function onDelete(row: SystemUserApi.User) {
   });
   try {
     await deleteUser(row.id as number);
-    message.success({
-      content: $t('ui.actionMessage.deleteSuccess', [row.username]),
-      key: 'action_process_msg',
-    });
+    message.success($t('ui.actionMessage.deleteSuccess', [row.username]));
     onRefresh();
   } catch {
     hideLoading();
@@ -114,35 +111,29 @@ function onAssignRole(row: SystemUserApi.User) {
   assignRoleModalApi.setData(row).open();
 }
 
-// TODO @芋艿：后续怎么简化一下 confirm 的实现。
 /** 更新用户状态 */
 async function onStatusChange(
   newStatus: number,
   row: SystemUserApi.User,
 ): Promise<boolean | undefined> {
   return new Promise((resolve, reject) => {
-    Modal.confirm({
-      title: '切换状态',
+    confirm({
       content: `你要将${row.username}的状态切换为【${getDictLabel(DICT_TYPE.COMMON_STATUS, newStatus)}】吗？`,
-      onCancel() {
-        reject(new Error('已取消'));
-      },
-      onOk() {
+    })
+      .then(async () => {
         // 更新用户状态
-        updateUserStatus(row.id as number, newStatus)
-          .then(() => {
-            // 提示并返回成功
-            message.success({
-              content: $t('ui.actionMessage.operationSuccess'),
-              key: 'action_process_msg',
-            });
-            resolve(true);
-          })
-          .catch((error) => {
-            reject(error);
-          });
-      },
-    });
+        const res = await updateUserStatus(row.id as number, newStatus);
+        if (res) {
+          // 提示并返回成功
+          message.success($t('ui.actionMessage.operationSuccess'));
+          resolve(true);
+        } else {
+          reject(new Error('更新失败'));
+        }
+      })
+      .catch(() => {
+        reject(new Error('取消操作'));
+      });
   });
 }
 
@@ -201,25 +192,27 @@ const [Grid, gridApi] = useVbenVxeGrid({
 
 <template>
   <Page auto-content-height>
-    <DocAlert title="用户体系" url="https://doc.iocoder.cn/user-center/" />
-    <DocAlert title="三方登陆" url="https://doc.iocoder.cn/social-user/" />
-    <DocAlert
-      title="Excel 导入导出"
-      url="https://doc.iocoder.cn/excel-import-and-export/"
-    />
+    <template #doc>
+      <DocAlert title="用户体系" url="https://doc.iocoder.cn/user-center/" />
+      <DocAlert title="三方登陆" url="https://doc.iocoder.cn/social-user/" />
+      <DocAlert
+        title="Excel 导入导出"
+        url="https://doc.iocoder.cn/excel-import-and-export/"
+      />
+    </template>
 
     <FormModal @success="onRefresh" />
     <ResetPasswordModal @success="onRefresh" />
     <AssignRoleModal @success="onRefresh" />
     <ImportModal @success="onRefresh" />
 
-    <div class="flex h-full">
+    <div class="flex h-full w-full">
       <!-- 左侧部门树 -->
-      <div class="w-4/24 pr-3">
+      <div class="h-full w-1/6 pr-4">
         <DeptTree @select="onDeptSelect" />
       </div>
       <!-- 右侧用户列表 -->
-      <div class="w-18/24">
+      <div class="w-5/6">
         <Grid table-title="用户列表">
           <template #toolbar-tools>
             <Button

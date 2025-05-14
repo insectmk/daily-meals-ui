@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import type { Recordable } from '@vben/types';
 
+import { $t } from '@vben/locales';
+
 import { message } from 'ant-design-vue';
 
 import { useVbenForm, z } from '#/adapter/form';
 import { updateUserPassword } from '#/api/system/user/profile';
-import { $t } from '@vben/locales';
 
 const [Form, formApi] = useVbenForm({
   commonConfig: {
@@ -77,10 +78,7 @@ async function handleSubmit(values: Recordable<any>) {
       oldPassword: values.oldPassword,
       newPassword: values.newPassword,
     });
-    message.success({
-      content: $t('ui.actionMessage.operationSuccess'),
-      key: 'action_process_msg',
-    });
+    message.success($t('ui.actionMessage.operationSuccess'));
   } catch (error) {
     console.error(error);
   } finally {

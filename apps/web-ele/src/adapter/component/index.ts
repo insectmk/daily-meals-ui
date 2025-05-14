@@ -21,6 +21,9 @@ import { $t } from '@vben/locales';
 
 import { ElNotification } from 'element-plus';
 
+import { Tinymce as RichTextarea } from '#/components/tinymce';
+import { FileUpload, ImageUpload } from '#/components/upload';
+
 const ElButton = defineAsyncComponent(() =>
   Promise.all([
     import('element-plus/es/components/button/index'),
@@ -130,8 +133,8 @@ const withDefaultPlaceholder = <T extends Component>(
   componentProps: Recordable<any> = {},
 ) => {
   return defineComponent({
-    inheritAttrs: false,
     name: component.name,
+    inheritAttrs: false,
     setup: (props: any, { attrs, expose, slots }) => {
       const placeholder =
         props?.placeholder ||
@@ -167,13 +170,18 @@ export type ComponentType =
   | 'CheckboxGroup'
   | 'DatePicker'
   | 'Divider'
+  | 'FileUpload'
   | 'IconPicker'
+  | 'ImageUpload'
   | 'Input'
   | 'InputNumber'
   | 'RadioGroup'
+  | 'RangePicker'
+  | 'RichTextarea'
   | 'Select'
   | 'Space'
   | 'Switch'
+  | 'Textarea'
   | 'TimePicker'
   | 'TreeSelect'
   | 'Upload'
@@ -184,19 +192,33 @@ async function initComponentAdapter() {
     // 如果你的组件体积比较大，可以使用异步加载
     // Button: () =>
     // import('xxx').then((res) => res.Button),
-    ApiSelect: withDefaultPlaceholder(ApiComponent, 'select', {
-      component: ElSelectV2,
-      loadingSlot: 'loading',
-      visibleEvent: 'onVisibleChange',
-    }),
-    ApiTreeSelect: withDefaultPlaceholder(ApiComponent, 'select', {
-      component: ElTreeSelect,
-      props: { label: 'label', children: 'children' },
-      nodeKey: 'value',
-      loadingSlot: 'loading',
-      optionsPropName: 'data',
-      visibleEvent: 'onVisibleChange',
-    }),
+    ApiSelect: withDefaultPlaceholder(
+      {
+        ...ApiComponent,
+        name: 'ApiSelect',
+      },
+      'select',
+      {
+        component: ElSelectV2,
+        loadingSlot: 'loading',
+        visibleEvent: 'onVisibleChange',
+      },
+    ),
+    ApiTreeSelect: withDefaultPlaceholder(
+      {
+        ...ApiComponent,
+        name: 'ApiTreeSelect',
+      },
+      'select',
+      {
+        component: ElTreeSelect,
+        props: { label: 'label', children: 'children' },
+        nodeKey: 'value',
+        loadingSlot: 'loading',
+        optionsPropName: 'data',
+        visibleEvent: 'onVisibleChange',
+      },
+    ),
     Checkbox: ElCheckbox,
     CheckboxGroup: (props, { attrs, slots }) => {
       let defaultSlot;
@@ -219,7 +241,7 @@ async function initComponentAdapter() {
     },
     // 自定义默认按钮
     DefaultButton: (props, { attrs, slots }) => {
-      return h(ElButton, { ...props, attrs, type: 'info' }, slots);
+      return h(ElButton, { ...props, attrs }, slots);
     },
     // 自定义主要按钮
     PrimaryButton: (props, { attrs, slots }) => {
@@ -278,6 +300,26 @@ async function initComponentAdapter() {
         slots,
       );
     },
+    RangePicker: (props, { attrs, slots }) => {
+      const { name, id } = props;
+      const extraProps: Recordable<any> = {};
+      if (name && !Array.isArray(name)) {
+        extraProps.name = [name, `${name}_end`];
+      }
+      if (id && !Array.isArray(id)) {
+        extraProps.id = [id, `${id}_end`];
+      }
+      return h(
+        ElDatePicker,
+        {
+          ...props,
+          type: 'datetimerange',
+          ...attrs,
+          ...extraProps,
+        },
+        slots,
+      );
+    },
     DatePicker: (props, { attrs, slots }) => {
       const { name, id, type } = props;
       const extraProps: Recordable<any> = {};
@@ -301,6 +343,13 @@ async function initComponentAdapter() {
     },
     TreeSelect: withDefaultPlaceholder(ElTreeSelect, 'select'),
     Upload: ElUpload,
+    FileUpload,
+    ImageUpload,
+    Textarea: withDefaultPlaceholder(ElInput, 'input', {
+      rows: 3,
+      type: 'textarea',
+    }),
+    RichTextarea,
   };
 
   // 将组件注册到全局共享状态中

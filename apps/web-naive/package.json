@@ -1,6 +1,6 @@
 {
   "name": "@vben/web-naive",
-  "version": "5.5.4",
+  "version": "5.5.6",
   "homepage": "https://vben.pro",
   "bugs": "https://github.com/vbenjs/vue-vben-admin/issues",
   "repository": {
@@ -41,9 +41,15 @@
     "@vben/types": "workspace:*",
     "@vben/utils": "workspace:*",
     "@vueuse/core": "catalog:",
+    "cropperjs": "catalog:",
+    "crypto-js": "catalog:",
+    "dayjs": "catalog:",
     "naive-ui": "catalog:",
     "pinia": "catalog:",
     "vue": "catalog:",
     "vue-router": "catalog:"
+  },
+  "devDependencies": {
+    "@types/crypto-js": "catalog:"
   }
 }

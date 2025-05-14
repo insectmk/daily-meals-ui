@@ -9,7 +9,7 @@ import { formatDateTime } from '@vben/utils';
 import { Descriptions } from 'ant-design-vue';
 
 import { DictTag } from '#/components/dict-tag';
-import { DICT_TYPE } from '#/utils/dict';
+import { DICT_TYPE } from '#/utils';
 
 const formData = ref<InfraApiAccessLogApi.ApiAccessLog>();
 
@@ -28,7 +28,7 @@ const [Modal, modalApi] = useVbenModal({
     try {
       formData.value = data;
     } finally {
-      modalApi.lock(false);
+      modalApi.unlock();
     }
   },
 });

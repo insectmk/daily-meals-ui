@@ -1,13 +1,10 @@
-import type { VxeTableGridOptions } from '@vben/plugins/vxe-table';
-
 import type { VbenFormSchema } from '#/adapter/form';
-import type { OnActionClickFn } from '#/adapter/vxe-table';
+import type { OnActionClickFn, VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { Demo01ContactApi } from '#/api/infra/demo/demo01';
 
 import { useAccess } from '@vben/access';
-import { getRangePickerDefaultProps } from '@vben/utils';
 
-import { DICT_TYPE, getDictOptions } from '#/utils/dict';
+import { DICT_TYPE, getDictOptions, getRangePickerDefaultProps } from '#/utils';
 
 const { hasAccessByCodes } = useAccess();
 
@@ -153,6 +150,7 @@ export function useGridColumns(
       minWidth: 200,
       align: 'center',
       fixed: 'right',
+      // TODO @puhui999：headerAlign 要使用 headerAlign: 'center' 么？看着现在分成了 align 和 headerAlign 两种
       headerAlign: 'center',
       showOverflow: false,
       cellRender: {

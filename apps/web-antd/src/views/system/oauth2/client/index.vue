@@ -50,10 +50,7 @@ async function onDelete(row: SystemOAuth2ClientApi.OAuth2Client) {
   });
   try {
     await deleteOAuth2Client(row.id as number);
-    message.success({
-      content: $t('ui.actionMessage.deleteSuccess', [row.name]),
-      key: 'action_process_msg',
-    });
+    message.success($t('ui.actionMessage.deleteSuccess', [row.name]));
     onRefresh();
   } catch {
     hideLoading();
@@ -109,10 +106,12 @@ const [Grid, gridApi] = useVbenVxeGrid({
 
 <template>
   <Page auto-content-height>
-    <DocAlert
-      title="OAuth 2.0（SSO 单点登录)"
-      url="https://doc.iocoder.cn/oauth2/"
-    />
+    <template #doc>
+      <DocAlert
+        title="OAuth 2.0（SSO 单点登录）"
+        url="https://doc.iocoder.cn/oauth2/"
+      />
+    </template>
 
     <FormModal @success="onRefresh" />
     <Grid table-title="OAuth2 客户端列表">

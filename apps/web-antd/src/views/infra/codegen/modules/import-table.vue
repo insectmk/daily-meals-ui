@@ -5,12 +5,12 @@ import type { InfraCodegenApi } from '#/api/infra/codegen';
 import { reactive } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
-import { $t } from '@vben/locales';
 
 import { message } from 'ant-design-vue';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { createCodegenList, getSchemaTableList } from '#/api/infra/codegen';
+import { $t } from '#/locales';
 import {
   useImportTableColumns,
   useImportTableFormSchema,
@@ -104,13 +104,10 @@ const [Modal, modalApi] = useVbenModal({
       // 关闭并提示
       await modalApi.close();
       emit('success');
-      message.success({
-        content: $t('ui.actionMessage.operationSuccess'),
-        key: 'action_process_msg',
-      });
+      message.success($t('ui.actionMessage.operationSuccess'));
     } finally {
       hideLoading();
-      modalApi.lock(false);
+      modalApi.unlock();
     }
   },
 });

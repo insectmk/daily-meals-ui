@@ -50,10 +50,7 @@ async function onDelete(row: SystemMailAccountApi.MailAccount) {
   });
   try {
     await deleteMailAccount(row.id as number);
-    message.success({
-      content: $t('ui.actionMessage.deleteSuccess', [row.mail]),
-      key: 'action_process_msg',
-    });
+    message.success($t('ui.actionMessage.deleteSuccess', [row.mail]));
     onRefresh();
   } finally {
     hideLoading();
@@ -108,7 +105,9 @@ const [Grid, gridApi] = useVbenVxeGrid({
 </script>
 <template>
   <Page auto-content-height>
-    <DocAlert title="邮件配置" url="https://doc.iocoder.cn/mail" />
+    <template #doc>
+      <DocAlert title="邮件配置" url="https://doc.iocoder.cn/mail" />
+    </template>
 
     <FormModal @success="onRefresh" />
     <Grid table-title="邮箱账号列表">
