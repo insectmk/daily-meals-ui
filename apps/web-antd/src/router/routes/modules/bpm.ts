@@ -27,7 +27,6 @@ const routes: RouteRecordRaw[] = [
           },
         ],
       },
-
       {
         path: 'process-instance/detail',
         component: () => import('#/views/bpm/processInstance/detail/index.vue'),
@@ -45,6 +44,34 @@ const routes: RouteRecordRaw[] = [
             taskId: route.query.taskId,
             activityId: route.query.activityId,
           };
+        },
+      },
+      {
+        path: '/bpm/manager/form/edit',
+        name: 'BpmFormEditor',
+        component: () => import('#/views/bpm/form/editor.vue'),
+        meta: {
+          title: '编辑流程表单',
+          activePath: '/bpm/manager/form',
+        },
+        props: (route) => {
+          return {
+            id: route.query.id,
+            type: route.query.type,
+            copyId: route.query.copyId,
+          };
+        },
+      },
+      {
+        path: 'manager/model/create',
+        component: () => import('#/views/bpm/model/form/index.vue'),
+        name: 'BpmModelCreate',
+        meta: {
+          title: '创建流程',
+          activePath: '/bpm/manager/model',
+          icon: 'carbon:flow-connection',
+          hideInMenu: true,
+          keepAlive: true,
         },
       },
     ],
