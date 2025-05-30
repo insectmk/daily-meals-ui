@@ -1,16 +1,15 @@
 import type { VbenFormSchema } from '#/adapter/form';
-import type { OnActionClickFn, VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { SystemNotifyTemplateApi } from '#/api/system/notify/template';
-
-import { useAccess } from '@vben/access';
-import { getRangePickerDefaultProps } from '@vben/utils';
+import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 
 import { z } from '#/adapter/form';
 import { getSimpleUserList } from '#/api/system/user';
-import { CommonStatusEnum, UserTypeEnum } from '#/utils/constants';
-import { DICT_TYPE, getDictOptions } from '#/utils/dict';
-
-const { hasAccessByCodes } = useAccess();
+import {
+  CommonStatusEnum,
+  DICT_TYPE,
+  getDictOptions,
+  getRangePickerDefaultProps,
+  UserTypeEnum,
+} from '#/utils';
 
 /** 新增/修改的表单 */
 export function useFormSchema(): VbenFormSchema[] {
@@ -68,7 +67,6 @@ export function useFormSchema(): VbenFormSchema[] {
           DICT_TYPE.SYSTEM_NOTIFY_TEMPLATE_TYPE,
           'number',
         ),
-        class: 'w-full',
         placeholder: '请选择模板类型',
       },
       rules: 'required',
@@ -201,7 +199,6 @@ export function useSendNotifyFormSchema(): VbenFormSchema[] {
       component: 'ApiSelect',
       componentProps: {
         api: getSimpleUserList,
-        class: 'w-full',
         labelField: 'nickname',
         valueField: 'id',
         placeholder: '请选择接收人',
@@ -227,9 +224,7 @@ export function useSendNotifyFormSchema(): VbenFormSchema[] {
 }
 
 /** 列表的字段 */
-export function useGridColumns<T = SystemNotifyTemplateApi.NotifyTemplate>(
-  onActionClick: OnActionClickFn<T>,
-): VxeTableGridOptions['columns'] {
+export function useGridColumns(): VxeTableGridOptions['columns'] {
   return [
     {
       field: 'id',
@@ -286,34 +281,10 @@ export function useGridColumns<T = SystemNotifyTemplateApi.NotifyTemplate>(
       formatter: 'formatDateTime',
     },
     {
-      field: 'operation',
       title: '操作',
-      minWidth: 180,
-      align: 'center',
+      width: 220,
       fixed: 'right',
-      cellRender: {
-        attrs: {
-          nameField: 'name',
-          nameTitle: '站内信模板',
-          onClick: onActionClick,
-        },
-        name: 'CellOperation',
-        options: [
-          {
-            code: 'edit',
-            show: hasAccessByCodes(['system:notify-template:update']),
-          },
-          {
-            code: 'send',
-            text: '测试',
-            show: hasAccessByCodes(['system:notify-template:send-notify']),
-          },
-          {
-            code: 'delete',
-            show: hasAccessByCodes(['system:notify-template:delete']),
-          },
-        ],
-      },
+      slots: { default: 'actions' },
     },
   ];
 }

@@ -31,7 +31,7 @@ const [FormModal, formModalApi] = useVbenModal({
 /** 创建食谱食材 */
 function onCreate() {
   if (!props.recipeId) {
-    message.warning('请先选择一个学生!');
+    message.warning('请先选择一个菜谱!');
     return;
   }
   formModalApi.setData({ recipeId: props.recipeId }).open();

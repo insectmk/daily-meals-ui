@@ -17,8 +17,8 @@ const emit = defineEmits(['success']);
 const formData = ref<MealsFoodApi.Food>();
 const getTitle = computed(() => {
   return formData.value?.id
-    ? $t('ui.actionTitle.edit', ['示例联系人'])
-    : $t('ui.actionTitle.create', ['示例联系人']);
+    ? $t('ui.actionTitle.edit', ['食材'])
+    : $t('ui.actionTitle.create', ['食材']);
 });
 
 const [Form, formApi] = useVbenForm({

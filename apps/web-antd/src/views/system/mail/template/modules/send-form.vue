@@ -16,6 +16,13 @@ const emit = defineEmits(['success']);
 const formData = ref<SystemMailTemplateApi.MailTemplate>();
 
 const [Form, formApi] = useVbenForm({
+  commonConfig: {
+    componentProps: {
+      class: 'w-full',
+    },
+    formItemClass: 'col-span-2',
+    labelWidth: 80,
+  },
   layout: 'horizontal',
   showDefaultActions: false,
 });
@@ -47,14 +54,11 @@ const [Modal, modalApi] = useVbenModal({
       // 关闭并提示
       await modalApi.close();
       emit('success');
-      message.success({
-        content: '邮件发送成功',
-        key: 'action_process_msg',
-      });
+      message.success('邮件发送成功');
     } catch (error) {
       console.error('发送邮件失败', error);
     } finally {
-      modalApi.lock(false);
+      modalApi.unlock();
     }
   },
   async onOpenChange(isOpen: boolean) {
@@ -79,7 +83,7 @@ const [Modal, modalApi] = useVbenModal({
 });
 
 /** 动态构建表单 schema */
-const buildFormSchema = () => {
+function buildFormSchema() {
   const schema = useSendMailFormSchema();
   if (formData.value?.params) {
     formData.value.params?.forEach((param: string) => {
@@ -95,7 +99,7 @@ const buildFormSchema = () => {
     });
   }
   return schema;
-};
+}
 </script>
 
 <template>

@@ -1,13 +1,7 @@
 import type { VbenFormSchema } from '#/adapter/form';
-import type { OnActionClickFn, VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { InfraFileConfigApi } from '#/api/infra/file-config';
+import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 
-import { useAccess } from '@vben/access';
-import { getRangePickerDefaultProps } from '@vben/utils';
-
-import { DICT_TYPE, getDictOptions } from '#/utils/dict';
-
-const { hasAccessByCodes } = useAccess();
+import { DICT_TYPE, getDictOptions, getRangePickerDefaultProps } from '#/utils';
 
 /** 新增/修改的表单 */
 export function useFormSchema(): VbenFormSchema[] {
@@ -86,7 +80,6 @@ export function useFormSchema(): VbenFormSchema[] {
       component: 'InputNumber',
       componentProps: {
         min: 0,
-        class: 'w-full',
         controlsPosition: 'right',
         placeholder: '请输入主机端口',
       },
@@ -134,6 +127,8 @@ export function useFormSchema(): VbenFormSchema[] {
           { label: '主动模式', value: 'Active' },
           { label: '被动模式', value: 'Passive' },
         ],
+        buttonStyle: 'solid',
+        optionType: 'button',
       },
       rules: 'required',
       dependencies: {
@@ -194,6 +189,25 @@ export function useFormSchema(): VbenFormSchema[] {
         show: (formValues) => formValues.storage === 20,
       },
     },
+    {
+      fieldName: 'config.enablePathStyleAccess',
+      label: '是否 Path Style',
+      component: 'RadioGroup',
+      componentProps: {
+        options: [
+          { label: '启用', value: true },
+          { label: '禁用', value: false },
+        ],
+        buttonStyle: 'solid',
+        optionType: 'button',
+      },
+      rules: 'required',
+      dependencies: {
+        triggerFields: ['storage'],
+        show: (formValues) => formValues.storage === 20,
+      },
+      defaultValue: false,
+    },
     // 通用
     {
       fieldName: 'config.domain',
@@ -246,9 +260,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
 }
 
 /** 列表的字段 */
-export function useGridColumns<T = InfraFileConfigApi.FileConfig>(
-  onActionClick: OnActionClickFn<T>,
-): VxeTableGridOptions['columns'] {
+export function useGridColumns(): VxeTableGridOptions['columns'] {
   return [
     {
       field: 'id',
@@ -290,39 +302,10 @@ export function useGridColumns<T = InfraFileConfigApi.FileConfig>(
       formatter: 'formatDateTime',
     },
     {
-      field: 'operation',
       title: '操作',
-      width: 280,
+      width: 240,
       fixed: 'right',
-      align: 'center',
-      cellRender: {
-        attrs: {
-          nameField: 'name',
-          nameTitle: '文件配置',
-          onClick: onActionClick,
-        },
-        name: 'CellOperation',
-        options: [
-          {
-            code: 'edit',
-            show: hasAccessByCodes(['infra:file-config:update']),
-          },
-          {
-            code: 'delete',
-            show: hasAccessByCodes(['infra:file-config:delete']),
-          },
-          {
-            code: 'master',
-            text: '主配置',
-            disabled: (row: any) => row.master,
-            show: (_row: any) => hasAccessByCodes(['infra:file-config:update']),
-          },
-          {
-            code: 'test',
-            text: '测试',
-          },
-        ],
-      },
+      slots: { default: 'actions' },
     },
   ];
 }

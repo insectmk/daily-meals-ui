@@ -4,6 +4,8 @@ import type { UploadRequestOption } from 'ant-design-vue/lib/vc-upload/interface
 
 import type { AxiosResponse } from '@vben/request';
 
+import type { UploadListType } from './typing';
+
 import type { AxiosProgressEvent } from '#/api/infra/file';
 
 import { ref, toRefs, watch } from 'vue';
@@ -28,9 +30,11 @@ const props = withDefaults(
       file: File,
       onUploadProgress?: AxiosProgressEvent,
     ) => Promise<AxiosResponse<any>>;
+    // 上传的目录
+    directory?: string;
     disabled?: boolean;
     helpText?: string;
-    listType?: ListType;
+    listType?: UploadListType;
     // 最大数量的文件，Infinity不限制
     maxNumber?: number;
     // 文件最大多少MB
@@ -45,6 +49,7 @@ const props = withDefaults(
   }>(),
   {
     value: () => [],
+    directory: undefined,
     disabled: false,
     listType: 'picture-card',
     helpText: '',
@@ -52,13 +57,12 @@ const props = withDefaults(
     maxNumber: 1,
     accept: () => defaultImageAccepts,
     multiple: false,
-    api: useUpload().httpRequest,
+    api: undefined,
     resultField: '',
     showDescription: true,
   },
 );
 const emit = defineEmits(['change', 'update:value', 'delete']);
-type ListType = 'picture' | 'picture-card' | 'text';
 const { accept, helpText, maxNumber, maxSize } = toRefs(props);
 const isInnerOperate = ref<boolean>(false);
 const { getStringAccept } = useUploadType({
@@ -176,10 +180,9 @@ const beforeUpload = async (file: File) => {
 };
 
 async function customRequest(info: UploadRequestOption<any>) {
-  const { api } = props;
+  let { api } = props;
   if (!api || !isFunction(api)) {
-    console.warn('upload api must exist and be a function');
-    return;
+    api = useUpload(props.directory).httpRequest;
   }
   try {
     // 上传文件

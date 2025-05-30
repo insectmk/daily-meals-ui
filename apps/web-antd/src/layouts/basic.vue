@@ -3,7 +3,7 @@ import type { NotificationItem } from '@vben/layouts';
 
 import { computed, onMounted, ref, watch } from 'vue';
 
-import { AuthenticationLoginExpiredModal } from '@vben/common-ui';
+import { AuthenticationLoginExpiredModal, useVbenModal } from '@vben/common-ui';
 import { VBEN_DOC_URL, VBEN_GITHUB_URL } from '@vben/constants';
 import { useWatermark } from '@vben/hooks';
 import {
@@ -33,6 +33,9 @@ import { router } from '#/router';
 import { useAuthStore } from '#/store';
 import LoginForm from '#/views/_core/authentication/login.vue';
 
+import Help from './components/help.vue';
+import TenantDropdown from './components/tenant-dropdown.vue';
+
 const userStore = useUserStore();
 const authStore = useAuthStore();
 const accessStore = useAccessStore();
@@ -41,6 +44,10 @@ const { destroyWatermark, updateWatermark } = useWatermark();
 const notifications = ref<NotificationItem[]>([]);
 const unreadCount = ref(0);
 const showDot = computed(() => unreadCount.value > 0);
+
+const [HelpModal, helpModalApi] = useVbenModal({
+  connectedComponent: Help,
+});
 
 const menus = computed(() => [
   {
@@ -70,9 +77,7 @@ const menus = computed(() => [
   },
   {
     handler: () => {
-      openWindow(`${VBEN_GITHUB_URL}/issues`, {
-        target: '_blank',
-      });
+      helpModalApi.open();
     },
     icon: CircleHelp,
     text: $t('ui.widgets.qa'),
@@ -198,6 +203,9 @@ watch(
         @read="handleNotificationRead"
       />
     </template>
+    <template #header-right-1>
+      <TenantDropdown class="w-30 mr-2" />
+    </template>
     <template #extra>
       <AuthenticationLoginExpiredModal
         v-model:open="accessStore.loginExpired"
@@ -210,4 +218,5 @@ watch(
       <LockScreen :avatar @to-login="handleLogout" />
     </template>
   </BasicLayout>
+  <HelpModal />
 </template>

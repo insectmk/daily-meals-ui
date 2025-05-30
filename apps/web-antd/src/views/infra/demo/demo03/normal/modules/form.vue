@@ -33,6 +33,13 @@ const demo03CourseFormRef = ref<InstanceType<typeof Demo03CourseForm>>();
 const demo03GradeFormRef = ref<InstanceType<typeof Demo03GradeForm>>();
 
 const [Form, formApi] = useVbenForm({
+  commonConfig: {
+    componentProps: {
+      class: 'w-full',
+    },
+    formItemClass: 'col-span-2',
+    labelWidth: 80,
+  },
   layout: 'horizontal',
   schema: useFormSchema(),
   showDefaultActions: false,
@@ -63,12 +70,9 @@ const [Modal, modalApi] = useVbenModal({
       // 关闭并提示
       await modalApi.close();
       emit('success');
-      message.success({
-        content: $t('ui.actionMessage.operationSuccess'),
-        key: 'action_process_msg',
-      });
+      message.success($t('ui.actionMessage.operationSuccess'));
     } finally {
-      modalApi.lock(false);
+      modalApi.unlock();
     }
   },
   async onOpenChange(isOpen: boolean) {
@@ -76,7 +80,6 @@ const [Modal, modalApi] = useVbenModal({
       formData.value = undefined;
       return;
     }
-
     // 加载数据
     let data = modalApi.getData<Demo03StudentApi.Demo03Student>();
     if (!data) {
@@ -87,7 +90,7 @@ const [Modal, modalApi] = useVbenModal({
       try {
         data = await getDemo03Student(data.id);
       } finally {
-        modalApi.lock(false);
+        modalApi.unlock();
       }
     }
     // 设置到 values

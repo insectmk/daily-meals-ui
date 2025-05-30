@@ -2,26 +2,28 @@
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { SystemSocialUserApi } from '#/api/system/social/user';
 
-import { Button, Card, Image, message, Modal } from 'ant-design-vue';
-
-import { computed, ref, onMounted } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import { $t } from '#/locales';
+
+import { confirm } from '@vben/common-ui';
+
+import { Button, Card, Image, message } from 'ant-design-vue';
+
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
+import { socialAuthRedirect } from '#/api/core/auth';
 import {
   getBindSocialUserList,
-  socialUnbind,
   socialBind,
+  socialUnbind,
 } from '#/api/system/social/user';
-import { socialAuthRedirect } from '#/api/core/auth';
-import { DICT_TYPE, getDictLabel } from '#/utils/dict';
-import { SystemUserSocialTypeEnum } from '#/utils/constants';
+import { $t } from '#/locales';
+import { DICT_TYPE, getDictLabel, SystemUserSocialTypeEnum } from '#/utils';
 
-const route = useRoute();
 const emit = defineEmits<{
   (e: 'update:activeName', v: string): void;
 }>();
 
+const route = useRoute();
 /** 已经绑定的平台 */
 const bindList = ref<SystemSocialUserApi.SocialUser[]>([]);
 const allBindList = computed<any[]>(() => {
@@ -101,19 +103,13 @@ const [Grid, gridApi] = useVbenVxeGrid({
 
 /** 解绑账号 */
 function onUnbind(row: SystemSocialUserApi.SocialUser) {
-  Modal.confirm({
-    type: 'warning',
-    title: '提示',
+  confirm({
     content: `确定解绑[${getDictLabel(DICT_TYPE.SYSTEM_SOCIAL_TYPE, row.type)}]平台的[${row.openid}]账号吗？`,
-    async onOk() {
-      await socialUnbind({ type: row.type, openid: row.openid });
-      // 提示成功
-      message.success({
-        content: $t('ui.actionMessage.operationSuccess'),
-        key: 'action_process_msg',
-      });
-      await gridApi.reload();
-    },
+  }).then(async () => {
+    await socialUnbind({ type: row.type, openid: row.openid });
+    // 提示成功
+    message.success($t('ui.actionMessage.operationSuccess'));
+    await gridApi.reload();
   });
 }
 
@@ -126,8 +122,7 @@ async function onBind(bind: any) {
   try {
     // 计算 redirectUri
     // tricky: type 需要先 encode 一次，否则钉钉回调会丢失。配合 getUrlValue() 使用
-    const redirectUri =
-      location.origin + '/profile?' + encodeURIComponent(`type=${type}`);
+    const redirectUri = `${location.origin}/profile?${encodeURIComponent(`type=${type}`)}`;
 
     // 进行跳转
     window.location.href = await socialAuthRedirect(type, redirectUri);

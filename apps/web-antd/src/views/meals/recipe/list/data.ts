@@ -5,8 +5,11 @@ import type { OnActionClickFn } from '#/adapter/vxe-table';
 import type { MealsRecipeApi } from '#/api/meals/recipe';
 
 import { useAccess } from '@vben/access';
-import { getRangePickerDefaultProps } from '@vben/utils';
+import { handleTree } from '@vben/utils';
 
+import { getFood, getSimpleFoodList } from '#/api/meals/food';
+import { getRecipeCategoryList } from '#/api/meals/recipecategory';
+import { getRangePickerDefaultProps } from '#/utils';
 import { DICT_TYPE, getDictOptions } from '#/utils/dict';
 
 const { hasAccessByCodes } = useAccess();
@@ -24,40 +27,97 @@ export function useFormSchema(): VbenFormSchema[] {
     },
     {
       fieldName: 'name',
-      label: '名字',
+      label: '名称',
       rules: 'required',
       component: 'Input',
       componentProps: {
-        placeholder: '请输入名字',
+        placeholder: '请输入名称',
       },
     },
     {
-      fieldName: 'sex',
-      label: '性别',
+      fieldName: 'recipeDesc',
+      label: '简介',
       rules: 'required',
-      component: 'RadioGroup',
+      component: 'Textarea',
       componentProps: {
-        options: getDictOptions(DICT_TYPE.SYSTEM_USER_SEX, 'number'),
+        placeholder: '请输入简介',
+      },
+    },
+    {
+      fieldName: 'recipeStep',
+      label: '教程',
+      rules: 'required',
+      component: 'RichTextarea',
+      componentProps: {
+        placeholder: '请输入教程',
+      },
+    },
+    {
+      fieldName: 'recipeCategory',
+      label: '菜谱分类',
+      rules: 'selectRequired',
+      component: 'ApiTreeSelect',
+      componentProps: {
+        multiple: true,
+        allowClear: true,
+        api: async () => {
+          const data = await getRecipeCategoryList({});
+          data.unshift({
+            id: 0,
+            name: '顶级菜谱分类',
+          });
+          return handleTree(data);
+        },
+        class: 'w-full',
+        labelField: 'name',
+        valueField: 'id',
+        childrenField: 'children',
+        placeholder: '请选择菜谱分类',
+        treeDefaultExpandAll: true,
+      },
+    },
+    {
+      fieldName: 'recipeLevel',
+      label: '烹饪难度',
+      rules: 'required',
+      component: 'Select',
+      componentProps: {
+        options: getDictOptions(DICT_TYPE.MEALS_RECIPE_LEVEL, 'number'),
         buttonStyle: 'solid',
         optionType: 'button',
       },
     },
     {
-      fieldName: 'birthday',
-      label: '出生日期',
+      fieldName: 'picUrl',
+      label: '菜谱封面图',
       rules: 'required',
-      component: 'DatePicker',
+      component: 'ImageUpload',
+    },
+    {
+      fieldName: 'sliderPicUrls',
+      label: '菜谱轮播图',
+      component: 'ImageUpload',
       componentProps: {
-        showTime: true,
-        format: 'YYYY-MM-DD HH:mm:ss',
-        valueFormat: 'x',
+        multiple: true,
+        maxSize: 5,
+        maxNumber: 5,
       },
     },
     {
-      fieldName: 'description',
-      label: '简介',
-      rules: 'required',
-      component: 'RichTextarea',
+      fieldName: 'memo',
+      label: '备注',
+      component: 'Textarea',
+      componentProps: {
+        placeholder: '请输入备注',
+      },
+    },
+    {
+      fieldName: 'sort',
+      label: '排序',
+      component: 'InputNumber',
+      componentProps: {
+        placeholder: '排序',
+      },
     },
   ];
 }
@@ -67,7 +127,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
   return [
     {
       fieldName: 'name',
-      label: '名字',
+      label: '名称',
       component: 'Input',
       componentProps: {
         allowClear: true,
@@ -75,22 +135,13 @@ export function useGridFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'sex',
-      label: '性别',
+      fieldName: 'recipeLevel',
+      label: '烹饪难度',
       component: 'Select',
       componentProps: {
         allowClear: true,
-        options: getDictOptions(DICT_TYPE.SYSTEM_USER_SEX, 'number'),
-        placeholder: '请选择性别',
-      },
-    },
-    {
-      fieldName: 'description',
-      label: '简介',
-      component: 'Input',
-      componentProps: {
-        allowClear: true,
-        placeholder: '请输入简介',
+        options: getDictOptions(DICT_TYPE.MEALS_RECIPE_LEVEL, 'number'),
+        placeholder: '请选择烹饪难度',
       },
     },
     {
@@ -113,37 +164,55 @@ export function useGridColumns(
     {
       field: 'id',
       title: '编号',
-      minWidth: 120,
+      minWidth: 80,
     },
     {
       field: 'name',
-      title: '名字',
+      title: '名称',
       minWidth: 120,
     },
     {
-      field: 'sex',
-      title: '性别',
-      minWidth: 120,
+      field: 'picUrl',
+      title: '封面',
+      minWidth: 80,
+      maxWidth: 80,
       cellRender: {
-        name: 'CellDict',
-        props: { type: DICT_TYPE.SYSTEM_USER_SEX },
+        name: 'CellImage',
       },
     },
     {
-      field: 'birthday',
-      title: '出生日期',
-      minWidth: 120,
-      formatter: 'formatDateTime',
+      field: 'recipeDesc',
+      title: '简介',
+      minWidth: 180,
     },
     {
-      field: 'description',
-      title: '简介',
+      field: 'recipeStep',
+      title: '教程',
+      minWidth: 240,
+    },
+    {
+      field: 'recipeLevel',
+      title: '烹饪难度',
       minWidth: 120,
+      cellRender: {
+        name: 'CellDict',
+        props: { type: DICT_TYPE.MEALS_RECIPE_LEVEL },
+      },
+    },
+    {
+      field: 'memo',
+      title: '备注',
+      minWidth: 180,
+    },
+    {
+      field: 'sort',
+      title: '排序',
+      minWidth: 80,
     },
     {
       field: 'createTime',
       title: '创建时间',
-      minWidth: 120,
+      minWidth: 140,
       formatter: 'formatDateTime',
     },
     {
@@ -176,7 +245,7 @@ export function useGridColumns(
   ];
 }
 
-// ==================== 子表（学生课程） ====================
+// ==================== 子表（菜谱食材） ====================
 
 /** 新增/修改的表单 */
 export function useRecipeFoodFormSchema(): VbenFormSchema[] {
@@ -190,21 +259,66 @@ export function useRecipeFoodFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'name',
-      label: '名字',
-      rules: 'required',
-      component: 'Input',
+      fieldName: 'foodId',
+      label: '食材',
+      rules: 'selectRequired',
+      component: 'ApiSelect',
       componentProps: {
-        placeholder: '请输入名字',
+        allowClear: true,
+        api: async () => {
+          return await getSimpleFoodList();
+        },
+        class: 'w-full',
+        labelField: 'name',
+        valueField: 'id',
+        childrenField: 'children',
+        placeholder: '请选择菜谱分类',
+        treeDefaultExpandAll: true,
       },
     },
     {
-      fieldName: 'score',
-      label: '分数',
-      rules: 'required',
-      component: 'Input',
+      fieldName: 'foodUnit',
+      label: '单位',
+      component: 'Select',
       componentProps: {
-        placeholder: '请输入分数',
+        options: getDictOptions(DICT_TYPE.MEALS_FOOD_UNIT, 'number'),
+        disabled: true,
+        buttonStyle: 'solid',
+        optionType: 'button',
+      },
+      dependencies: {
+        // foodId改变，则食材单位相应改变
+        triggerFields: ['foodId'],
+        componentProps: async (values) => {
+          if (!values.foodId) return {};
+          // 食材改变，更改食材单位信息
+          const foodData = await getFood(values.foodId);
+          values.foodUnit = foodData.foodUnit;
+          // 可直接传空，可用下面注释代码的指定
+          return {};
+          /* return {
+            options: getDictOptions(DICT_TYPE.MEALS_FOOD_UNIT, 'number'),
+            buttonStyle: 'solid',
+            optionType: 'button',
+          };*/
+        },
+      },
+    },
+    {
+      fieldName: 'amount',
+      label: '量',
+      rules: 'required',
+      component: 'InputNumber',
+      componentProps: {
+        placeholder: '请输入量',
+      },
+    },
+    {
+      fieldName: 'memo',
+      label: '备注',
+      component: 'Textarea',
+      componentProps: {
+        placeholder: '请输入备注',
       },
     },
   ];
@@ -214,30 +328,12 @@ export function useRecipeFoodFormSchema(): VbenFormSchema[] {
 export function useRecipeFoodGridFormSchema(): VbenFormSchema[] {
   return [
     {
-      fieldName: 'studentId',
-      label: '学生编号',
-      component: 'Input',
+      fieldName: 'amount',
+      label: '量',
+      component: 'InputNumber',
       componentProps: {
         allowClear: true,
-        placeholder: '请输入学生编号',
-      },
-    },
-    {
-      fieldName: 'name',
-      label: '名字',
-      component: 'Input',
-      componentProps: {
-        allowClear: true,
-        placeholder: '请输入名字',
-      },
-    },
-    {
-      fieldName: 'score',
-      label: '分数',
-      component: 'Input',
-      componentProps: {
-        allowClear: true,
-        placeholder: '请输入分数',
+        placeholder: '请输入量',
       },
     },
     {
@@ -263,19 +359,24 @@ export function useRecipeFoodGridColumns(
       minWidth: 120,
     },
     {
-      field: 'studentId',
-      title: '学生编号',
+      field: 'foodName',
+      title: '食材名称',
       minWidth: 120,
     },
     {
-      field: 'name',
-      title: '名字',
+      field: 'amount',
+      title: '量',
+      minWidth: 80,
+    },
+    {
+      field: 'foodUnit',
+      title: '食材单位',
       minWidth: 120,
     },
     {
-      field: 'score',
-      title: '分数',
-      minWidth: 120,
+      field: 'memo',
+      title: '备注',
+      minWidth: 240,
     },
     {
       field: 'createTime',

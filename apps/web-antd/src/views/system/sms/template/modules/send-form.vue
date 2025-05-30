@@ -16,11 +16,15 @@ const emit = defineEmits(['success']);
 const formData = ref<SystemSmsTemplateApi.SmsTemplate>();
 
 const [Form, formApi] = useVbenForm({
+  commonConfig: {
+    componentProps: {
+      class: 'w-full',
+    },
+    formItemClass: 'col-span-2',
+    labelWidth: 80,
+  },
   layout: 'horizontal',
   showDefaultActions: false,
-  commonConfig: {
-    labelWidth: 120,
-  },
 });
 
 const [Modal, modalApi] = useVbenModal({
@@ -50,14 +54,11 @@ const [Modal, modalApi] = useVbenModal({
       // 关闭并提示
       await modalApi.close();
       emit('success');
-      message.success({
-        content: '短信发送成功',
-        key: 'action_process_msg',
-      });
+      message.success('短信发送成功');
     } catch (error) {
       console.error('发送短信失败', error);
     } finally {
-      modalApi.lock(false);
+      modalApi.unlock();
     }
   },
   async onOpenChange(isOpen: boolean) {

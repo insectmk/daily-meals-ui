@@ -7,17 +7,16 @@ export namespace MealsRecipeApi {
   /** 菜谱信息*/
   export interface Recipe {
     id: number; // 编号
-    name: string; // 名称
-    recipeDesc: string; // 简介
-    recipeStep: string; // 教程
-    recipeType: number; // 菜谱类型
-    recipeCategory: number[]; // 菜谱分类
-    recipeLevel: number; // 烹饪难度
-    sort: number; // 排序
-    memo: string; // 备注
-    status: number; // 状态
-    picUrl: string; // 菜谱封面图
-    sliderPicUrls: string[]; // 菜谱轮播图
+    name?: string; // 名称
+    recipeDesc?: string; // 简介
+    recipeStep?: string; // 教程
+    recipeCategory?: number[]; // 菜谱分类
+    recipeLevel?: number; // 烹饪难度
+    sort?: number; // 排序
+    memo?: string; // 备注
+    status?: number; // 状态
+    picUrl?: string; // 菜谱封面图
+    sliderPicUrls?: string[]; // 菜谱轮播图
   }
 
   /** 菜谱食材信息 */
@@ -63,6 +62,11 @@ export function deleteRecipe(id: number) {
 /** 导出菜谱 Excel */
 export function exportRecipe(params: any) {
   return requestClient.download(`/meals/recipe/export-excel`, params);
+}
+
+/** 查询菜谱精简信息列表 */
+export function getSimpleRecipeList() {
+  return requestClient.get('/meals/recipe/list-all-simple');
 }
 
 /** ==================== 子表（菜谱食材） ====================

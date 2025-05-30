@@ -1,13 +1,15 @@
 <script lang="ts" setup>
 import type { SystemNotifyTemplateApi } from '#/api/system/notify/template';
 
+import { ref } from 'vue';
+
 import { useVbenModal } from '@vben/common-ui';
+
 import { message } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
 import { sendNotify } from '#/api/system/notify/template';
 import { $t } from '#/locales';
-import { ref } from 'vue';
 
 import { useSendNotifyFormSchema } from '../data';
 
@@ -15,11 +17,15 @@ const emit = defineEmits(['success']);
 const formData = ref<SystemNotifyTemplateApi.NotifyTemplate>();
 
 const [Form, formApi] = useVbenForm({
+  commonConfig: {
+    componentProps: {
+      class: 'w-full',
+    },
+    formItemClass: 'col-span-2',
+    labelWidth: 80,
+  },
   layout: 'horizontal',
   showDefaultActions: false,
-  commonConfig: {
-    labelWidth: 120,
-  },
 });
 
 const [Modal, modalApi] = useVbenModal({
@@ -50,14 +56,11 @@ const [Modal, modalApi] = useVbenModal({
       // 关闭并提示
       await modalApi.close();
       emit('success');
-      message.success({
-        content: $t('ui.actionMessage.operationSuccess'),
-        key: 'action_process_msg',
-      });
+      message.success($t('ui.actionMessage.operationSuccess'));
     } catch (error) {
       console.error('发送站内信失败', error);
     } finally {
-      modalApi.lock(false);
+      modalApi.unlock();
     }
   },
   async onOpenChange(isOpen: boolean) {
@@ -83,7 +86,7 @@ const [Modal, modalApi] = useVbenModal({
 });
 
 /** 动态构建表单 schema */
-const buildFormSchema = () => {
+function buildFormSchema() {
   const schema = useSendNotifyFormSchema();
   if (formData.value?.params) {
     formData.value.params.forEach((param: string) => {
@@ -99,7 +102,7 @@ const buildFormSchema = () => {
     });
   }
   return schema;
-};
+}
 </script>
 
 <template>

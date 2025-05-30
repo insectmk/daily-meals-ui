@@ -1,12 +1,11 @@
 import type { Recordable } from '@vben/types';
 
 import type { VbenFormSchema } from '#/adapter/form';
-import type { OnActionClickFn, VxeTableGridOptions } from '#/adapter/vxe-table';
+import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { SystemMenuApi } from '#/api/system/menu';
 
 import { h } from 'vue';
 
-import { useAccess } from '@vben/access';
 import { IconifyIcon } from '@vben/icons';
 import { handleTree, isHttpUrl } from '@vben/utils';
 
@@ -14,10 +13,12 @@ import { z } from '#/adapter/form';
 import { getMenuList } from '#/api/system/menu';
 import { $t } from '#/locales';
 import { componentKeys } from '#/router/routes';
-import { CommonStatusEnum, SystemMenuTypeEnum } from '#/utils/constants';
-import { DICT_TYPE, getDictOptions } from '#/utils/dict';
-
-const { hasAccessByCodes } = useAccess();
+import {
+  CommonStatusEnum,
+  DICT_TYPE,
+  getDictOptions,
+  SystemMenuTypeEnum,
+} from '#/utils';
 
 /** 新增/修改的表单 */
 export function useFormSchema(): VbenFormSchema[] {
@@ -44,7 +45,6 @@ export function useFormSchema(): VbenFormSchema[] {
           } as SystemMenuApi.Menu);
           return handleTree(data);
         },
-        class: 'w-full',
         labelField: 'name',
         valueField: 'id',
         childrenField: 'children',
@@ -167,7 +167,6 @@ export function useFormSchema(): VbenFormSchema[] {
       component: 'AutoComplete',
       componentProps: {
         allowClear: true,
-        class: 'w-full',
         filterOption(input: string, option: { value: string }) {
           return option.value.toLowerCase().includes(input.toLowerCase());
         },
@@ -203,7 +202,6 @@ export function useFormSchema(): VbenFormSchema[] {
       component: 'InputNumber',
       componentProps: {
         min: 0,
-        class: 'w-full',
         controlsPosition: 'right',
         placeholder: '请输入显示顺序',
       },
@@ -268,9 +266,7 @@ export function useFormSchema(): VbenFormSchema[] {
 }
 
 /** 列表的字段 */
-export function useGridColumns(
-  onActionClick: OnActionClickFn<SystemMenuApi.Menu>,
-): VxeTableGridOptions<SystemMenuApi.Menu>['columns'] {
+export function useGridColumns(): VxeTableGridOptions<SystemMenuApi.Menu>['columns'] {
   return [
     {
       field: 'name',
@@ -320,35 +316,10 @@ export function useGridColumns(
       },
     },
     {
-      field: 'operation',
       title: '操作',
-      align: 'right',
-      minWidth: 200,
+      width: 220,
       fixed: 'right',
-      headerAlign: 'center',
-      showOverflow: false,
-      cellRender: {
-        attrs: {
-          nameField: 'name',
-          onClick: onActionClick,
-        },
-        name: 'CellOperation',
-        options: [
-          {
-            code: 'append',
-            text: '新增下级',
-            show: hasAccessByCodes(['system:menu:create']),
-          },
-          {
-            code: 'edit',
-            show: hasAccessByCodes(['system:menu:update']),
-          },
-          {
-            code: 'delete',
-            show: hasAccessByCodes(['system:menu:delete']),
-          },
-        ],
-      },
+      slots: { default: 'actions' },
     },
   ];
 }

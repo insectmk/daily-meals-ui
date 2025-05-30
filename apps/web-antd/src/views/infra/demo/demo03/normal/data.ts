@@ -1,13 +1,10 @@
-import type { VxeTableGridOptions } from '@vben/plugins/vxe-table';
-
 import type { VbenFormSchema } from '#/adapter/form';
-import type { OnActionClickFn } from '#/adapter/vxe-table';
+import type { OnActionClickFn, VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { Demo03StudentApi } from '#/api/infra/demo/demo03/normal';
 
 import { useAccess } from '@vben/access';
-import { getRangePickerDefaultProps } from '@vben/utils';
 
-import { DICT_TYPE, getDictOptions } from '#/utils/dict';
+import { DICT_TYPE, getDictOptions, getRangePickerDefaultProps } from '#/utils';
 
 const { hasAccessByCodes } = useAccess();
 
@@ -110,6 +107,7 @@ export function useGridColumns(
   onActionClick?: OnActionClickFn<Demo03StudentApi.Demo03Student>,
 ): VxeTableGridOptions<Demo03StudentApi.Demo03Student>['columns'] {
   return [
+    { type: 'checkbox', width: 40 },
     {
       field: 'id',
       title: '编号',
@@ -152,7 +150,6 @@ export function useGridColumns(
       minWidth: 200,
       align: 'center',
       fixed: 'right',
-      headerAlign: 'center',
       showOverflow: false,
       cellRender: {
         attrs: {
@@ -201,7 +198,6 @@ export function useDemo03CourseGridEditColumns(
       minWidth: 60,
       align: 'center',
       fixed: 'right',
-      headerAlign: 'center',
       showOverflow: false,
       cellRender: {
         attrs: {

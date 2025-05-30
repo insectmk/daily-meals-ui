@@ -1,16 +1,13 @@
 <script lang="ts" setup>
-import type {
-  OnActionClickParams,
-  VxeTableGridOptions,
-} from '#/adapter/vxe-table';
+import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { InfraFileConfigApi } from '#/api/infra/file-config';
 
-import { Page, useVbenModal } from '@vben/common-ui';
-import { Plus } from '@vben/icons';
+import { confirm, Page, useVbenModal } from '@vben/common-ui';
+import { openWindow } from '@vben/utils';
 
-import { Button, message, Modal } from 'ant-design-vue';
+import { message } from 'ant-design-vue';
 
-import { useVbenVxeGrid } from '#/adapter/vxe-table';
+import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
   deleteFileConfig,
   getFileConfigPage,
@@ -33,17 +30,17 @@ function onRefresh() {
 }
 
 /** 创建文件配置 */
-function onCreate() {
+function handleCreate() {
   formModalApi.setData(null).open();
 }
 
 /** 编辑文件配置 */
-function onEdit(row: InfraFileConfigApi.FileConfig) {
+function handleEdit(row: InfraFileConfigApi.FileConfig) {
   formModalApi.setData(row).open();
 }
 
 /** 设为主配置 */
-async function onMaster(row: InfraFileConfigApi.FileConfig) {
+async function handleMaster(row: InfraFileConfigApi.FileConfig) {
   const hideLoading = message.loading({
     content: $t('ui.actionMessage.updating', [row.name]),
     duration: 0,
@@ -51,18 +48,15 @@ async function onMaster(row: InfraFileConfigApi.FileConfig) {
   });
   try {
     await updateFileConfigMaster(row.id as number);
-    message.success({
-      content: $t('ui.actionMessage.operationSuccess'),
-      key: 'action_process_msg',
-    });
+    message.success($t('ui.actionMessage.operationSuccess'));
     onRefresh();
-  } catch {
+  } finally {
     hideLoading();
   }
 }
 
 /** 测试文件配置 */
-async function onTest(row: InfraFileConfigApi.FileConfig) {
+async function handleTest(row: InfraFileConfigApi.FileConfig) {
   const hideLoading = message.loading({
     content: '测试上传中...',
     duration: 0,
@@ -72,61 +66,34 @@ async function onTest(row: InfraFileConfigApi.FileConfig) {
     const response = await testFileConfig(row.id as number);
     hideLoading();
     // 确认是否访问该文件
-    Modal.confirm({
+    confirm({
       title: '测试上传成功',
       content: '是否要访问该文件？',
-      okText: '访问',
+      confirmText: '访问',
       cancelText: '取消',
-      onOk: () => {
-        window.open(response, '_blank');
-      },
+    }).then(() => {
+      openWindow(response);
     });
-  } catch {
+  } finally {
     hideLoading();
   }
 }
 
 /** 删除文件配置 */
-async function onDelete(row: InfraFileConfigApi.FileConfig) {
+async function handleDelete(row: InfraFileConfigApi.FileConfig) {
   const hideLoading = message.loading({
     content: $t('ui.actionMessage.deleting', [row.name]),
-    duration: 0,
-    key: 'action_process_msg',
+    key: 'action_key_msg',
   });
   try {
     await deleteFileConfig(row.id as number);
     message.success({
       content: $t('ui.actionMessage.deleteSuccess', [row.name]),
-      key: 'action_process_msg',
+      key: 'action_key_msg',
     });
     onRefresh();
-  } catch {
+  } finally {
     hideLoading();
-  }
-}
-
-/** 表格操作按钮的回调函数 */
-function onActionClick({
-  code,
-  row,
-}: OnActionClickParams<InfraFileConfigApi.FileConfig>) {
-  switch (code) {
-    case 'delete': {
-      onDelete(row);
-      break;
-    }
-    case 'edit': {
-      onEdit(row);
-      break;
-    }
-    case 'master': {
-      onMaster(row);
-      break;
-    }
-    case 'test': {
-      onTest(row);
-      break;
-    }
   }
 }
 
@@ -135,7 +102,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     schema: useGridFormSchema(),
   },
   gridOptions: {
-    columns: useGridColumns(onActionClick),
+    columns: useGridColumns(),
     height: 'auto',
     keepSource: true,
     proxyConfig: {
@@ -165,14 +132,58 @@ const [Grid, gridApi] = useVbenVxeGrid({
     <FormModal @success="onRefresh" />
     <Grid table-title="文件配置列表">
       <template #toolbar-tools>
-        <Button
-          type="primary"
-          @click="onCreate"
-          v-access:code="['infra:file-config:create']"
-        >
-          <Plus class="size-5" />
-          {{ $t('ui.actionTitle.create', ['文件配置']) }}
-        </Button>
+        <TableAction
+          :actions="[
+            {
+              label: $t('ui.actionTitle.create', ['角色']),
+              type: 'primary',
+              icon: ACTION_ICON.ADD,
+              auth: ['system:role:create'],
+              onClick: handleCreate,
+            },
+          ]"
+        />
+      </template>
+      <template #actions="{ row }">
+        <TableAction
+          :actions="[
+            {
+              label: $t('common.edit'),
+              type: 'link',
+              icon: ACTION_ICON.EDIT,
+              auth: ['infra:file-config:update'],
+              onClick: handleEdit.bind(null, row),
+            },
+            {
+              label: '测试',
+              type: 'link',
+              icon: 'lucide:test-tube-diagonal',
+              auth: ['infra:file-config:update'],
+              onClick: handleTest.bind(null, row),
+            },
+          ]"
+          :drop-down-actions="[
+            {
+              label: '主配置',
+              type: 'link',
+              auth: ['infra:file-config:update'],
+              popConfirm: {
+                title: `是否要将${row.name}设为主配置？`,
+                confirm: handleMaster.bind(null, row),
+              },
+            },
+            {
+              label: $t('common.delete'),
+              type: 'link',
+              danger: true,
+              auth: ['infra:file-config:delete'],
+              popConfirm: {
+                title: $t('ui.actionMessage.deleteConfirm', [row.name]),
+                confirm: handleDelete.bind(null, row),
+              },
+            },
+          ]"
+        />
       </template>
     </Grid>
   </Page>

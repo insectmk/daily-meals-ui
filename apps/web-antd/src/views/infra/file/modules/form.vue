@@ -14,12 +14,17 @@ import { useFormSchema } from '../data';
 const emit = defineEmits(['success']);
 
 const [Form, formApi] = useVbenForm({
+  commonConfig: {
+    componentProps: {
+      class: 'w-full',
+    },
+    formItemClass: 'col-span-2',
+    labelWidth: 80,
+    hideLabel: true,
+  },
   layout: 'horizontal',
   schema: useFormSchema().map((item) => ({ ...item, label: '' })), // 去除label
   showDefaultActions: false,
-  commonConfig: {
-    hideLabel: true,
-  },
 });
 
 const [Modal, modalApi] = useVbenModal({
@@ -36,18 +41,16 @@ const [Modal, modalApi] = useVbenModal({
       // 关闭并提示
       await modalApi.close();
       emit('success');
-      message.success({
-        content: $t('ui.actionMessage.operationSuccess'),
-        key: 'action_process_msg',
-      });
+      message.success($t('ui.actionMessage.operationSuccess'));
     } finally {
-      modalApi.lock(false);
+      modalApi.unlock();
     }
   },
 });
 
 /** 上传前 */
 function beforeUpload(file: FileType) {
+  // TODO @puhui999：研究下，看看怎么类似 antd 可以前端直传哈；通过配置切换；
   formApi.setFieldValue('file', file);
   return false;
 }
@@ -59,6 +62,7 @@ function beforeUpload(file: FileType) {
       <template #file>
         <div class="w-full">
           <!-- 上传区域 -->
+          <!-- TODO @puhui999：1）上传图片，用不了；2）底部有点遮挡 -->
           <Upload.Dragger
             name="file"
             :max-count="1"

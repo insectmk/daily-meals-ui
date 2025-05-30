@@ -44,35 +44,35 @@ function onRefresh() {
 /** 导出表格 */
 async function onExport() {
   const data = await exportRecipeCategory(await gridApi.formApi.getValues());
-  downloadFileFromBlobPart({ fileName: '示例分类.xls', source: data });
+  downloadFileFromBlobPart({ fileName: '菜谱分类.xls', source: data });
 }
 
-/** 创建示例分类 */
+/** 创建菜谱分类 */
 function onCreate() {
   formModalApi.setData(null).open();
 }
 
-/** 编辑示例分类 */
+/** 编辑菜谱分类 */
 function onEdit(row: MealsRecipeCategoryApi.RecipeCategory) {
   formModalApi.setData(row).open();
 }
 
-/** 新增下级示例分类 */
+/** 新增下级菜谱分类 */
 function onAppend(row: MealsRecipeCategoryApi.RecipeCategory) {
   formModalApi.setData({ parentId: row.id }).open();
 }
 
-/** 删除示例分类 */
+/** 删除菜谱分类 */
 async function onDelete(row: MealsRecipeCategoryApi.RecipeCategory) {
   const hideLoading = message.loading({
-    content: $t('ui.actionMessage.deleting', [row.id]),
+    content: $t('ui.actionMessage.deleting', [row.name]),
     duration: 0,
     key: 'action_process_msg',
   });
   try {
     await deleteRecipeCategory(row.id as number);
     message.success({
-      content: $t('ui.actionMessage.deleteSuccess', [row.id]),
+      content: $t('ui.actionMessage.deleteSuccess', [row.name]),
       key: 'action_process_msg',
     });
     onRefresh();
@@ -142,7 +142,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
   <Page auto-content-height>
     <FormModal @success="onRefresh" />
 
-    <Grid table-title="示例分类列表">
+    <Grid table-title="菜谱分类列表">
       <template #toolbar-tools>
         <Button @click="toggleExpand" class="mr-2">
           {{ isExpanded ? '收缩' : '展开' }}
@@ -153,7 +153,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
           @click="onCreate"
           v-access:code="['meals:recipe-category:create']"
         >
-          {{ $t('ui.actionTitle.create', ['示例分类']) }}
+          {{ $t('ui.actionTitle.create', ['菜谱分类']) }}
         </Button>
         <Button
           :icon="h(Download)"

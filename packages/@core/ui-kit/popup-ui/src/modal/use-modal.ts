@@ -1,6 +1,15 @@
 import type { ExtendedModalApi, ModalApiOptions, ModalProps } from './modal';
 
-import { defineComponent, h, inject, nextTick, provide, reactive } from 'vue';
+import {
+  defineComponent,
+  h,
+  inject,
+  nextTick,
+  onDeactivated,
+  provide,
+  reactive,
+  ref,
+} from 'vue';
 
 import { useStore } from '@vben-core/shared/store';
 
@@ -24,6 +33,7 @@ export function useVbenModal<TParentModalProps extends ModalProps = ModalProps>(
   const { connectedComponent } = options;
   if (connectedComponent) {
     const extendedApi = reactive({});
+    const isModalReady = ref(true);
     const Modal = defineComponent(
       (props: TParentModalProps, { attrs, slots }) => {
         provide(USER_MODAL_INJECT_KEY, {
@@ -33,6 +43,11 @@ export function useVbenModal<TParentModalProps extends ModalProps = ModalProps>(
             Object.setPrototypeOf(extendedApi, api);
           },
           options,
+          async reCreateModal() {
+            isModalReady.value = false;
+            await nextTick();
+            isModalReady.value = true;
+          },
         });
         checkProps(extendedApi as ExtendedModalApi, {
           ...props,
@@ -41,7 +56,7 @@ export function useVbenModal<TParentModalProps extends ModalProps = ModalProps>(
         });
         return () =>
           h(
-            connectedComponent,
+            isModalReady.value ? connectedComponent : 'div',
             {
               ...props,
               ...attrs,
@@ -49,11 +64,20 @@ export function useVbenModal<TParentModalProps extends ModalProps = ModalProps>(
             slots,
           );
       },
+      // eslint-disable-next-line vue/one-component-per-file
       {
-        inheritAttrs: false,
         name: 'VbenParentModal',
+        inheritAttrs: false,
       },
     );
+
+    /**
+     * 在开启keepAlive情况下 直接通过浏览器按钮/手势等返回 不会关闭弹窗
+     */
+    onDeactivated(() => {
+      (extendedApi as ExtendedModalApi)?.close?.();
+    });
+
     return [Modal, extendedApi as ExtendedModalApi] as const;
   }
 
@@ -72,7 +96,7 @@ export function useVbenModal<TParentModalProps extends ModalProps = ModalProps>(
 
   mergedOptions.onClosed = () => {
     options.onClosed?.();
-    if (options.destroyOnClose) {
+    if (mergedOptions.destroyOnClose) {
       injectData.reCreateModal?.();
     }
   };
@@ -98,9 +122,10 @@ export function useVbenModal<TParentModalProps extends ModalProps = ModalProps>(
           slots,
         );
     },
+    // eslint-disable-next-line vue/one-component-per-file
     {
-      inheritAttrs: false,
       name: 'VbenModal',
+      inheritAttrs: false,
     },
   );
   injectData.extendApi?.(extendedApi);

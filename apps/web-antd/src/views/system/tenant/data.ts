@@ -1,16 +1,14 @@
 import type { VbenFormSchema } from '#/adapter/form';
-import type { OnActionClickFn, VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { SystemTenantApi } from '#/api/system/tenant';
-
-import { useAccess } from '@vben/access';
-import { getRangePickerDefaultProps } from '@vben/utils';
+import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 
 import { z } from '#/adapter/form';
 import { getTenantPackageList } from '#/api/system/tenant-package';
-import { CommonStatusEnum } from '#/utils/constants';
-import { DICT_TYPE, getDictOptions } from '#/utils/dict';
-
-const { hasAccessByCodes } = useAccess();
+import {
+  CommonStatusEnum,
+  DICT_TYPE,
+  getDictOptions,
+  getRangePickerDefaultProps,
+} from '#/utils';
 
 /** 新增/修改的表单 */
 export function useFormSchema(): VbenFormSchema[] {
@@ -27,9 +25,6 @@ export function useFormSchema(): VbenFormSchema[] {
       fieldName: 'name',
       label: '租户名称',
       component: 'Input',
-      componentProps: {
-        placeholder: '请输入租户名称',
-      },
       rules: 'required',
     },
     {
@@ -38,7 +33,6 @@ export function useFormSchema(): VbenFormSchema[] {
       component: 'ApiSelect',
       componentProps: {
         api: () => getTenantPackageList(),
-        class: 'w-full',
         labelField: 'name',
         valueField: 'id',
         placeholder: '请选择租户套餐',
@@ -49,26 +43,18 @@ export function useFormSchema(): VbenFormSchema[] {
       fieldName: 'contactName',
       label: '联系人',
       component: 'Input',
-      componentProps: {
-        placeholder: '请输入联系人',
-      },
       rules: 'required',
     },
     {
       fieldName: 'contactMobile',
       label: '联系手机',
       component: 'Input',
-      componentProps: {
-        placeholder: '请输入联系手机',
-      },
+      rules: 'mobile',
     },
     {
       label: '用户名称',
       fieldName: 'username',
       component: 'Input',
-      componentProps: {
-        placeholder: '请输入用户名称',
-      },
       rules: 'required',
       dependencies: {
         triggerFields: ['id'],
@@ -79,9 +65,6 @@ export function useFormSchema(): VbenFormSchema[] {
       label: '用户密码',
       fieldName: 'password',
       component: 'InputPassword',
-      componentProps: {
-        placeholder: '请输入用户密码',
-      },
       rules: 'required',
       dependencies: {
         triggerFields: ['id'],
@@ -92,10 +75,6 @@ export function useFormSchema(): VbenFormSchema[] {
       label: '账号额度',
       fieldName: 'accountCount',
       component: 'InputNumber',
-      componentProps: {
-        class: 'w-full',
-        placeholder: '请输入账号额度',
-      },
       rules: 'required',
     },
     {
@@ -105,7 +84,6 @@ export function useFormSchema(): VbenFormSchema[] {
       componentProps: {
         format: 'YYYY-MM-DD',
         valueFormat: 'x',
-        class: 'w-full',
         placeholder: '请选择过期时间',
       },
       rules: 'required',
@@ -114,9 +92,6 @@ export function useFormSchema(): VbenFormSchema[] {
       label: '绑定域名',
       fieldName: 'website',
       component: 'Input',
-      componentProps: {
-        placeholder: '请输入绑定域名',
-      },
       rules: 'required',
     },
     {
@@ -182,8 +157,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
 }
 
 /** 列表的字段 */
-export function useGridColumns<T = SystemTenantApi.Tenant>(
-  onActionClick: OnActionClickFn<T>,
+export function useGridColumns(
   getPackageName?: (packageId: number) => string | undefined,
 ): VxeTableGridOptions['columns'] {
   return [
@@ -247,29 +221,10 @@ export function useGridColumns<T = SystemTenantApi.Tenant>(
       formatter: 'formatDateTime',
     },
     {
-      field: 'operation',
       title: '操作',
-      minWidth: 130,
-      align: 'center',
+      width: 130,
       fixed: 'right',
-      cellRender: {
-        attrs: {
-          nameField: 'name',
-          nameTitle: '租户',
-          onClick: onActionClick,
-        },
-        name: 'CellOperation',
-        options: [
-          {
-            code: 'edit',
-            show: hasAccessByCodes(['system:tenant:update']),
-          },
-          {
-            code: 'delete',
-            show: hasAccessByCodes(['system:tenant:delete']),
-          },
-        ],
-      },
+      slots: { default: 'actions' },
     },
   ];
 }

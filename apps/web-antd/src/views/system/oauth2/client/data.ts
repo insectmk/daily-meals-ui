@@ -1,14 +1,8 @@
 import type { VbenFormSchema } from '#/adapter/form';
-import type { OnActionClickFn, VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { SystemOAuth2ClientApi } from '#/api/system/oauth2/client';
-
-import { useAccess } from '@vben/access';
+import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 
 import { z } from '#/adapter/form';
-import { CommonStatusEnum } from '#/utils/constants';
-import { DICT_TYPE, getDictOptions } from '#/utils/dict';
-
-const { hasAccessByCodes } = useAccess();
+import { CommonStatusEnum, DICT_TYPE, getDictOptions } from '#/utils';
 
 /** 新增/修改的表单 */
 export function useFormSchema(): VbenFormSchema[] {
@@ -48,11 +42,10 @@ export function useFormSchema(): VbenFormSchema[] {
       },
       rules: 'required',
     },
-    // TODO @芋艿：图片上传
     {
       fieldName: 'logo',
       label: '应用图标',
-      component: 'UploadImage',
+      component: 'ImageUpload',
       componentProps: {
         limit: 1,
       },
@@ -84,7 +77,6 @@ export function useFormSchema(): VbenFormSchema[] {
       componentProps: {
         placeholder: '请输入访问令牌的有效期，单位：秒',
         min: 0,
-        class: 'w-full',
         controlsPosition: 'right',
       },
       rules: 'required',
@@ -96,7 +88,6 @@ export function useFormSchema(): VbenFormSchema[] {
       componentProps: {
         placeholder: '请输入刷新令牌的有效期，单位：秒',
         min: 0,
-        class: 'w-full',
         controlsPosition: 'right',
       },
       rules: 'required',
@@ -109,7 +100,6 @@ export function useFormSchema(): VbenFormSchema[] {
         options: getDictOptions(DICT_TYPE.SYSTEM_OAUTH2_GRANT_TYPE),
         mode: 'multiple',
         placeholder: '请输入授权类型',
-        class: 'w-full',
       },
       rules: 'required',
     },
@@ -120,7 +110,6 @@ export function useFormSchema(): VbenFormSchema[] {
       componentProps: {
         placeholder: '请输入授权范围',
         mode: 'tags',
-        class: 'w-full',
       },
     },
     {
@@ -130,7 +119,6 @@ export function useFormSchema(): VbenFormSchema[] {
       componentProps: {
         placeholder: '请输入自动授权范围',
         mode: 'multiple',
-        class: 'w-full',
         // TODO @芋艿：根据权限，自动授权范围
       },
     },
@@ -141,7 +129,6 @@ export function useFormSchema(): VbenFormSchema[] {
       componentProps: {
         placeholder: '请输入可重定向的 URI 地址',
         mode: 'tags',
-        class: 'w-full',
       },
       rules: 'required',
     },
@@ -152,7 +139,6 @@ export function useFormSchema(): VbenFormSchema[] {
       componentProps: {
         placeholder: '请输入权限',
         mode: 'tags',
-        class: 'w-full',
       },
     },
     {
@@ -162,7 +148,6 @@ export function useFormSchema(): VbenFormSchema[] {
       componentProps: {
         mode: 'tags',
         placeholder: '请输入资源',
-        class: 'w-full',
       },
     },
     {
@@ -201,9 +186,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
 }
 
 /** 列表的字段 */
-export function useGridColumns<T = SystemOAuth2ClientApi.OAuth2Client>(
-  onActionClick: OnActionClickFn<T>,
-): VxeTableGridOptions['columns'] {
+export function useGridColumns(): VxeTableGridOptions['columns'] {
   return [
     {
       field: 'clientId',
@@ -261,29 +244,10 @@ export function useGridColumns<T = SystemOAuth2ClientApi.OAuth2Client>(
       formatter: 'formatDateTime',
     },
     {
-      field: 'operation',
       title: '操作',
-      minWidth: 130,
-      align: 'center',
+      width: 130,
       fixed: 'right',
-      cellRender: {
-        attrs: {
-          nameField: 'name',
-          nameTitle: 'OAuth2 客户端',
-          onClick: onActionClick,
-        },
-        name: 'CellOperation',
-        options: [
-          {
-            code: 'edit',
-            show: hasAccessByCodes(['system:oauth2-client:update']),
-          },
-          {
-            code: 'delete',
-            show: hasAccessByCodes(['system:oauth2-client:delete']),
-          },
-        ],
-      },
+      slots: { default: 'actions' },
     },
   ];
 }

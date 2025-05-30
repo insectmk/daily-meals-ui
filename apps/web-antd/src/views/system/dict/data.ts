@@ -1,16 +1,9 @@
 import type { VbenFormSchema } from '#/adapter/form';
-import type { OnActionClickFn, VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { SystemDictDataApi } from '#/api/system/dict/data';
-import type { SystemDictTypeApi } from '#/api/system/dict/type';
-
-import { useAccess } from '@vben/access';
+import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 
 import { z } from '#/adapter/form';
 import { getSimpleDictTypeList } from '#/api/system/dict/type';
-import { CommonStatusEnum } from '#/utils/constants';
-import { DICT_TYPE, getDictOptions } from '#/utils/dict';
-
-const { hasAccessByCodes } = useAccess();
+import { CommonStatusEnum, DICT_TYPE, getDictOptions } from '#/utils';
 
 // ============================== 字典类型 ==============================
 
@@ -38,13 +31,15 @@ export function useTypeFormSchema(): VbenFormSchema[] {
       fieldName: 'type',
       label: '字典类型',
       component: 'Input',
-      componentProps: {
-        placeholder: '请输入字典类型',
+      componentProps: (values) => {
+        return {
+          placeholder: '请输入字典类型',
+          disabled: !!values.id,
+        };
       },
       rules: 'required',
       dependencies: {
         triggerFields: [''],
-        disabled: ({ values }) => values.id,
       },
     },
     {
@@ -95,9 +90,7 @@ export function useTypeGridFormSchema(): VbenFormSchema[] {
 }
 
 /** 类型列表的字段 */
-export function useTypeGridColumns<T = SystemDictTypeApi.DictType>(
-  onActionClick: OnActionClickFn<T>,
-): VxeTableGridOptions['columns'] {
+export function useTypeGridColumns(): VxeTableGridOptions['columns'] {
   return [
     {
       field: 'id',
@@ -107,9 +100,8 @@ export function useTypeGridColumns<T = SystemDictTypeApi.DictType>(
     {
       field: 'name',
       title: '字典名称',
-      minWidth: 180,
+      minWidth: 200,
     },
-    // TODO @芋艿：disable的；
     {
       field: 'type',
       title: '字典类型',
@@ -118,7 +110,7 @@ export function useTypeGridColumns<T = SystemDictTypeApi.DictType>(
     {
       field: 'status',
       title: '状态',
-      minWidth: 180,
+      minWidth: 120,
       cellRender: {
         name: 'CellDict',
         props: { type: DICT_TYPE.COMMON_STATUS },
@@ -136,29 +128,10 @@ export function useTypeGridColumns<T = SystemDictTypeApi.DictType>(
       formatter: 'formatDateTime',
     },
     {
-      minWidth: 120,
       title: '操作',
-      field: 'operation',
+      width: 160,
       fixed: 'right',
-      align: 'center',
-      cellRender: {
-        attrs: {
-          nameField: 'type',
-          nameTitle: '字典类型',
-          onClick: onActionClick,
-        },
-        name: 'CellOperation',
-        options: [
-          {
-            code: 'edit',
-            show: hasAccessByCodes(['system:dict:update']),
-          },
-          {
-            code: 'delete',
-            show: hasAccessByCodes(['system:dict:delete']),
-          },
-        ],
-      },
+      slots: { default: 'actions' },
     },
   ];
 }
@@ -204,7 +177,6 @@ export function useDataFormSchema(): VbenFormSchema[] {
         return {
           api: getSimpleDictTypeList,
           placeholder: '请输入字典类型',
-          class: 'w-full',
           labelField: 'name',
           valueField: 'type',
           disabled: !!values.id,
@@ -239,7 +211,6 @@ export function useDataFormSchema(): VbenFormSchema[] {
       component: 'InputNumber',
       componentProps: {
         placeholder: '请输入显示排序',
-        class: 'w-full',
       },
       rules: 'required',
     },
@@ -262,7 +233,6 @@ export function useDataFormSchema(): VbenFormSchema[] {
       componentProps: {
         options: colorOptions,
         placeholder: '请选择颜色类型',
-        class: 'w-full',
       },
     },
     {
@@ -313,9 +283,7 @@ export function useDataGridFormSchema(): VbenFormSchema[] {
 /**
  * 字典数据表格列
  */
-export function useDataGridColumns<T = SystemDictDataApi.DictData>(
-  onActionClick: OnActionClickFn<T>,
-): VxeTableGridOptions['columns'] {
+export function useDataGridColumns(): VxeTableGridOptions['columns'] {
   return [
     {
       field: 'id',
@@ -363,29 +331,10 @@ export function useDataGridColumns<T = SystemDictDataApi.DictData>(
       formatter: 'formatDateTime',
     },
     {
-      minWidth: 120,
       title: '操作',
-      field: 'operation',
+      width: 160,
       fixed: 'right',
-      align: 'center',
-      cellRender: {
-        attrs: {
-          nameField: 'label',
-          nameTitle: '字典数据',
-          onClick: onActionClick,
-        },
-        name: 'CellOperation',
-        options: [
-          {
-            code: 'edit',
-            show: hasAccessByCodes(['system:dict:update']),
-          },
-          {
-            code: 'delete',
-            show: hasAccessByCodes(['system:dict:delete']),
-          },
-        ],
-      },
+      slots: { default: 'actions' },
     },
   ];
 }

@@ -1,19 +1,13 @@
-import type { VxeTableGridOptions } from '@vben/plugins/vxe-table';
-
 import type { VbenFormSchema } from '#/adapter/form';
-import type { OnActionClickFn } from '#/adapter/vxe-table';
+import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { SystemDeptApi } from '#/api/system/dept';
 
-import { useAccess } from '@vben/access';
 import { handleTree } from '@vben/utils';
 
 import { z } from '#/adapter/form';
 import { getDeptList } from '#/api/system/dept';
 import { getSimpleUserList } from '#/api/system/user';
-import { CommonStatusEnum } from '#/utils/constants';
-import { DICT_TYPE, getDictOptions } from '#/utils/dict';
-
-const { hasAccessByCodes } = useAccess();
+import { CommonStatusEnum, DICT_TYPE, getDictOptions } from '#/utils';
 
 /** 新增/修改的表单 */
 export function useFormSchema(): VbenFormSchema[] {
@@ -40,7 +34,6 @@ export function useFormSchema(): VbenFormSchema[] {
           });
           return handleTree(data);
         },
-        class: 'w-full',
         labelField: 'name',
         valueField: 'id',
         childrenField: 'children',
@@ -64,7 +57,6 @@ export function useFormSchema(): VbenFormSchema[] {
       component: 'InputNumber',
       componentProps: {
         min: 0,
-        class: 'w-full',
         controlsPosition: 'right',
         placeholder: '请输入显示顺序',
       },
@@ -76,7 +68,6 @@ export function useFormSchema(): VbenFormSchema[] {
       component: 'ApiSelect',
       componentProps: {
         api: getSimpleUserList,
-        class: 'w-full',
         labelField: 'nickname',
         valueField: 'id',
         placeholder: '请选择负责人',
@@ -119,7 +110,6 @@ export function useFormSchema(): VbenFormSchema[] {
 
 /** 列表的字段 */
 export function useGridColumns(
-  onActionClick?: OnActionClickFn<SystemDeptApi.Dept>,
   getLeaderName?: (userId: number) => string | undefined,
 ): VxeTableGridOptions<SystemDeptApi.Dept>['columns'] {
   return [
@@ -160,39 +150,10 @@ export function useGridColumns(
       formatter: 'formatDateTime',
     },
     {
-      field: 'operation',
       title: '操作',
-      minWidth: 200,
-      align: 'right',
+      width: 220,
       fixed: 'right',
-      headerAlign: 'center',
-      showOverflow: false,
-      cellRender: {
-        attrs: {
-          nameField: 'name',
-          nameTitle: '部门',
-          onClick: onActionClick,
-        },
-        name: 'CellOperation',
-        options: [
-          {
-            code: 'append',
-            text: '新增下级',
-            show: hasAccessByCodes(['system:dept:create']),
-          },
-          {
-            code: 'edit',
-            show: hasAccessByCodes(['system:dept:update']),
-          },
-          {
-            code: 'delete',
-            show: hasAccessByCodes(['system:dept:delete']),
-            disabled: (row: SystemDeptApi.Dept) => {
-              return !!(row.children && row.children.length > 0);
-            },
-          },
-        ],
-      },
+      slots: { default: 'actions' },
     },
   ];
 }

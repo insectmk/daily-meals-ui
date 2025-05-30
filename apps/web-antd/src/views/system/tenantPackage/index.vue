@@ -1,15 +1,12 @@
 <script lang="ts" setup>
-import type {
-  OnActionClickParams,
-  VxeTableGridOptions,
-} from '#/adapter/vxe-table';
+import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { SystemTenantPackageApi } from '#/api/system/tenant-package';
 
 import { Page, useVbenModal } from '@vben/common-ui';
 
-import { Button, message } from 'ant-design-vue';
+import { message } from 'ant-design-vue';
 
-import { useVbenVxeGrid } from '#/adapter/vxe-table';
+import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
   deleteTenantPackage,
   getTenantPackagePage,
@@ -31,48 +28,30 @@ function onRefresh() {
 }
 
 /** 创建租户套餐 */
-function onCreate() {
+function handleCreate() {
   formModalApi.setData(null).open();
 }
 
 /** 编辑租户套餐 */
-function onEdit(row: SystemTenantPackageApi.TenantPackage) {
+function handleEdit(row: SystemTenantPackageApi.TenantPackage) {
   formModalApi.setData(row).open();
 }
 
 /** 删除租户套餐 */
-async function onDelete(row: SystemTenantPackageApi.TenantPackage) {
+async function handleDelete(row: SystemTenantPackageApi.TenantPackage) {
   const hideLoading = message.loading({
     content: $t('ui.actionMessage.deleting', [row.name]),
-    duration: 0,
-    key: 'action_process_msg',
+    key: 'action_key_msg',
   });
   try {
     await deleteTenantPackage(row.id as number);
     message.success({
       content: $t('ui.actionMessage.deleteSuccess', [row.name]),
-      key: 'action_process_msg',
+      key: 'action_key_msg',
     });
     onRefresh();
-  } catch {
+  } finally {
     hideLoading();
-  }
-}
-
-/** 表格操作按钮的回调函数 */
-function onActionClick({
-  code,
-  row,
-}: OnActionClickParams<SystemTenantPackageApi.TenantPackage>) {
-  switch (code) {
-    case 'delete': {
-      onDelete(row);
-      break;
-    }
-    case 'edit': {
-      onEdit(row);
-      break;
-    }
   }
 }
 
@@ -82,7 +61,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     // TODO @芋艿：时间筛选，后续处理；
   },
   gridOptions: {
-    columns: useGridColumns(onActionClick),
+    columns: useGridColumns(),
     height: 'auto',
     keepSource: true,
     proxyConfig: {
@@ -109,19 +88,48 @@ const [Grid, gridApi] = useVbenVxeGrid({
 
 <template>
   <Page auto-content-height>
-    <DocAlert title="SaaS 多租户" url="https://doc.iocoder.cn/saas-tenant/" />
+    <template #doc>
+      <DocAlert title="SaaS 多租户" url="https://doc.iocoder.cn/saas-tenant/" />
+    </template>
 
     <FormModal @success="onRefresh" />
     <Grid table-title="租户套餐列表">
       <template #toolbar-tools>
-        <Button
-          type="primary"
-          @click="onCreate"
-          v-access:code="['system:tenant-package:create']"
-        >
-          <Plus class="size-5" />
-          {{ $t('ui.actionTitle.create', ['套餐']) }}
-        </Button>
+        <TableAction
+          :actions="[
+            {
+              label: $t('ui.actionTitle.create', ['套餐']),
+              type: 'primary',
+              icon: ACTION_ICON.ADD,
+              auth: ['system:tenant-package:create'],
+              onClick: handleCreate,
+            },
+          ]"
+        />
+      </template>
+      <template #actions="{ row }">
+        <TableAction
+          :actions="[
+            {
+              label: $t('common.edit'),
+              type: 'link',
+              icon: ACTION_ICON.EDIT,
+              auth: ['system:role:update'],
+              onClick: handleEdit.bind(null, row),
+            },
+            {
+              label: $t('common.delete'),
+              type: 'link',
+              danger: true,
+              icon: ACTION_ICON.DELETE,
+              auth: ['system:role:delete'],
+              popConfirm: {
+                title: $t('ui.actionMessage.deleteConfirm', [row.name]),
+                confirm: handleDelete.bind(null, row),
+              },
+            },
+          ]"
+        />
       </template>
     </Grid>
   </Page>

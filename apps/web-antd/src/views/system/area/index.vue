@@ -24,7 +24,7 @@ function onRefresh() {
 }
 
 /** 查询 IP */
-function onQueryIp() {
+function handleQueryIp() {
   formModalApi.setData(null).open();
 }
 
@@ -59,12 +59,14 @@ const [Grid, gridApi] = useVbenVxeGrid({
 
 <template>
   <Page auto-content-height>
-    <DocAlert title="地区 & IP" url="https://doc.iocoder.cn/area-and-ip/" />
+    <template #doc>
+      <DocAlert title="地区 & IP" url="https://doc.iocoder.cn/area-and-ip/" />
+    </template>
 
     <FormModal @success="onRefresh" />
     <Grid table-title="地区列表">
       <template #toolbar-tools>
-        <Button type="primary" @click="onQueryIp">
+        <Button type="primary" @click="handleQueryIp">
           <Search class="size-5" />
           IP 查询
         </Button>

@@ -1,22 +1,19 @@
 import type { Recordable } from '@vben/types';
 
 import type { VbenFormSchema } from '#/adapter/form';
-import type { OnActionClickFn, VxeTableGridOptions } from '#/adapter/vxe-table';
+import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { InfraCodegenApi } from '#/api/infra/codegen';
 import type { SystemMenuApi } from '#/api/system/menu';
 
 import { h } from 'vue';
 
-import { useAccess } from '@vben/access';
 import { IconifyIcon } from '@vben/icons';
-import { $t } from '@vben/locales';
-import { getRangePickerDefaultProps, handleTree } from '@vben/utils';
+import { handleTree } from '@vben/utils';
 
 import { getDataSourceConfigList } from '#/api/infra/data-source-config';
 import { getMenuList } from '#/api/system/menu';
-import { DICT_TYPE, getDictOptions } from '#/utils/dict';
-
-const { hasAccessByCodes } = useAccess();
+import { $t } from '#/locales';
+import { DICT_TYPE, getDictOptions, getRangePickerDefaultProps } from '#/utils';
 
 /** 导入数据库表的表单 */
 export function useImportTableFormSchema(): VbenFormSchema[] {
@@ -350,7 +347,7 @@ export function useGenerationInfoSubTableFormSchema(
           },
           {
             label: '一对一',
-            value: 'false',
+            value: false,
           },
         ],
       },
@@ -393,8 +390,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
 }
 
 /** 列表的字段 */
-export function useGridColumns<T = InfraCodegenApi.CodegenTable>(
-  onActionClick: OnActionClickFn<T>,
+export function useGridColumns(
   getDataSourceConfigName?: (dataSourceConfigId: number) => string | undefined,
 ): VxeTableGridOptions['columns'] {
   return [
@@ -432,44 +428,10 @@ export function useGridColumns<T = InfraCodegenApi.CodegenTable>(
       formatter: 'formatDateTime',
     },
     {
-      field: 'operation',
       title: '操作',
-      width: 300,
+      width: 280,
       fixed: 'right',
-      align: 'center',
-      cellRender: {
-        attrs: {
-          nameField: 'tableName',
-          nameTitle: '代码生成',
-          onClick: onActionClick,
-        },
-        name: 'CellOperation',
-        options: [
-          {
-            code: 'preview',
-            text: '预览',
-            show: hasAccessByCodes(['infra:codegen:preview']),
-          },
-          {
-            code: 'edit',
-            show: hasAccessByCodes(['infra:codegen:update']),
-          },
-          {
-            code: 'delete',
-            show: hasAccessByCodes(['infra:codegen:delete']),
-          },
-          {
-            code: 'sync',
-            text: '同步',
-            show: hasAccessByCodes(['infra:codegen:update']),
-          },
-          {
-            code: 'generate',
-            text: '生成代码',
-            show: hasAccessByCodes(['infra:codegen:download']),
-          },
-        ],
-      },
+      slots: { default: 'actions' },
     },
   ];
 }

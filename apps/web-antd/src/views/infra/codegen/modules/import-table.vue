@@ -5,12 +5,12 @@ import type { InfraCodegenApi } from '#/api/infra/codegen';
 import { reactive } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
-import { $t } from '@vben/locales';
 
 import { message } from 'ant-design-vue';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { createCodegenList, getSchemaTableList } from '#/api/infra/codegen';
+import { $t } from '#/locales';
 import {
   useImportTableColumns,
   useImportTableFormSchema,
@@ -96,8 +96,7 @@ const [Modal, modalApi] = useVbenModal({
     // 2. 提交请求
     const hideLoading = message.loading({
       content: '导入中...',
-      duration: 0,
-      key: 'import_loading',
+      key: 'action_key_msg',
     });
     try {
       await createCodegenList(formData);
@@ -106,11 +105,11 @@ const [Modal, modalApi] = useVbenModal({
       emit('success');
       message.success({
         content: $t('ui.actionMessage.operationSuccess'),
-        key: 'action_process_msg',
+        key: 'action_key_msg',
       });
     } finally {
       hideLoading();
-      modalApi.lock(false);
+      modalApi.unlock();
     }
   },
 });

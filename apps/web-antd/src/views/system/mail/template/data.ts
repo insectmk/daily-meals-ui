@@ -1,16 +1,14 @@
 import type { VbenFormSchema } from '#/adapter/form';
-import type { OnActionClickFn, VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { SystemMailTemplateApi } from '#/api/system/mail/template';
-
-import { useAccess } from '@vben/access';
-import { getRangePickerDefaultProps } from '@vben/utils';
+import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 
 import { z } from '#/adapter/form';
 import { getSimpleMailAccountList } from '#/api/system/mail/account';
-import { CommonStatusEnum } from '#/utils/constants';
-import { DICT_TYPE, getDictOptions } from '#/utils/dict';
-
-const { hasAccessByCodes } = useAccess();
+import {
+  CommonStatusEnum,
+  DICT_TYPE,
+  getDictOptions,
+  getRangePickerDefaultProps,
+} from '#/utils';
 
 /** 新增/修改的表单 */
 export function useFormSchema(): VbenFormSchema[] {
@@ -47,7 +45,6 @@ export function useFormSchema(): VbenFormSchema[] {
       component: 'ApiSelect',
       componentProps: {
         api: async () => await getSimpleMailAccountList(),
-        class: 'w-full',
         labelField: 'mail',
         valueField: 'id',
         placeholder: '请选择邮箱账号',
@@ -191,8 +188,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
 }
 
 /** 列表的字段 */
-export function useGridColumns<T = SystemMailTemplateApi.MailTemplate>(
-  onActionClick: OnActionClickFn<T>,
+export function useGridColumns(
   getAccountMail?: (accountId: number) => string | undefined,
 ): VxeTableGridOptions['columns'] {
   return [
@@ -243,34 +239,10 @@ export function useGridColumns<T = SystemMailTemplateApi.MailTemplate>(
       formatter: 'formatDateTime',
     },
     {
-      field: 'operation',
       title: '操作',
-      minWidth: 150,
-      align: 'center',
+      width: 220,
       fixed: 'right',
-      cellRender: {
-        attrs: {
-          nameField: 'name',
-          nameTitle: '邮件模板',
-          onClick: onActionClick,
-        },
-        name: 'CellOperation',
-        options: [
-          {
-            code: 'edit',
-            show: hasAccessByCodes(['system:mail-template:update']),
-          },
-          {
-            code: 'delete',
-            show: hasAccessByCodes(['system:mail-template:delete']),
-          },
-          {
-            code: 'send',
-            text: '测试',
-            show: hasAccessByCodes(['system:mail-template:send-mail']),
-          },
-        ],
-      },
+      slots: { default: 'actions' },
     },
   ];
 }

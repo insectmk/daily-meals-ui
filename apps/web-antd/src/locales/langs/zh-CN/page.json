@@ -23,6 +23,11 @@
     "cancel": "取消",
     "confirm": "确认",
     "reset": "重置",
-    "search": "搜索"
+    "search": "搜索",
+    "more": "更多"
+  },
+  "tenant": {
+    "placeholder": "请选择租户",
+    "success": "切换租户成功"
   }
 }

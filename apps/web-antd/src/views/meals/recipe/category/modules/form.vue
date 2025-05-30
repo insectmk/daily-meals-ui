@@ -23,11 +23,11 @@ const parentId = ref<number>(); // 新增下级时的父级 ID
 
 const getTitle = computed(() => {
   if (formData.value?.id) {
-    return $t('ui.actionTitle.edit', ['示例分类']);
+    return $t('ui.actionTitle.edit', ['菜谱分类']);
   }
   return parentId.value
-    ? $t('ui.actionTitle.create', ['下级示例分类'])
-    : $t('ui.actionTitle.create', ['示例分类']);
+    ? $t('ui.actionTitle.create', ['下级菜谱分类'])
+    : $t('ui.actionTitle.create', ['菜谱分类']);
 });
 
 const [Form, formApi] = useVbenForm({

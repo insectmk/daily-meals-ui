@@ -23,6 +23,11 @@
     "cancel": "Cancel",
     "confirm": "Confirm",
     "reset": "Reset",
-    "search": "Search"
+    "search": "Search",
+    "more": "More"
+  },
+  "tenant": {
+    "placeholder": "Please select tenant",
+    "success": "Switch tenant success"
   }
 }

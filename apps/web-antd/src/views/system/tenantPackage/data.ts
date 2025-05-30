@@ -1,15 +1,13 @@
 import type { VbenFormSchema } from '#/adapter/form';
-import type { OnActionClickFn, VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { SystemTenantPackageApi } from '#/api/system/tenant-package';
-
-import { useAccess } from '@vben/access';
-import { getRangePickerDefaultProps } from '@vben/utils';
+import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 
 import { z } from '#/adapter/form';
-import { CommonStatusEnum } from '#/utils/constants';
-import { DICT_TYPE, getDictOptions } from '#/utils/dict';
-
-const { hasAccessByCodes } = useAccess();
+import {
+  CommonStatusEnum,
+  DICT_TYPE,
+  getDictOptions,
+  getRangePickerDefaultProps,
+} from '#/utils';
 
 /** 新增/修改的表单 */
 export function useFormSchema(): VbenFormSchema[] {
@@ -26,9 +24,6 @@ export function useFormSchema(): VbenFormSchema[] {
       fieldName: 'name',
       label: '套餐名称',
       component: 'Input',
-      componentProps: {
-        placeholder: '请输入套餐名称',
-      },
       rules: 'required',
     },
     {
@@ -52,9 +47,6 @@ export function useFormSchema(): VbenFormSchema[] {
       fieldName: 'remark',
       label: '备注',
       component: 'Textarea',
-      componentProps: {
-        placeholder: '请输入备注',
-      },
     },
   ];
 }
@@ -94,9 +86,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
 }
 
 /** 列表的字段 */
-export function useGridColumns<T = SystemTenantPackageApi.TenantPackage>(
-  onActionClick: OnActionClickFn<T>,
-): VxeTableGridOptions['columns'] {
+export function useGridColumns(): VxeTableGridOptions['columns'] {
   return [
     {
       field: 'id',
@@ -129,29 +119,10 @@ export function useGridColumns<T = SystemTenantPackageApi.TenantPackage>(
       formatter: 'formatDateTime',
     },
     {
-      field: 'operation',
       title: '操作',
-      minWidth: 130,
-      align: 'center',
+      width: 130,
       fixed: 'right',
-      cellRender: {
-        attrs: {
-          nameField: 'name',
-          nameTitle: '套餐',
-          onClick: onActionClick,
-        },
-        name: 'CellOperation',
-        options: [
-          {
-            code: 'edit',
-            show: hasAccessByCodes(['system:tenant-package:update']),
-          },
-          {
-            code: 'delete',
-            show: hasAccessByCodes(['system:tenant-package:delete']),
-          },
-        ],
-      },
+      slots: { default: 'actions' },
     },
   ];
 }

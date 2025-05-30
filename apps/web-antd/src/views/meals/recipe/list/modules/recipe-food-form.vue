@@ -21,8 +21,8 @@ const emit = defineEmits(['success']);
 const formData = ref<MealsRecipeApi.RecipeFood>();
 const getTitle = computed(() => {
   return formData.value?.id
-    ? $t('ui.actionTitle.edit', ['学生课程'])
-    : $t('ui.actionTitle.create', ['学生课程']);
+    ? $t('ui.actionTitle.edit', ['菜谱食材'])
+    : $t('ui.actionTitle.create', ['菜谱食材']);
 });
 
 const [Form, formApi] = useVbenForm({
@@ -41,7 +41,7 @@ const [Modal, modalApi] = useVbenModal({
     modalApi.lock();
     // 提交表单
     const data = (await formApi.getValues()) as MealsRecipeApi.RecipeFood;
-    data.studentId = formData.value?.studentId;
+    data.recipeId = formData.value?.recipeId;
     try {
       await (formData.value?.id
         ? updateRecipeFood(data)

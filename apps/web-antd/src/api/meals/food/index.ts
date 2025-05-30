@@ -7,10 +7,11 @@ export namespace MealsFoodApi {
   /** 食材 */
   export interface Food {
     id: number; // 编号
-    name: string; // 名称
-    foodType: number; // 分类
-    foodUnit: number; // 单位
-    memo: string; // 备注
+    name?: string; // 名称
+    foodType?: number; // 分类
+    foodCategory?: number[]; // 食材分类
+    foodUnit?: number; // 单位
+    memo?: string; // 备注
   }
 }
 
