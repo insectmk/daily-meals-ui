@@ -2,7 +2,7 @@
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { SystemNotifyTemplateApi } from '#/api/system/notify/template';
 
-import { Page, useVbenModal } from '@vben/common-ui';
+import { DocAlert, Page, useVbenModal } from '@vben/common-ui';
 import { downloadFileFromBlobPart } from '@vben/utils';
 
 import { message } from 'ant-design-vue';
@@ -13,7 +13,6 @@ import {
   exportNotifyTemplate,
   getNotifyTemplatePage,
 } from '#/api/system/notify/template';
-import { DocAlert } from '#/components/doc-alert';
 import { $t } from '#/locales';
 
 import { useGridColumns, useGridFormSchema } from './data';
@@ -117,7 +116,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
         <TableAction
           :actions="[
             {
-              label: $t('ui.actionTitle.create', ['短信渠道']),
+              label: $t('ui.actionTitle.create', ['站内信模板']),
               type: 'primary',
               icon: ACTION_ICON.ADD,
               auth: ['system:notify-template:create'],

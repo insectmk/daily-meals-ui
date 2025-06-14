@@ -12,8 +12,10 @@ export namespace BpmModelApi {
   }
 
   /** 流程定义 VO */
+  // TODO @jason：不用 VO 后缀哈
   export interface ProcessDefinitionVO {
     id: string;
+    key?: string;
     version: number;
     deploymentTime: number;
     suspensionState: number;

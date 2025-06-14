@@ -33,13 +33,6 @@ const [Modal, modalApi] = useVbenModal({
     }
   },
 });
-
-/** 打开弹窗 */
-const open = (id: number) => {
-  modalApi.setData({ id }).open();
-};
-
-defineExpose({ open });
 </script>
 
 <template>
@@ -100,7 +93,11 @@ defineExpose({ open });
 
     <Descriptions bordered :column="1" size="middle" class="mx-4">
       <Descriptions.Item label="回调日志">
-        <Table :data="formData.logs" :columns="detailColumns" />
+        <Table
+          v-if="formData"
+          :data-source="formData.logs"
+          :columns="detailColumns"
+        />
       </Descriptions.Item>
     </Descriptions>
   </Modal>

@@ -1,13 +1,13 @@
 import type { VbenFormSchema } from '#/adapter/form';
-import type { OnActionClickFn, VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { PayRefundApi } from '#/api/pay/refund';
-
-import { useAccess } from '@vben/access';
+import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 
 import { getAppList } from '#/api/pay/app';
-import { DICT_TYPE, getIntDictOptions, getStrDictOptions } from '#/utils';
-
-const { hasAccessByCodes } = useAccess();
+import {
+  DICT_TYPE,
+  getIntDictOptions,
+  getRangePickerDefaultProps,
+  getStrDictOptions,
+} from '#/utils';
 
 /** 列表的搜索表单 */
 export function useGridFormSchema(): VbenFormSchema[] {
@@ -69,109 +69,58 @@ export function useGridFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'createTime',
       label: '创建时间',
-      component: 'DatePicker',
+      component: 'RangePicker',
       componentProps: {
-        type: 'daterange',
-        valueFormat: 'YYYY-MM-DD HH:mm:ss',
-        defaultTime: [new Date('1 00:00:00'), new Date('1 23:59:59')],
+        ...getRangePickerDefaultProps(),
+        allowClear: true,
       },
     },
   ];
 }
 
 /** 列表的字段 */
-export function useGridColumns<T = PayRefundApi.Refund>(
-  onActionClick: OnActionClickFn<T>,
-): VxeTableGridOptions['columns'] {
+export function useGridColumns(): VxeTableGridOptions['columns'] {
   return [
     {
       field: 'id',
       title: '编号',
-      minWidth: 100,
-    },
-    {
-      field: 'createTime',
-      title: '创建时间',
-      minWidth: 180,
-      formatter: 'formatDateTime',
-    },
-    {
-      field: 'payPrice',
-      title: '支付金额',
-      minWidth: 120,
-      cellRender: {
-        name: 'CellTag',
-        props: {
-          type: 'success',
-          content: '￥{payPrice}',
-          formatter: (value: number) => (value / 100).toFixed(2),
-        },
-      },
-    },
-    {
-      field: 'refundPrice',
-      title: '退款金额',
-      minWidth: 120,
-      cellRender: {
-        name: 'CellTag',
-        props: {
-          type: 'danger',
-          content: '￥{refundPrice}',
-          formatter: (value: number) => (value / 100).toFixed(2),
-        },
-      },
     },
     {
       field: 'merchantRefundId',
       title: '退款订单号',
-      minWidth: 300,
-      cellRender: {
-        name: 'CellTag',
-        props: {
-          type: 'info',
-          content: '商户 {merchantRefundId}',
-        },
-      },
     },
     {
       field: 'channelRefundNo',
       title: '渠道退款单号',
-      minWidth: 200,
-      cellRender: {
-        name: 'CellTag',
-        props: {
-          type: 'success',
-          content: '{channelRefundNo}',
-        },
-      },
+    },
+    {
+      field: 'payPrice',
+      title: '支付金额',
+      formatter: 'formatAmount2',
+    },
+    {
+      field: 'refundPrice',
+      title: '退款金额',
+      formatter: 'formatAmount2',
     },
     {
       field: 'status',
       title: '退款状态',
-      minWidth: 120,
       cellRender: {
         name: 'CellDict',
         props: { type: DICT_TYPE.PAY_REFUND_STATUS },
       },
     },
     {
-      field: 'operation',
+      field: 'createTime',
+      title: '创建时间',
+      formatter: 'formatDateTime',
+    },
+    {
       title: '操作',
-      minWidth: 100,
-      align: 'center',
+      width: 100,
       fixed: 'right',
-      cellRender: {
-        attrs: {
-          onClick: onActionClick,
-        },
-        name: 'CellOperation',
-        options: [
-          {
-            code: 'detail',
-            show: hasAccessByCodes(['pay:refund:query']),
-          },
-        ],
-      },
+      slots: { default: 'actions' },
     },
   ];
 }

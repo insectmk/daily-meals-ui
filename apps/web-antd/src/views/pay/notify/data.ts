@@ -1,12 +1,8 @@
 import type { VbenFormSchema } from '#/adapter/form';
-import type { OnActionClickFn, VxeTableGridOptions } from '#/adapter/vxe-table';
-
-import { useAccess } from '@vben/access';
+import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 
 import { getAppList } from '#/api/pay/app';
-import { DICT_TYPE, getDictOptions } from '#/utils';
-
-const { hasAccessByCodes } = useAccess();
+import { DICT_TYPE, getDictOptions, getRangePickerDefaultProps } from '#/utils';
 
 /** 列表的搜索表单 */
 export function useGridFormSchema(): VbenFormSchema[] {
@@ -58,40 +54,33 @@ export function useGridFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'createTime',
       label: '创建时间',
-      component: 'DatePicker',
+      component: 'RangePicker',
       componentProps: {
-        type: 'daterange',
-        valueFormat: 'YYYY-MM-DD HH:mm:ss',
-        defaultTime: [new Date('1 00:00:00'), new Date('1 23:59:59')],
+        ...getRangePickerDefaultProps(),
+        allowClear: true,
       },
     },
   ];
 }
 
 /** 列表的字段 */
-export function useGridColumns<T = any>(
-  onActionClick: OnActionClickFn<T>,
-): VxeTableGridOptions['columns'] {
+export function useGridColumns(): VxeTableGridOptions['columns'] {
   return [
     {
       field: 'id',
       title: '任务编号',
-      minWidth: 100,
     },
     {
       field: 'appName',
       title: '应用编号',
-      minWidth: 120,
     },
     {
       field: 'merchantOrderId',
       title: '商户订单编号',
-      minWidth: 180,
     },
     {
       field: 'type',
       title: '通知类型',
-      minWidth: 120,
       cellRender: {
         name: 'CellDict',
         props: { type: DICT_TYPE.PAY_NOTIFY_TYPE },
@@ -100,12 +89,10 @@ export function useGridColumns<T = any>(
     {
       field: 'dataId',
       title: '关联编号',
-      minWidth: 120,
     },
     {
       field: 'status',
       title: '通知状态',
-      minWidth: 120,
       cellRender: {
         name: 'CellDict',
         props: { type: DICT_TYPE.PAY_NOTIFY_STATUS },
@@ -114,19 +101,16 @@ export function useGridColumns<T = any>(
     {
       field: 'lastExecuteTime',
       title: '最后通知时间',
-      minWidth: 180,
       formatter: 'formatDateTime',
     },
     {
       field: 'nextNotifyTime',
       title: '下次通知时间',
-      minWidth: 180,
       formatter: 'formatDateTime',
     },
     {
       field: 'notifyTimes',
       title: '通知次数',
-      minWidth: 120,
       cellRender: {
         name: 'CellTag',
         props: {
@@ -136,23 +120,10 @@ export function useGridColumns<T = any>(
       },
     },
     {
-      field: 'operation',
       title: '操作',
-      minWidth: 100,
-      align: 'center',
+      width: 80,
       fixed: 'right',
-      cellRender: {
-        attrs: {
-          onClick: onActionClick,
-        },
-        name: 'CellOperation',
-        options: [
-          {
-            code: 'detail',
-            show: hasAccessByCodes(['pay:notify:query']),
-          },
-        ],
-      },
+      slots: { default: 'actions' },
     },
   ];
 }
@@ -160,28 +131,38 @@ export function useGridColumns<T = any>(
 /** 详情列表的字段 */
 export const detailColumns = [
   {
-    label: '日志编号',
-    prop: 'id',
+    title: '日志编号',
+    dataIndex: 'id',
     key: 'id',
+    width: 120,
+    ellipsis: false,
   },
   {
-    label: '通知状态',
-    prop: 'status',
+    title: '通知状态',
+    dataIndex: 'status',
     key: 'status',
+    width: 120,
+    ellipsis: false,
   },
   {
-    label: '通知次数',
-    prop: 'notifyTimes',
+    title: '通知次数',
+    dataIndex: 'notifyTimes',
     key: 'notifyTimes',
+    width: 120,
+    ellipsis: false,
   },
   {
-    label: '通知时间',
-    prop: 'lastExecuteTime',
+    title: '通知时间',
+    dataIndex: 'lastExecuteTime',
     key: 'lastExecuteTime',
+    width: 120,
+    ellipsis: false,
   },
   {
-    label: '响应结果',
-    prop: 'response',
+    title: '响应结果',
+    dataIndex: 'response',
     key: 'response',
+    width: 120,
+    ellipsis: false,
   },
 ];

@@ -49,7 +49,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: '/bpm/manager/form/edit',
         name: 'BpmFormEditor',
-        component: () => import('#/views/bpm/form/editor.vue'),
+        component: () => import('#/views/bpm/form/designer/index.vue'),
         meta: {
           title: '编辑流程表单',
           activePath: '/bpm/manager/form',
@@ -70,6 +70,30 @@ const routes: RouteRecordRaw[] = [
           title: '创建流程',
           activePath: '/bpm/manager/model',
           icon: 'carbon:flow-connection',
+          hideInMenu: true,
+          keepAlive: true,
+        },
+      },
+      {
+        path: 'manager/model/:type/:id',
+        component: () => import('#/views/bpm/model/form/index.vue'),
+        name: 'BpmModelUpdate',
+        meta: {
+          title: '修改流程',
+          activePath: '/bpm/manager/model',
+          icon: 'carbon:flow-connection',
+          hideInMenu: true,
+          keepAlive: true,
+        },
+      },
+      {
+        path: 'manager/definition',
+        component: () => import('#/views/bpm/model/definition/index.vue'),
+        name: 'BpmProcessDefinition',
+        meta: {
+          title: '流程定义',
+          activePath: '/bpm/manager/model',
+          icon: 'carbon:flow-modeler',
           hideInMenu: true,
           keepAlive: true,
         },

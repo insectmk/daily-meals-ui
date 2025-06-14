@@ -1,12 +1,11 @@
 import type { VbenFormSchema } from '#/adapter/form';
-import type { OnActionClickFn, VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { CrmBusinessApi } from '#/api/crm/business';
+import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 
-import { useAccess } from '@vben/access';
+import { erpPriceMultiply } from '@vben/utils';
 
-import { getRangePickerDefaultProps } from '#/utils';
-
-const { hasAccessByCodes } = useAccess();
+import { getBusinessStatusTypeSimpleList } from '#/api/crm/business/status';
+import { getCustomerSimpleList } from '#/api/crm/customer';
+import { getSimpleUserList } from '#/api/system/user';
 
 /** 新增/修改的表单 */
 export function useFormSchema(): VbenFormSchema[] {
@@ -26,19 +25,58 @@ export function useFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'customerId',
-      label: '客户',
-      component: 'Input',
+      fieldName: 'ownerUserId',
+      label: '负责人',
+      component: 'ApiSelect',
+      componentProps: {
+        api: () => getSimpleUserList(),
+        fieldNames: {
+          label: 'nickname',
+          value: 'id',
+        },
+      },
       rules: 'required',
     },
     {
-      fieldName: 'totalPrice',
-      label: '商机金额',
-      component: 'InputNumber',
+      fieldName: 'customerId',
+      label: '客户名称',
+      component: 'ApiSelect',
       componentProps: {
-        min: 0,
-        controlsPosition: 'right',
-        placeholder: '请输入商机金额',
+        api: () => getCustomerSimpleList(),
+        fieldNames: {
+          label: 'name',
+          value: 'id',
+        },
+      },
+      dependencies: {
+        triggerFields: ['id'],
+        disabled: (values) => !values.customerId,
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'contactId',
+      label: '合同名称',
+      component: 'Input',
+      dependencies: {
+        triggerFields: [''],
+        show: () => false,
+      },
+    },
+    {
+      fieldName: 'statusTypeId',
+      label: '商机状态组',
+      component: 'ApiSelect',
+      componentProps: {
+        api: () => getBusinessStatusTypeSimpleList(),
+        fieldNames: {
+          label: 'name',
+          value: 'id',
+        },
+      },
+      dependencies: {
+        triggerFields: ['id'],
+        disabled: (values) => values.id,
       },
       rules: 'required',
     },
@@ -54,18 +92,48 @@ export function useFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'remark',
-      label: '备注',
-      component: 'Textarea',
+      fieldName: 'product',
+      label: '产品清单',
+      component: 'Input',
+      formItemClass: 'col-span-3',
     },
     {
-      fieldName: 'contactNextTime',
-      label: '下次联系时间',
-      component: 'DatePicker',
+      fieldName: 'totalProductPrice',
+      label: '产品总金额',
+      component: 'InputNumber',
       componentProps: {
-        showTime: false,
-        format: 'YYYY-MM-DD HH:mm:ss',
-        valueFormat: 'x',
+        min: 0,
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'discountPercent',
+      label: '整单折扣（%）',
+      component: 'InputNumber',
+      componentProps: {
+        min: 0,
+        precision: 2,
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'totalPrice',
+      label: '折扣后金额',
+      component: 'InputNumber',
+      dependencies: {
+        triggerFields: ['totalProductPrice', 'discountPercent'],
+        disabled: () => true,
+        trigger(values, form) {
+          const discountPrice =
+            erpPriceMultiply(
+              values.totalProductPrice,
+              values.discountPercent / 100,
+            ) ?? 0;
+          form.setFieldValue(
+            'totalPrice',
+            values.totalProductPrice - discountPrice,
+          );
+        },
       },
     },
   ];
@@ -79,133 +147,85 @@ export function useGridFormSchema(): VbenFormSchema[] {
       label: '商机名称',
       component: 'Input',
     },
-    {
-      fieldName: 'createTime',
-      label: '创建时间',
-      component: 'RangePicker',
-      componentProps: {
-        ...getRangePickerDefaultProps(),
-        allowClear: true,
-      },
-    },
   ];
 }
 
 /** 列表的字段 */
-export function useGridColumns<T = CrmBusinessApi.Business>(
-  onActionClick: OnActionClickFn<T>,
-): VxeTableGridOptions['columns'] {
+export function useGridColumns(): VxeTableGridOptions['columns'] {
   return [
     {
       field: 'name',
       title: '商机名称',
-      minWidth: 160,
       fixed: 'left',
-      slots: {
-        default: 'name',
-      },
+      slots: { default: 'name' },
     },
     {
       field: 'customerName',
       title: '客户名称',
-      minWidth: 120,
       fixed: 'left',
-      slots: {
-        default: 'customerName',
-      },
+      slots: { default: 'customerName' },
     },
     {
       field: 'totalPrice',
       title: '商机金额（元）',
-      minWidth: 140,
-      formatter: 'formatAmount',
+      formatter: 'formatAmount2',
     },
     {
       field: 'dealTime',
       title: '预计成交日期',
-      minWidth: 180,
       formatter: 'formatDate',
     },
     {
       field: 'remark',
       title: '备注',
-      minWidth: 200,
     },
     {
       field: 'contactNextTime',
       title: '下次联系时间',
-      minWidth: 180,
       formatter: 'formatDate',
     },
     {
       field: 'ownerUserName',
       title: '负责人',
-      minWidth: 100,
     },
     {
       field: 'ownerUserDeptName',
       title: '所属部门',
-      minWidth: 100,
     },
     {
       field: 'contactLastTime',
       title: '最后跟进时间',
-      minWidth: 180,
       formatter: 'formatDateTime',
     },
     {
       field: 'updateTime',
       title: '更新时间',
-      minWidth: 180,
       formatter: 'formatDateTime',
     },
     {
       field: 'createTime',
       title: '创建时间',
-      minWidth: 180,
       formatter: 'formatDateTime',
     },
     {
       field: 'creatorName',
       title: '创建人',
-      minWidth: 100,
     },
     {
       field: 'statusTypeName',
       title: '商机状态组',
-      minWidth: 140,
       fixed: 'right',
     },
     {
       field: 'statusName',
       title: '商机阶段',
-      minWidth: 120,
       fixed: 'right',
     },
     {
-      field: 'operation',
       title: '操作',
       width: 130,
       fixed: 'right',
-      align: 'center',
-      cellRender: {
-        attrs: {
-          nameField: 'name',
-          nameTitle: '商机',
-          onClick: onActionClick,
-        },
-        name: 'CellOperation',
-        options: [
-          {
-            code: 'edit',
-            show: hasAccessByCodes(['crm:business:update']),
-          },
-          {
-            code: 'delete',
-            show: hasAccessByCodes(['crm:business:delete']),
-          },
-        ],
-      },
+      slots: { default: 'actions' },
     },
   ];
 }

@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import type { BpmCategoryApi } from '#/api/bpm/category';
 import type { BpmProcessDefinitionApi } from '#/api/bpm/definition';
 
 import { computed, nextTick, onMounted, ref } from 'vue';
@@ -33,10 +34,12 @@ const processInstanceId: any = route.query.processInstanceId; // 流程实例编
 const loading = ref(true); // 加载中
 const categoryList: any = ref([]); // 分类的列表
 const activeCategory = ref(''); // 当前选中的分类
-const processDefinitionList = ref([]); // 流程定义的列表
+const processDefinitionList = ref<
+  BpmProcessDefinitionApi.ProcessDefinitionVO[]
+>([]); // 流程定义的列表
 
 // 实现 groupBy 功能
-const groupBy = (array: any[], key: string) => {
+function groupBy(array: any[], key: string) {
   const result: Record<string, any[]> = {};
   for (const item of array) {
     const groupKey = item[key];
@@ -46,10 +49,10 @@ const groupBy = (array: any[], key: string) => {
     result[groupKey].push(item);
   }
   return result;
-};
+}
 
 /** 查询列表 */
-const getList = async () => {
+async function getList() {
   loading.value = true;
   try {
     // 所有流程分类数据
@@ -76,20 +79,20 @@ const getList = async () => {
   } finally {
     loading.value = false;
   }
-};
+}
 
 /** 获取所有流程分类数据 */
-const getCategoryList = async () => {
+async function getCategoryList() {
   try {
     // 流程分类
     categoryList.value = await getCategorySimpleList();
   } catch {
     // 错误处理
   }
-};
+}
 
 /** 获取所有流程定义数据 */
-const handleGetProcessDefinitionList = async () => {
+async function handleGetProcessDefinitionList() {
   try {
     // 流程定义
     processDefinitionList.value = await getProcessDefinitionList({
@@ -105,11 +108,15 @@ const handleGetProcessDefinitionList = async () => {
   } catch {
     // 错误处理
   }
-};
+}
+
+/** 用于存储搜索过滤后的流程定义 */
+const filteredProcessDefinitionList = ref<
+  BpmProcessDefinitionApi.ProcessDefinitionVO[]
+>([]);
 
 /** 搜索流程 */
-const filteredProcessDefinitionList = ref([]); // 用于存储搜索过滤后的流程定义
-const handleQuery = () => {
+function handleQuery() {
   if (searchName.value.trim()) {
     // 如果有搜索关键字，进行过滤
     isSearching.value = true;
@@ -134,52 +141,57 @@ const handleQuery = () => {
     isSearching.value = false;
     filteredProcessDefinitionList.value = processDefinitionList.value;
   }
-};
+}
 
 /** 判断流程定义是否匹配搜索 */
-const isDefinitionMatchSearch = (definition: any) => {
+function isDefinitionMatchSearch(definition: any) {
   if (!isSearching.value) return false;
   return definition.name.toLowerCase().includes(searchName.value.toLowerCase());
-};
+}
 
 /** 流程定义的分组 */
-const processDefinitionGroup: any = computed(() => {
+const processDefinitionGroup = computed(() => {
   if (!processDefinitionList.value?.length) {
     return {};
   }
 
   const grouped = groupBy(filteredProcessDefinitionList.value, 'category');
   // 按照 categoryList 的顺序重新组织数据
-  const orderedGroup = {};
-  categoryList.value.forEach((category: any) => {
+  const orderedGroup: Record<
+    string,
+    BpmProcessDefinitionApi.ProcessDefinitionVO[]
+  > = {};
+  categoryList.value.forEach((category: BpmCategoryApi.CategoryVO) => {
     if (grouped[category.code]) {
-      orderedGroup[category.code] = grouped[category.code];
+      orderedGroup[category.code] = grouped[
+        category.code
+      ] as BpmProcessDefinitionApi.ProcessDefinitionVO[];
     }
   });
   return orderedGroup;
 });
 
 /** 通过分类 code 获取对应的名称 */
-const getCategoryName = (categoryCode: string) => {
+function getCategoryName(categoryCode: string) {
   return categoryList.value?.find((ctg: any) => ctg.code === categoryCode)
     ?.name;
-};
+}
 
 // ========== 表单相关 ==========
 const selectProcessDefinition = ref(); // 选择的流程定义
 const processDefinitionDetailRef = ref();
 
 /** 处理选择流程的按钮操作 */
-const handleSelect = async (
+async function handleSelect(
   row: BpmProcessDefinitionApi.ProcessDefinitionVO,
   formVariables?: any,
-) => {
+) {
   // 设置选择的流程
   selectProcessDefinition.value = row;
   // 初始化流程定义详情
   await nextTick();
   processDefinitionDetailRef.value?.initProcessInfo(row, formVariables);
-};
+}
 
 /** 过滤出有流程的分类列表。目的：只展示有流程的分类 */
 const availableCategories = computed(() => {
@@ -191,7 +203,7 @@ const availableCategories = computed(() => {
   const availableCategoryCodes = Object.keys(processDefinitionGroup.value);
 
   // 过滤出有流程的分类
-  return categoryList.value.filter((category: CategoryVO) =>
+  return categoryList.value.filter((category: BpmCategoryApi.CategoryVO) =>
     availableCategoryCodes.includes(category.code),
   );
 });
@@ -210,6 +222,7 @@ onMounted(() => {
 
 <template>
   <Page auto-content-height>
+    <!-- TODO @ziye：【优先级：低】这里交互，可以做成类似 vue3 + element-plus 那个一样，滚动切换分类哈？对标钉钉、飞书哈； -->
     <!-- 第一步，通过流程定义的列表，选择对应的流程 -->
     <template v-if="!selectProcessDefinition">
       <Card
@@ -229,11 +242,7 @@ onMounted(() => {
               allow-clear
               @input="handleQuery"
               @clear="handleQuery"
-            >
-              <template #prefix>
-                <IconifyIcon icon="mdi:search-web" />
-              </template>
-            </InputSearch>
+            />
           </div>
         </template>
 
@@ -266,6 +275,7 @@ onMounted(() => {
                     }"
                   >
                     <div class="flex items-center">
+                      <!-- TODO @ziye：icon、name 会告警~~ -->
                       <img
                         v-if="definition.icon"
                         :src="definition.icon"
@@ -289,15 +299,6 @@ onMounted(() => {
                         </Tooltip>
                       </span>
                     </div>
-
-                    <!-- TODO: 发起流程按钮 -->
-                    <!-- <template #actions>
-                      <div class="flex justify-end px-4">
-                        <Button type="link" @click="handleSelect(definition)">
-                          发起流程
-                        </Button>
-                      </div>
-                    </template> -->
                   </Card>
                 </Col>
               </Row>
