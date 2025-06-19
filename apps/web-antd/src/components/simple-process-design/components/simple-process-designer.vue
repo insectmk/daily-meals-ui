@@ -97,7 +97,7 @@ const postOptions = ref<SystemPostApi.Post[]>([]); // 岗位列表
 const userOptions = ref<SystemUserApi.User[]>([]); // 用户列表
 const deptOptions = ref<SystemDeptApi.Dept[]>([]); // 部门列表
 const deptTreeOptions = ref();
-const userGroupOptions = ref<BpmUserGroupApi.UserGroupVO[]>([]); // 用户组列表
+const userGroupOptions = ref<BpmUserGroupApi.UserGroup[]>([]); // 用户组列表
 
 provide('formFields', formFields);
 provide('formType', formType);
@@ -235,7 +235,7 @@ defineExpose({ validate });
       :readonly="false"
       @save="saveSimpleFlowModel"
     />
-    <ErrorModal title="流程设计校验不通过" class="w-[40%]">
+    <ErrorModal title="流程设计校验不通过" class="w-2/5">
       <div class="mb-2 text-base">以下节点配置不完善，请修改相关配置</div>
       <div
         class="mb-3 rounded-md bg-gray-100 p-2 text-sm"

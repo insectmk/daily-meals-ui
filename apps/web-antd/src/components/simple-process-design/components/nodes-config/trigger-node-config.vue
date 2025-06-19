@@ -11,7 +11,7 @@ import type {
 import { computed, getCurrentInstance, onMounted, reactive, ref } from 'vue';
 
 import { useVbenDrawer } from '@vben/common-ui';
-import { IconifyIcon, Trash2 } from '@vben/icons';
+import { IconifyIcon } from '@vben/icons';
 import { cloneDeep } from '@vben/utils';
 
 import {
@@ -200,8 +200,8 @@ function addFormSettingCondition(
   formSetting: FormTriggerSetting,
 ) {
   const conditionDialog = proxy.$refs[`condition-${index}`][0];
-  // TODO: jason Modal 使用 useVbenModal 初始化，弹出使用modalApi.setData(formSetting).open()
-  conditionDialog.open(formSetting);
+  // 使用modalApi来打开模态框并传递数据
+  conditionDialog.modalApi.setData(formSetting).open();
 }
 
 /** 删除条件配置 */
@@ -215,7 +215,8 @@ function openFormSettingCondition(
   formSetting: FormTriggerSetting,
 ) {
   const conditionDialog = proxy.$refs[`condition-${index}`][0];
-  conditionDialog.open(formSetting);
+  // 使用 modalApi 来打开模态框并传递数据
+  conditionDialog.modalApi.setData(formSetting).open();
 }
 
 /** 处理条件配置保存 */
@@ -383,14 +384,14 @@ onMounted(() => {
 });
 </script>
 <template>
-  <Drawer class="w-[580px]">
+  <Drawer class="w-1/3">
     <template #title>
       <div class="config-header">
         <Input
           ref="inputRef"
           v-if="showInput"
           type="text"
-          class="config-editable-input"
+          class="focus:border-blue-500 focus:shadow-[0_0_0_2px_rgba(24,144,255,0.2)] focus:outline-none"
           @blur="changeNodeName()"
           @press-enter="changeNodeName()"
           v-model:value="nodeName"
@@ -398,7 +399,7 @@ onMounted(() => {
         />
         <div v-else class="node-name">
           {{ nodeName }}
-          <IconifyIcon class="ml-1" icon="ep:edit-pen" @click="clickIcon()" />
+          <IconifyIcon class="ml-1" icon="lucide:edit-3" @click="clickIcon()" />
         </div>
       </div>
     </template>
@@ -455,7 +456,7 @@ onMounted(() => {
                     @click="deleteFormSetting(index)"
                   >
                     <template #icon>
-                      <IconifyIcon icon="ep:close" />
+                      <IconifyIcon icon="lucide:x" />
                     </template>
                   </Button>
                 </div>
@@ -485,7 +486,7 @@ onMounted(() => {
                     @click="addFormSettingCondition(index, formSetting)"
                   >
                     <template #icon>
-                      <IconifyIcon icon="ep:link" />
+                      <IconifyIcon icon="lucide:link" />
                     </template>
                     添加条件
                   </Button>
@@ -542,9 +543,10 @@ onMounted(() => {
                   </FormItem>
                 </Col>
                 <Col :span="2">
-                  <div class="flex h-[32px] items-center">
-                    <Trash2
+                  <div class="flex h-8 items-center">
+                    <IconifyIcon
                       class="size-4 cursor-pointer text-red-500"
+                      icon="lucide:trash-2"
                       @click="deleteFormFieldSetting(formSetting, key)"
                     />
                   </div>
@@ -560,7 +562,7 @@ onMounted(() => {
                     @click="addFormFieldSetting(formSetting)"
                   >
                     <template #icon>
-                      <IconifyIcon icon="ep:memo" />
+                      <IconifyIcon icon="lucide:file-cog" />
                     </template>
                     添加修改字段
                   </Button>
@@ -578,7 +580,7 @@ onMounted(() => {
                 @click="addFormSetting"
               >
                 <template #icon>
-                  <IconifyIcon icon="ep:setting" />
+                  <IconifyIcon icon="lucide:settings" />
                 </template>
                 添加设置
               </Button>
@@ -603,7 +605,7 @@ onMounted(() => {
                     @click="deleteFormSetting(index)"
                   >
                     <template #icon>
-                      <IconifyIcon icon="ep:close" />
+                      <IconifyIcon icon="lucide:x" />
                     </template>
                   </Button>
                 </div>
@@ -634,7 +636,7 @@ onMounted(() => {
                     @click="addFormSettingCondition(index, formSetting)"
                   >
                     <template #icon>
-                      <IconifyIcon icon="ep:link" />
+                      <IconifyIcon icon="lucide:link" />
                     </template>
                     添加条件
                   </Button>
@@ -672,7 +674,7 @@ onMounted(() => {
                 @click="addFormSetting"
               >
                 <template #icon>
-                  <IconifyIcon icon="ep:setting" />
+                  <IconifyIcon icon="lucide:settings" />
                 </template>
                 添加设置
               </Button>
@@ -683,12 +685,3 @@ onMounted(() => {
     </div>
   </Drawer>
 </template>
-<style lang="scss" scoped>
-.config-editable-input {
-  &:focus {
-    outline: 0;
-    border-color: #40a9ff;
-    box-shadow: 0 0 0 2px rgb(24 144 255 / 20%);
-  }
-}
-</style>

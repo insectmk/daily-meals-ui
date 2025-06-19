@@ -11,13 +11,20 @@ import {
   useVbenVxeGrid,
 } from '@vben/plugins/vxe-table';
 import {
-  floatToFixed2,
+  erpNumberFormatter,
+  formatPast2,
   formatToFractionDigit,
   isFunction,
   isString,
 } from '@vben/utils';
 
-import { Button, Image, Popconfirm, Switch } from 'ant-design-vue';
+import {
+  Button,
+  Image,
+  ImagePreviewGroup,
+  Popconfirm,
+  Switch,
+} from 'ant-design-vue';
 
 import { DictTag } from '#/components/dict-tag';
 import { $t } from '#/locales';
@@ -84,7 +91,11 @@ setupVbenVxeTable({
       renderTableDefault(_renderOpts, params) {
         const { column, row } = params;
         if (column && column.field && row[column.field]) {
-          return row[column.field].map((item: any) => h(Image, { src: item }));
+          return h(ImagePreviewGroup, {}, () => {
+            return row[column.field].map((item: any) =>
+              h(Image, { src: item }),
+            );
+          });
         }
         return '';
       },
@@ -286,32 +297,7 @@ setupVbenVxeTable({
 
     vxeUI.formats.add('formatPast2', {
       tableCellFormatMethod({ cellValue }) {
-        if (cellValue === null || cellValue === undefined) {
-          return '';
-        }
-        // 定义时间单位常量，便于维护
-        const SECOND = 1000;
-        const MINUTE = 60 * SECOND;
-        const HOUR = 60 * MINUTE;
-        const DAY = 24 * HOUR;
-
-        // 计算各时间单位
-        const day = Math.floor(cellValue / DAY);
-        const hour = Math.floor((cellValue % DAY) / HOUR);
-        const minute = Math.floor((cellValue % HOUR) / MINUTE);
-        const second = Math.floor((cellValue % MINUTE) / SECOND);
-
-        // 根据时间长短返回不同格式
-        if (day > 0) {
-          return `${day} 天${hour} 小时 ${minute} 分钟`;
-        }
-        if (hour > 0) {
-          return `${hour} 小时 ${minute} 分钟`;
-        }
-        if (minute > 0) {
-          return `${minute} 分钟`;
-        }
-        return second > 0 ? `${second} 秒` : `${0} 秒`;
+        return formatPast2(cellValue);
       },
     });
 
@@ -323,8 +309,8 @@ setupVbenVxeTable({
     });
 
     vxeUI.formats.add('formatAmount2', {
-      tableCellFormatMethod({ cellValue }) {
-        return `${floatToFixed2(cellValue)}元`;
+      tableCellFormatMethod({ cellValue }, digits = 2) {
+        return `${erpNumberFormatter(cellValue, digits)}元`;
       },
     });
   },

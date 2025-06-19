@@ -11,7 +11,7 @@ import type { SystemUserApi } from '#/api/system/user';
 import { ref, watch } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
-import { CircleHelp, IconifyIcon, Plus, X } from '@vben/icons';
+import { IconifyIcon } from '@vben/icons';
 
 import {
   Avatar,
@@ -29,7 +29,7 @@ import { DICT_TYPE, getBoolDictOptions, getIntDictOptions } from '#/utils';
 
 const props = defineProps({
   categoryList: {
-    type: Array as PropType<BpmCategoryApi.CategoryVO[]>,
+    type: Array as PropType<BpmCategoryApi.Category[]>,
     required: true,
   },
   userList: {
@@ -254,7 +254,10 @@ defineExpose({ validate });
             "
             placement="top"
           >
-            <CircleHelp class="ml-1 size-5 text-gray-900" />
+            <IconifyIcon
+              icon="lucide:circle-help"
+              class="ml-1 size-5 text-gray-900"
+            />
           </Tooltip>
         </div>
       </Form.Item>
@@ -343,7 +346,8 @@ defineExpose({ validate });
               {{ user.nickname?.substring(0, 1) }}
             </Avatar>
             {{ user.nickname }}
-            <X
+            <IconifyIcon
+              icon="lucide:x"
               class="ml-2 size-4 cursor-pointer text-gray-400 hover:text-red-500"
               @click="handleRemoveStartUser(user)"
             />
@@ -354,10 +358,7 @@ defineExpose({ validate });
             class="flex items-center"
           >
             <template #icon>
-              <IconifyIcon
-                icon="mdi:account-plus-outline"
-                class="size-[18px]"
-              />
+              <IconifyIcon icon="lucide:user-plus" class="size-4" />
             </template>
             选择人员
           </Button>
@@ -371,9 +372,10 @@ defineExpose({ validate });
             :key="dept.id"
             class="relative flex h-9 items-center rounded-full bg-gray-100 pr-2 shadow-sm hover:bg-gray-200"
           >
-            <IconifyIcon icon="ep:office-building" class="size-6 px-1" />
+            <IconifyIcon icon="lucide:building" class="size-6 px-1" />
             {{ dept.name }}
-            <X
+            <IconifyIcon
+              icon="lucide:x"
               class="ml-2 size-4 cursor-pointer text-gray-400 hover:text-red-500"
               @click="handleRemoveStartDept(dept)"
             />
@@ -384,7 +386,7 @@ defineExpose({ validate });
             class="flex items-center"
           >
             <template #icon>
-              <Plus class="size-[18px]" />
+              <IconifyIcon icon="lucide:user-plus" class="size-4" />
             </template>
             选择部门
           </Button>
@@ -407,7 +409,8 @@ defineExpose({ validate });
               {{ user.nickname?.substring(0, 1) }}
             </Avatar>
             {{ user.nickname }}
-            <X
+            <IconifyIcon
+              icon="lucide:x"
               class="ml-2 size-4 cursor-pointer text-gray-400 hover:text-red-500"
               @click="handleRemoveManagerUser(user)"
             />
@@ -418,10 +421,7 @@ defineExpose({ validate });
             class="flex items-center"
           >
             <template #icon>
-              <IconifyIcon
-                icon="mdi:account-plus-outline"
-                class="size-[18px]"
-              />
+              <IconifyIcon icon="lucide:user-plus" class="size-4" />
             </template>
             选择人员
           </Button>
@@ -446,14 +446,3 @@ defineExpose({ validate });
     />
   </div>
 </template>
-
-<style lang="scss" scoped>
-.upload-img-placeholder {
-  cursor: pointer;
-  transition: all 0.3s;
-
-  &:hover {
-    border-color: #1890ff !important;
-  }
-}
-</style>

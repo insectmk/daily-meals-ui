@@ -42,7 +42,7 @@ const [Modal, modalApi] = useVbenModal({
         paramsObj[param] = values[`param_${param}`];
       });
     }
-    const data: SystemSmsTemplateApi.SmsSendReqVO = {
+    const data: SystemSmsTemplateApi.SmsSendReq = {
       mobile: values.mobile,
       templateCode: formData.value?.code || '',
       templateParams: paramsObj,
@@ -103,7 +103,7 @@ const buildFormSchema = () => {
 </script>
 
 <template>
-  <Modal class="w-[30%]" title="发送短信">
+  <Modal class="w-1/3" title="发送短信">
     <Form class="mx-4" />
   </Modal>
 </template>

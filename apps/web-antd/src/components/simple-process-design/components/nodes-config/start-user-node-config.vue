@@ -148,7 +148,7 @@ defineExpose({ showStartUserNodeConfig });
           ref="inputRef"
           v-if="showInput"
           type="text"
-          class="config-editable-input"
+          class="focus:border-blue-500 focus:shadow-[0_0_0_2px_rgba(24,144,255,0.2)] focus:outline-none"
           @blur="changeNodeName()"
           @press-enter="changeNodeName()"
           v-model:value="nodeName"
@@ -158,7 +158,7 @@ defineExpose({ showStartUserNodeConfig });
           {{ nodeName }}
           <IconifyIcon
             class="ml-1"
-            icon="ep:edit-pen"
+            icon="lucide:edit-3"
             :size="16"
             @click="clickIcon()"
           />
@@ -214,7 +214,7 @@ defineExpose({ showStartUserNodeConfig });
         v-if="formType === BpmModelFormType.NORMAL"
       >
         <div class="p-1">
-          <div class="mb-4 text-[16px] font-bold">字段权限</div>
+          <div class="mb-4 text-base font-bold">字段权限</div>
 
           <!-- 表头 -->
           <Row class="border border-gray-200 px-4 py-3">

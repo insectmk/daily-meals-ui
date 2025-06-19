@@ -158,7 +158,7 @@ function changeNodeName() {
 defineExpose({ open }); // 提供 open 方法，用于打开弹窗
 </script>
 <template>
-  <Drawer class="w-[580px]">
+  <Drawer class="w-1/3">
     <template #title>
       <div class="flex items-center">
         <Input
@@ -177,7 +177,7 @@ defineExpose({ open }); // 提供 open 方法，用于打开弹窗
           @click="clickIcon()"
         >
           {{ currentNode.name }}
-          <IconifyIcon class="ml-1" icon="ep:edit-pen" />
+          <IconifyIcon class="ml-1" icon="lucide:edit-3" />
         </div>
       </div>
     </template>

@@ -35,7 +35,7 @@ interface DeptTreeNode {
 
 defineOptions({ name: 'UserSelectModal' });
 
-const props = withDefaults(
+withDefaults(
   defineProps<{
     cancelText?: string;
     confirmText?: string;
@@ -216,7 +216,9 @@ async function loadUserData(pageNo: number, pageSize: number) {
     if (newUsers.length > 0) {
       userList.value.push(...newUsers);
     }
-  } finally {}
+  } finally {
+    //
+  }
 }
 
 // 更新右侧列表数据
@@ -406,7 +408,7 @@ function processDeptNode(node: any): DeptTreeNode {
 </script>
 
 <template>
-  <Modal class="w-[40%]" key="user-select-modal" :title="title">
+  <Modal class="w-2/5" key="user-select-modal" :title="title">
     <Row :gutter="[16, 16]">
       <Col :span="6">
         <div class="h-[500px] overflow-auto rounded border">

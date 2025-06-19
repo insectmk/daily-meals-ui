@@ -201,14 +201,14 @@ onMounted(() => {
 </script>
 <template>
   <div class="simple-process-model-container">
-    <div class="absolute right-[0px] top-[0px] bg-[#fff]">
+    <div class="absolute right-0 top-0 bg-white">
       <Row type="flex" justify="end">
         <ButtonGroup key="scale-control">
           <Button v-if="!readonly" @click="exportJson">
-            <IconifyIcon icon="ep:download" /> 导出
+            <IconifyIcon icon="lucide:download" /> 导出
           </Button>
           <Button v-if="!readonly" @click="importJson">
-            <IconifyIcon icon="ep:upload" />导入
+            <IconifyIcon icon="lucide:upload" />导入
           </Button>
           <!-- 用于打开本地文件-->
           <input
@@ -216,19 +216,19 @@ onMounted(() => {
             type="file"
             id="files"
             ref="refFile"
-            style="display: none"
+            class="hidden"
             accept=".json"
             @change="importLocalFile"
           />
           <Button @click="processReZoom()">
-            <IconifyIcon icon="tabler:relation-one-to-one" />
+            <IconifyIcon icon="lucide:table-columns-split" />
           </Button>
           <Button :plain="true" @click="zoomOut()">
-            <IconifyIcon icon="tabler:zoom-out" />
+            <IconifyIcon icon="lucide:zoom-out" />
           </Button>
-          <Button class="w-80px"> {{ scaleValue }}% </Button>
+          <Button class="w-20"> {{ scaleValue }}% </Button>
           <Button :plain="true" @click="zoomIn()">
-            <IconifyIcon icon="tabler:zoom-in" />
+            <IconifyIcon icon="lucide:zoom-in" />
           </Button>
           <Button @click="resetPosition">重置</Button>
         </ButtonGroup>
@@ -258,7 +258,7 @@ onMounted(() => {
   >
     <div class="mb-2">以下节点内容不完善，请修改后保存</div>
     <div
-      class="b-rounded-1 line-height-normal mb-3 bg-gray-100 p-2"
+      class="line-height-normal mb-3 rounded bg-gray-100 p-2"
       v-for="(item, index) in errorNodes"
       :key="index"
     >
