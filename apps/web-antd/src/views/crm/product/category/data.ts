@@ -57,6 +57,10 @@ export function useGridFormSchema(): VbenFormSchema[] {
       fieldName: 'name',
       label: '分类名称',
       component: 'Input',
+      componentProps: {
+        allowClear: true,
+        placeholder: '请输入分类名称',
+      },
     },
   ];
 }
@@ -81,7 +85,7 @@ export function useGridColumns(): VxeTableGridOptions<CrmProductCategoryApi.Prod
     {
       field: 'actions',
       title: '操作',
-      width: 200,
+      width: 250,
       fixed: 'right',
       slots: {
         default: 'actions',

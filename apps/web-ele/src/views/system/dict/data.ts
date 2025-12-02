@@ -1,15 +1,11 @@
 import type { VbenFormSchema } from '#/adapter/form';
-import type { OnActionClickFn, VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { SystemDictDataApi } from '#/api/system/dict/data';
-import type { SystemDictTypeApi } from '#/api/system/dict/type';
+import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 
-import { useAccess } from '@vben/access';
+import { CommonStatusEnum, DICT_TYPE } from '@vben/constants';
+import { getDictOptions } from '@vben/hooks';
 
 import { z } from '#/adapter/form';
 import { getSimpleDictTypeList } from '#/api/system/dict/type';
-import { CommonStatusEnum, DICT_TYPE, getDictOptions } from '#/utils';
-
-const { hasAccessByCodes } = useAccess();
 
 // ============================== 字典类型 ==============================
 
@@ -54,8 +50,6 @@ export function useTypeFormSchema(): VbenFormSchema[] {
       component: 'RadioGroup',
       componentProps: {
         options: getDictOptions(DICT_TYPE.COMMON_STATUS, 'number'),
-        buttonStyle: 'solid',
-        optionType: 'button',
       },
       rules: z.number().default(CommonStatusEnum.ENABLE),
     },
@@ -83,6 +77,15 @@ export function useTypeGridFormSchema(): VbenFormSchema[] {
       },
     },
     {
+      fieldName: 'type',
+      label: '字典类型',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入字典类型',
+        clearable: true,
+      },
+    },
+    {
       fieldName: 'status',
       label: '状态',
       component: 'Select',
@@ -96,9 +99,7 @@ export function useTypeGridFormSchema(): VbenFormSchema[] {
 }
 
 /** 类型列表的字段 */
-export function useTypeGridColumns<T = SystemDictTypeApi.DictType>(
-  onActionClick: OnActionClickFn<T>,
-): VxeTableGridOptions['columns'] {
+export function useTypeGridColumns(): VxeTableGridOptions['columns'] {
   return [
     { type: 'checkbox', width: 40 },
     {
@@ -137,29 +138,10 @@ export function useTypeGridColumns<T = SystemDictTypeApi.DictType>(
       formatter: 'formatDateTime',
     },
     {
-      minWidth: 120,
       title: '操作',
-      field: 'operation',
+      minWidth: 120,
       fixed: 'right',
-      align: 'center',
-      cellRender: {
-        attrs: {
-          nameField: 'type',
-          nameTitle: '字典类型',
-          onClick: onActionClick,
-        },
-        name: 'CellOperation',
-        options: [
-          {
-            code: 'edit',
-            show: hasAccessByCodes(['system:dict:update']),
-          },
-          {
-            code: 'delete',
-            show: hasAccessByCodes(['system:dict:delete']),
-          },
-        ],
-      },
+      slots: { default: 'actions' },
     },
   ];
 }
@@ -167,9 +149,7 @@ export function useTypeGridColumns<T = SystemDictTypeApi.DictType>(
 // ============================== 字典数据 ==============================
 
 // TODO @芋艿：后续针对 antd，增加
-/**
- * 颜色选项
- */
+/** 颜色选项 */
 const colorOptions = [
   { value: '', label: '无' },
   { value: 'processing', label: '主要' },
@@ -239,6 +219,8 @@ export function useDataFormSchema(): VbenFormSchema[] {
       component: 'InputNumber',
       componentProps: {
         placeholder: '请输入显示排序',
+        controlsPosition: 'right',
+        class: '!w-full',
       },
       rules: 'required',
     },
@@ -249,8 +231,6 @@ export function useDataFormSchema(): VbenFormSchema[] {
       componentProps: {
         options: getDictOptions(DICT_TYPE.COMMON_STATUS, 'number'),
         placeholder: '请选择状态',
-        buttonStyle: 'solid',
-        optionType: 'button',
       },
       rules: z.number().default(CommonStatusEnum.ENABLE),
     },
@@ -308,12 +288,8 @@ export function useDataGridFormSchema(): VbenFormSchema[] {
   ];
 }
 
-/**
- * 字典数据表格列
- */
-export function useDataGridColumns<T = SystemDictDataApi.DictData>(
-  onActionClick: OnActionClickFn<T>,
-): VxeTableGridOptions['columns'] {
+/** 字典数据表格列 */
+export function useDataGridColumns(): VxeTableGridOptions['columns'] {
   return [
     { type: 'checkbox', width: 40 },
     {
@@ -362,29 +338,10 @@ export function useDataGridColumns<T = SystemDictDataApi.DictData>(
       formatter: 'formatDateTime',
     },
     {
-      minWidth: 120,
       title: '操作',
-      field: 'operation',
+      minWidth: 120,
       fixed: 'right',
-      align: 'center',
-      cellRender: {
-        attrs: {
-          nameField: 'label',
-          nameTitle: '字典数据',
-          onClick: onActionClick,
-        },
-        name: 'CellOperation',
-        options: [
-          {
-            code: 'edit',
-            show: hasAccessByCodes(['system:dict:update']),
-          },
-          {
-            code: 'delete',
-            show: hasAccessByCodes(['system:dict:delete']),
-          },
-        ],
-      },
+      slots: { default: 'actions' },
     },
   ];
 }

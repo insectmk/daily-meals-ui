@@ -1,27 +1,27 @@
 <script lang="ts" setup>
 import type { Recordable } from '@vben/types';
 
-import type { SystemDeptApi } from '#/api/system/dept';
+import type { SystemMenuApi } from '#/api/system/menu';
 import type { SystemRoleApi } from '#/api/system/role';
 
-import { ref } from 'vue';
+import { nextTick, ref } from 'vue';
 
-import { useVbenModal, VbenTree } from '@vben/common-ui';
+import { Tree, useVbenModal } from '@vben/common-ui';
+import { SystemMenuTypeEnum } from '@vben/constants';
 import { handleTree } from '@vben/utils';
 
-import { Checkbox, message } from 'ant-design-vue';
+import { Checkbox, message, Spin } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
-import { getMenuList } from '#/api/system/menu';
+import { getSimpleMenusList } from '#/api/system/menu';
 import { assignRoleMenu, getRoleMenuList } from '#/api/system/permission';
 import { $t } from '#/locales';
-import { SystemMenuTypeEnum } from '#/utils';
 
 import { useAssignMenuFormSchema } from '../data';
 
 const emit = defineEmits(['success']);
 
-const menuTree = ref<SystemDeptApi.Dept[]>([]); // 菜单树
+const menuTree = ref<SystemMenuApi.Menu[]>([]); // 菜单树
 const menuLoading = ref(false); // 加载菜单列表
 const isAllSelected = ref(false); // 全选状态
 const isExpanded = ref(false); // 展开状态
@@ -66,20 +66,21 @@ const [Modal, modalApi] = useVbenModal({
     if (!isOpen) {
       return;
     }
+    // 加载菜单列表
+    await loadMenuTree();
     const data = modalApi.getData<SystemRoleApi.Role>();
     if (!data || !data.id) {
       return;
     }
     modalApi.lock();
     try {
-      await formApi.setValues(data);
-
       // 加载角色菜单
-      const menuIds = await getRoleMenuList(data.id as number);
+      const menuIds = await getRoleMenuList(data.id);
       await formApi.setFieldValue('menuIds', menuIds);
-      // 加载菜单列表
-      await loadMenuTree();
+
+      await formApi.setValues(data);
     } finally {
+      await nextTick(); // 菜单过多，渲染较慢，需要等下一次事件循环
       modalApi.unlock();
     }
   },
@@ -89,15 +90,15 @@ const [Modal, modalApi] = useVbenModal({
 async function loadMenuTree() {
   menuLoading.value = true;
   try {
-    const data = await getMenuList();
-    menuTree.value = handleTree(data) as SystemDeptApi.Dept[];
+    const data = await getSimpleMenusList();
+    menuTree.value = handleTree(data) as SystemMenuApi.Menu[];
   } finally {
     menuLoading.value = false;
   }
 }
 
 /** 全选/全不选 */
-function toggleSelectAll() {
+function handleSelectAll() {
   isAllSelected.value = !isAllSelected.value;
   if (isAllSelected.value) {
     const allIds = getAllNodeIds(menuTree.value);
@@ -108,9 +109,8 @@ function toggleSelectAll() {
 }
 
 /** 展开/折叠所有节点 */
-function toggleExpandAll() {
+function handleExpandAll() {
   isExpanded.value = !isExpanded.value;
-  // 获取所有节点的 ID
   expandedKeys.value = isExpanded.value ? getAllNodeIds(menuTree.value) : [];
 }
 
@@ -139,29 +139,29 @@ function getNodeClass(node: Recordable<any>) {
 </script>
 
 <template>
-  <Modal title="数据权限" class="w-2/5">
+  <Modal title="菜单权限" class="w-2/5">
     <Form class="mx-4">
       <template #menuIds="slotProps">
-        <VbenTree
-          :spinning="menuLoading"
-          :tree-data="menuTree"
-          multiple
-          bordered
-          :expanded="expandedKeys"
-          :get-node-class="getNodeClass"
-          v-bind="slotProps"
-          value-field="id"
-          label-field="name"
-          icon-field="meta.icon"
-        />
+        <Spin :spinning="menuLoading" wrapper-class-name="w-full">
+          <Tree
+            :tree-data="menuTree"
+            multiple
+            bordered
+            :default-expanded-keys="expandedKeys"
+            :get-node-class="getNodeClass"
+            v-bind="slotProps"
+            value-field="id"
+            label-field="name"
+          />
+        </Spin>
       </template>
     </Form>
     <template #prepend-footer>
       <div class="flex flex-auto items-center">
-        <Checkbox :checked="isAllSelected" @change="toggleSelectAll">
+        <Checkbox :checked="isAllSelected" @change="handleSelectAll">
           全选
         </Checkbox>
-        <Checkbox :checked="isExpanded" @change="toggleExpandAll">
+        <Checkbox :checked="isExpanded" @change="handleExpandAll">
           全部展开
         </Checkbox>
       </div>

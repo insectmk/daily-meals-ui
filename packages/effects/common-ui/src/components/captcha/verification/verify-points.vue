@@ -12,9 +12,11 @@ import {
   toRefs,
 } from 'vue';
 
+import { IconifyIcon } from '@vben/icons';
 import { $t } from '@vben/locales';
 
-import { aesEncrypt } from './utils/ase';
+import { AES } from '@vben-core/shared/utils';
+
 import { resetSize } from './utils/util';
 
 /**
@@ -137,7 +139,7 @@ function canvasClick(e: any) {
       // var flag = this.comparePos(this.fontPos, this.checkPosArr);
       // 发送后端请求
       const captchaVerification = secretKey.value
-        ? aesEncrypt(
+        ? AES.encrypt(
             `${backToken.value}---${JSON.stringify(checkPosArr)}`,
             secretKey.value,
           )
@@ -145,7 +147,7 @@ function canvasClick(e: any) {
       const data = {
         captchaType: captchaType.value,
         pointJson: secretKey.value
-          ? aesEncrypt(JSON.stringify(checkPosArr), secretKey.value)
+          ? AES.encrypt(JSON.stringify(checkPosArr), secretKey.value)
           : JSON.stringify(checkPosArr),
         token: backToken.value,
       };
@@ -220,7 +222,7 @@ defineExpose({
           style="z-index: 3"
           @click="refresh"
         >
-          <i class="iconfont icon-refresh"></i>
+          <IconifyIcon icon="lucide:refresh-ccw" class="mr-2 size-5" />
         </div>
         <img
           ref="canvas"

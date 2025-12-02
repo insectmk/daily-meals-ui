@@ -16,6 +16,7 @@ export namespace InfraFileConfigApi {
     accessKey?: string;
     accessSecret?: string;
     pathStyle?: boolean;
+    enablePublicAccess?: boolean;
     domain: string;
   }
 
@@ -67,6 +68,13 @@ export function updateFileConfig(data: InfraFileConfigApi.FileConfig) {
 /** 删除文件配置 */
 export function deleteFileConfig(id: number) {
   return requestClient.delete(`/infra/file-config/delete?id=${id}`);
+}
+
+/** 批量删除文件配置 */
+export function deleteFileConfigList(ids: number[]) {
+  return requestClient.delete(
+    `/infra/file-config/delete-list?ids=${ids.join(',')}`,
+  );
 }
 
 /** 测试文件配置 */

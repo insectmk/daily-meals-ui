@@ -1,10 +1,13 @@
 <script lang="ts" setup>
 import type { Demo03StudentApi } from '#/api/infra/demo/demo03/normal';
 
-import { h, onMounted, reactive, ref } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 
-import { Page, useVbenModal } from '@vben/common-ui';
-import { Download, Plus, Trash2 } from '@vben/icons';
+import { ContentWrap, Page, useVbenModal } from '@vben/common-ui';
+import { DICT_TYPE } from '@vben/constants';
+import { getDictOptions } from '@vben/hooks';
+import { IconifyIcon } from '@vben/icons';
+import { useTableToolbar, VbenVxeTableToolbar } from '@vben/plugins/vxe-table';
 import {
   cloneDeep,
   downloadFileFromBlobPart,
@@ -30,12 +33,9 @@ import {
   exportDemo03Student,
   getDemo03StudentPage,
 } from '#/api/infra/demo/demo03/normal';
-import { ContentWrap } from '#/components/content-wrap';
 import { DictTag } from '#/components/dict-tag';
-import { TableToolbar } from '#/components/table-toolbar';
-import { useTableToolbar } from '#/hooks';
 import { $t } from '#/locales';
-import { DICT_TYPE, getDictOptions, getRangePickerDefaultProps } from '#/utils';
+import { getRangePickerDefaultProps } from '#/utils';
 
 import Demo03CourseList from './modules/demo03-course-list.vue';
 import Demo03GradeList from './modules/demo03-grade-list.vue';
@@ -60,7 +60,7 @@ const queryFormRef = ref(); // 搜索的表单
 const exportLoading = ref(false); // 导出的加载中
 
 /** 查询列表 */
-const getList = async () => {
+async function getList() {
   loading.value = true;
   try {
     const params = cloneDeep(queryParams) as any;
@@ -73,19 +73,19 @@ const getList = async () => {
   } finally {
     loading.value = false;
   }
-};
+}
 
 /** 搜索按钮操作 */
-const handleQuery = () => {
+function handleQuery() {
   queryParams.pageNo = 1;
   getList();
-};
+}
 
 /** 重置按钮操作 */
-const resetQuery = () => {
+function resetQuery() {
   queryFormRef.value.resetFields();
   handleQuery();
-};
+}
 
 const [FormModal, formModalApi] = useVbenModal({
   connectedComponent: Demo03StudentForm,
@@ -93,27 +93,25 @@ const [FormModal, formModalApi] = useVbenModal({
 });
 
 /** 创建学生 */
-function onCreate() {
-  formModalApi.setData({}).open();
+function handleCreate() {
+  formModalApi.setData(null).open();
 }
 
 /** 编辑学生 */
-function onEdit(row: Demo03StudentApi.Demo03Student) {
+function handleEdit(row: Demo03StudentApi.Demo03Student) {
   formModalApi.setData(row).open();
 }
 
 /** 删除学生 */
-async function onDelete(row: Demo03StudentApi.Demo03Student) {
+async function handleDelete(row: Demo03StudentApi.Demo03Student) {
   const hideLoading = message.loading({
     content: $t('ui.actionMessage.deleting', [row.id]),
     duration: 0,
-    key: 'action_process_msg',
   });
   try {
-    await deleteDemo03Student(row.id as number);
+    await deleteDemo03Student(row.id!);
     message.success({
       content: $t('ui.actionMessage.deleteSuccess', [row.id]),
-      key: 'action_process_msg',
     });
     await getList();
   } finally {
@@ -122,14 +120,14 @@ async function onDelete(row: Demo03StudentApi.Demo03Student) {
 }
 
 /** 批量删除学生 */
-async function onDeleteBatch() {
+async function handleDeleteBatch() {
   const hideLoading = message.loading({
     content: $t('ui.actionMessage.deleting'),
     duration: 0,
-    key: 'action_process_msg',
   });
   try {
     await deleteDemo03StudentList(checkedIds.value);
+    checkedIds.value = [];
     message.success($t('ui.actionMessage.deleteSuccess'));
     await getList();
   } finally {
@@ -143,11 +141,11 @@ function handleRowCheckboxChange({
 }: {
   records: Demo03StudentApi.Demo03Student[];
 }) {
-  checkedIds.value = records.map((item) => item.id);
+  checkedIds.value = records.map((item) => item.id!);
 }
 
 /** 导出表格 */
-async function onExport() {
+async function handleExport() {
   try {
     exportLoading.value = true;
     const data = await exportDemo03Student(queryParams);
@@ -218,41 +216,41 @@ onMounted(() => {
     <!-- 列表 -->
     <ContentWrap title="学生">
       <template #extra>
-        <TableToolbar
+        <VbenVxeTableToolbar
           ref="tableToolbarRef"
           v-model:hidden-search="hiddenSearchBar"
         >
           <Button
             class="ml-2"
-            :icon="h(Plus)"
             type="primary"
-            @click="onCreate"
+            @click="handleCreate"
             v-access:code="['infra:demo03-student:create']"
           >
+            <IconifyIcon icon="lucide:plus" />
             {{ $t('ui.actionTitle.create', ['学生']) }}
           </Button>
           <Button
-            :icon="h(Download)"
             type="primary"
             class="ml-2"
             :loading="exportLoading"
-            @click="onExport"
+            @click="handleExport"
             v-access:code="['infra:demo03-student:export']"
           >
+            <IconifyIcon icon="lucide:download" />
             {{ $t('ui.actionTitle.export') }}
           </Button>
           <Button
-            :icon="h(Trash2)"
             type="primary"
             danger
             class="ml-2"
             :disabled="isEmpty(checkedIds)"
-            @click="onDeleteBatch"
+            @click="handleDeleteBatch"
             v-access:code="['infra:demo03-student:delete']"
           >
+            <IconifyIcon icon="lucide:trash-2" />
             批量删除
           </Button>
-        </TableToolbar>
+        </VbenVxeTableToolbar>
       </template>
       <VxeTable
         ref="tableRef"
@@ -300,7 +298,7 @@ onMounted(() => {
             <Button
               size="small"
               type="link"
-              @click="onEdit(row as any)"
+              @click="handleEdit(row)"
               v-access:code="['infra:demo03-student:update']"
             >
               {{ $t('ui.actionTitle.edit') }}
@@ -310,7 +308,7 @@ onMounted(() => {
               type="link"
               danger
               class="ml-2"
-              @click="onDelete(row as any)"
+              @click="handleDelete(row)"
               v-access:code="['infra:demo03-student:delete']"
             >
               {{ $t('ui.actionTitle.delete') }}

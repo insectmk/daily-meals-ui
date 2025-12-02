@@ -16,7 +16,7 @@ import {
 } from '#/api/crm/business';
 import { BizTypeEnum } from '#/api/crm/permission';
 import { $t } from '#/locales';
-import { ProductEditTable } from '#/views/crm/product';
+import { ProductEditTable } from '#/views/crm/product/components';
 
 import { useFormSchema } from '../data';
 
@@ -56,7 +56,6 @@ const [Form, formApi] = useVbenForm({
     },
     labelWidth: 120,
   },
-  // 一共3列
   wrapperClass: 'grid-cols-3',
   layout: 'vertical',
   schema: useFormSchema(),
@@ -90,12 +89,12 @@ const [Modal, modalApi] = useVbenModal({
     }
     // 加载数据
     const data = modalApi.getData<CrmBusinessApi.Business>();
-    if (!data) {
+    if (!data || !data.id) {
       return;
     }
     modalApi.lock();
     try {
-      formData.value = data.id ? await getBusiness(data.id as number) : data;
+      formData.value = data.id ? await getBusiness(data.id) : data;
       // 设置到 values
       await formApi.setValues(formData.value);
     } finally {

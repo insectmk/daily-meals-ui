@@ -6,6 +6,8 @@ import { useRouter } from 'vue-router';
 
 import { DocAlert, Page, useVbenModal } from '@vben/common-ui';
 
+import { message } from 'ant-design-vue';
+
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import { deleteDiyPage, getDiyPagePage } from '#/api/mall/promotion/diy/page';
 import { $t } from '#/locales';
@@ -23,30 +25,38 @@ const [FormModal, formModalApi] = useVbenModal({
 const { push } = useRouter();
 
 /** 刷新表格 */
-function onRefresh() {
+function handleRefresh() {
   gridApi.query();
 }
 
-/** 创建DIY页面 */
+/** 创建 DIY 页面 */
 function handleCreate() {
   formModalApi.setData(null).open();
 }
 
-/** 编辑DIY页面 */
+/** 编辑 DIY 页面 */
 function handleEdit(row: MallDiyPageApi.DiyPage) {
   formModalApi.setData(row).open();
 }
 
 /** 装修页面 */
 function handleDecorate(row: MallDiyPageApi.DiyPage) {
-  // 跳转到装修页面
   push({ name: 'DiyPageDecorate', params: { id: row.id } });
 }
 
-/** 删除DIY页面 */
+/** 删除 DIY 页面 */
 async function handleDelete(row: MallDiyPageApi.DiyPage) {
-  await deleteDiyPage(row.id as number);
-  onRefresh();
+  const hideLoading = message.loading({
+    content: $t('ui.actionMessage.deleting', [row.name]),
+    duration: 0,
+  });
+  try {
+    await deleteDiyPage(row.id as number);
+    message.success($t('ui.actionMessage.deleteSuccess', [row.name]));
+    handleRefresh();
+  } finally {
+    hideLoading();
+  }
 }
 
 const [Grid, gridApi] = useVbenVxeGrid({
@@ -73,7 +83,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
       isHover: true,
     },
     toolbarConfig: {
-      refresh: { code: 'query' },
+      refresh: true,
       search: true,
     },
   } as VxeTableGridOptions<MallDiyPageApi.DiyPage>,
@@ -89,7 +99,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
       />
     </template>
 
-    <FormModal @success="onRefresh" />
+    <FormModal @success="handleRefresh" />
 
     <Grid table-title="装修页面列表">
       <template #toolbar-tools>

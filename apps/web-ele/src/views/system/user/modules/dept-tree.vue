@@ -27,13 +27,13 @@ function handleSearch(value: string) {
     : deptList.value;
   deptTree.value = handleTree(filteredList);
   // 展开所有节点
-  expandedKeys.value = deptTree.value.map((node) => node.id as number);
+  expandedKeys.value = deptTree.value.map((node) => node.id!);
 }
 
 /** 选中部门 */
-const handleSelect = (data: any) => {
+function handleSelect(data: any) {
   emit('select', data);
-};
+}
 
 /** 初始化 */
 onMounted(async () => {
@@ -52,19 +52,17 @@ onMounted(async () => {
 
 <template>
   <div>
-    <div class="mb-2">
-      <ElInput
-        placeholder="搜索部门"
-        clearable
-        v-model="searchValue"
-        @input="handleSearch"
-        class="w-full"
-      >
-        <template #prefix>
-          <Search class="size-4" />
-        </template>
-      </ElInput>
-    </div>
+    <ElInput
+      placeholder="搜索部门"
+      clearable
+      v-model="searchValue"
+      @input="handleSearch"
+      class="w-full"
+    >
+      <template #prefix>
+        <Search class="size-4" />
+      </template>
+    </ElInput>
     <div v-loading="loading">
       <ElTree
         class="pt-2"

@@ -26,9 +26,8 @@ const [Form, formApi] = useVbenForm({
     componentProps: {
       class: 'w-full',
     },
-    formItemClass: 'col-span-2',
-    labelWidth: 80,
   },
+  wrapperClass: 'grid-cols-1',
   layout: 'horizontal',
   schema: useFormSchema(),
   showDefaultActions: false,
@@ -65,7 +64,7 @@ const [Modal, modalApi] = useVbenModal({
     }
     modalApi.lock();
     try {
-      formData.value = await getTenant(data.id as number);
+      formData.value = await getTenant(data.id);
       // 设置到 values
       await formApi.setValues(formData.value);
     } finally {

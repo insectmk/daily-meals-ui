@@ -5,7 +5,6 @@ import type { MallSeckillActivityApi } from '#/api/mall/promotion/seckill/seckil
 import { onMounted } from 'vue';
 
 import { DocAlert, Page, useVbenModal } from '@vben/common-ui';
-import { $t } from '@vben/locales';
 
 import { message, Tag } from 'ant-design-vue';
 
@@ -16,6 +15,7 @@ import {
   getSeckillActivityPage,
 } from '#/api/mall/promotion/seckill/seckillActivity';
 import { getSimpleSeckillConfigList } from '#/api/mall/promotion/seckill/seckillConfig';
+import { $t } from '#/locales';
 
 import { useGridColumns, useGridFormSchema } from './data';
 import { formatConfigNames, formatTimeRange, setConfigList } from './formatter';
@@ -29,7 +29,7 @@ const [FormModal, formModalApi] = useVbenModal({
 });
 
 /** 刷新表格 */
-function onRefresh() {
+function handleRefresh() {
   gridApi.query();
 }
 
@@ -46,16 +46,15 @@ function handleCreate() {
 /** 关闭活动 */
 async function handleClose(row: MallSeckillActivityApi.SeckillActivity) {
   const hideLoading = message.loading({
-    content: $t('ui.actionMessage.closing', [row.name]),
-    key: 'action_key_msg',
+    content: '活动关闭中...',
+    duration: 0,
   });
   try {
     await closeSeckillActivity(row.id as number);
     message.success({
       content: '关闭成功',
-      key: 'action_key_msg',
     });
-    onRefresh();
+    handleRefresh();
   } finally {
     hideLoading();
   }
@@ -65,15 +64,14 @@ async function handleClose(row: MallSeckillActivityApi.SeckillActivity) {
 async function handleDelete(row: MallSeckillActivityApi.SeckillActivity) {
   const hideLoading = message.loading({
     content: $t('ui.actionMessage.deleting', [row.name]),
-    key: 'action_key_msg',
+    duration: 0,
   });
   try {
     await deleteSeckillActivity(row.id as number);
     message.success({
       content: $t('ui.actionMessage.deleteSuccess', [row.name]),
-      key: 'action_key_msg',
     });
-    onRefresh();
+    handleRefresh();
   } finally {
     hideLoading();
   }
@@ -103,7 +101,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
       isHover: true,
     },
     toolbarConfig: {
-      refresh: { code: 'query' },
+      refresh: true,
       search: true,
     },
   } as VxeTableGridOptions<MallSeckillActivityApi.SeckillActivity>,
@@ -126,7 +124,7 @@ onMounted(async () => {
       />
     </template>
 
-    <FormModal @success="onRefresh" />
+    <FormModal @success="handleRefresh" />
     <Grid table-title="秒杀活动列表">
       <template #toolbar-tools>
         <TableAction

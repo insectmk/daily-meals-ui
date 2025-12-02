@@ -4,7 +4,8 @@
     "register": "Register",
     "codeLogin": "Code Login",
     "qrcodeLogin": "Qr Code Login",
-    "forgetPassword": "Forget Password"
+    "forgetPassword": "Forget Password",
+    "profile": "Profile"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -23,7 +24,8 @@
     "cancel": "Cancel",
     "confirm": "Confirm",
     "reset": "Reset",
-    "search": "Search"
+    "search": "Search",
+    "more": "More"
   },
   "tenant": {
     "placeholder": "Please select tenant",

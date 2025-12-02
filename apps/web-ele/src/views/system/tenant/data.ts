@@ -1,19 +1,17 @@
 import type { VbenFormSchema } from '#/adapter/form';
-import type { OnActionClickFn, VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { SystemTenantApi } from '#/api/system/tenant';
+import type { VxeTableGridOptions } from '#/adapter/vxe-table';
+import type { SystemTenantPackageApi } from '#/api/system/tenant-package';
 
-import { useAccess } from '@vben/access';
+import { CommonStatusEnum, DICT_TYPE } from '@vben/constants';
+import { getDictOptions } from '@vben/hooks';
 
 import { z } from '#/adapter/form';
 import { getTenantPackageList } from '#/api/system/tenant-package';
-import {
-  CommonStatusEnum,
-  DICT_TYPE,
-  getDictOptions,
-  getRangePickerDefaultProps,
-} from '#/utils';
+import { getRangePickerDefaultProps } from '#/utils';
 
-const { hasAccessByCodes } = useAccess();
+/** 关联数据 */
+let tenantPackageList: SystemTenantPackageApi.TenantPackage[] = [];
+getTenantPackageList().then((data) => (tenantPackageList = data));
 
 /** 新增/修改的表单 */
 export function useFormSchema(): VbenFormSchema[] {
@@ -30,6 +28,9 @@ export function useFormSchema(): VbenFormSchema[] {
       fieldName: 'name',
       label: '租户名称',
       component: 'Input',
+      componentProps: {
+        placeholder: '请输入租户名称',
+      },
       rules: 'required',
     },
     {
@@ -37,7 +38,7 @@ export function useFormSchema(): VbenFormSchema[] {
       label: '租户套餐',
       component: 'ApiSelect',
       componentProps: {
-        api: () => getTenantPackageList(),
+        api: getTenantPackageList,
         labelField: 'name',
         valueField: 'id',
         placeholder: '请选择租户套餐',
@@ -48,18 +49,27 @@ export function useFormSchema(): VbenFormSchema[] {
       fieldName: 'contactName',
       label: '联系人',
       component: 'Input',
+      componentProps: {
+        placeholder: '请输入联系人',
+      },
       rules: 'required',
     },
     {
       fieldName: 'contactMobile',
       label: '联系手机',
       component: 'Input',
+      componentProps: {
+        placeholder: '请输入联系手机',
+      },
       rules: 'mobile',
     },
     {
       label: '用户名称',
       fieldName: 'username',
       component: 'Input',
+      componentProps: {
+        placeholder: '请输入用户名称',
+      },
       rules: 'required',
       dependencies: {
         triggerFields: ['id'],
@@ -69,7 +79,10 @@ export function useFormSchema(): VbenFormSchema[] {
     {
       label: '用户密码',
       fieldName: 'password',
-      component: 'InputPassword',
+      component: 'Input',
+      componentProps: {
+        showPassword: true,
+      },
       rules: 'required',
       dependencies: {
         triggerFields: ['id'],
@@ -80,6 +93,11 @@ export function useFormSchema(): VbenFormSchema[] {
       label: '账号额度',
       fieldName: 'accountCount',
       component: 'InputNumber',
+      componentProps: {
+        placeholder: '请输入账号额度',
+        controlsPosition: 'right',
+        class: '!w-full',
+      },
       rules: 'required',
     },
     {
@@ -90,14 +108,17 @@ export function useFormSchema(): VbenFormSchema[] {
         format: 'YYYY-MM-DD',
         valueFormat: 'x',
         placeholder: '请选择过期时间',
+        class: '!w-full',
       },
       rules: 'required',
     },
     {
       label: '绑定域名',
-      fieldName: 'website',
-      component: 'Input',
-      rules: 'required',
+      fieldName: 'websites',
+      component: 'InputTag',
+      componentProps: {
+        placeholder: '请输入绑定域名',
+      },
     },
     {
       fieldName: 'status',
@@ -105,8 +126,6 @@ export function useFormSchema(): VbenFormSchema[] {
       component: 'RadioGroup',
       componentProps: {
         options: getDictOptions(DICT_TYPE.COMMON_STATUS, 'number'),
-        buttonStyle: 'solid',
-        optionType: 'button',
       },
       rules: z.number().default(CommonStatusEnum.ENABLE),
     },
@@ -121,7 +140,8 @@ export function useGridFormSchema(): VbenFormSchema[] {
       label: '租户名',
       component: 'Input',
       componentProps: {
-        allowClear: true,
+        placeholder: '请输入租户名',
+        clearable: true,
       },
     },
     {
@@ -129,7 +149,8 @@ export function useGridFormSchema(): VbenFormSchema[] {
       label: '联系人',
       component: 'Input',
       componentProps: {
-        allowClear: true,
+        placeholder: '请输入联系人',
+        clearable: true,
       },
     },
     {
@@ -137,7 +158,8 @@ export function useGridFormSchema(): VbenFormSchema[] {
       label: '联系手机',
       component: 'Input',
       componentProps: {
-        allowClear: true,
+        placeholder: '请输入联系手机',
+        clearable: true,
       },
     },
     {
@@ -145,7 +167,8 @@ export function useGridFormSchema(): VbenFormSchema[] {
       label: '状态',
       component: 'Select',
       componentProps: {
-        allowClear: true,
+        placeholder: '请选择状态',
+        clearable: true,
         options: getDictOptions(DICT_TYPE.COMMON_STATUS, 'number'),
       },
     },
@@ -155,22 +178,16 @@ export function useGridFormSchema(): VbenFormSchema[] {
       component: 'RangePicker',
       componentProps: {
         ...getRangePickerDefaultProps(),
-        allowClear: true,
+        clearable: true,
       },
     },
   ];
 }
 
 /** 列表的字段 */
-export function useGridColumns<T = SystemTenantApi.Tenant>(
-  onActionClick: OnActionClickFn<T>,
-  getPackageName?: (packageId: number) => string | undefined,
-): VxeTableGridOptions['columns'] {
+export function useGridColumns(): VxeTableGridOptions['columns'] {
   return [
-    {
-      type: 'checkbox',
-      width: 40,
-    },
+    { type: 'checkbox', width: 40 },
     {
       field: 'id',
       title: '租户编号',
@@ -185,8 +202,10 @@ export function useGridColumns<T = SystemTenantApi.Tenant>(
       field: 'packageId',
       title: '租户套餐',
       minWidth: 180,
-      formatter: (row: { cellValue: number }) => {
-        return getPackageName?.(row.cellValue) || '-';
+      formatter: ({ cellValue }) => {
+        return cellValue === 0
+          ? '系统租户'
+          : tenantPackageList.find((pkg) => pkg.id === cellValue)?.name || '-';
       },
     },
     {
@@ -211,7 +230,7 @@ export function useGridColumns<T = SystemTenantApi.Tenant>(
       formatter: 'formatDateTime',
     },
     {
-      field: 'website',
+      field: 'websites',
       title: '绑定域名',
       minWidth: 180,
     },
@@ -231,29 +250,10 @@ export function useGridColumns<T = SystemTenantApi.Tenant>(
       formatter: 'formatDateTime',
     },
     {
-      field: 'operation',
       title: '操作',
-      minWidth: 130,
-      align: 'center',
+      width: 130,
       fixed: 'right',
-      cellRender: {
-        attrs: {
-          nameField: 'name',
-          nameTitle: '租户',
-          onClick: onActionClick,
-        },
-        name: 'CellOperation',
-        options: [
-          {
-            code: 'edit',
-            show: hasAccessByCodes(['system:tenant:update']),
-          },
-          {
-            code: 'delete',
-            show: hasAccessByCodes(['system:tenant:delete']),
-          },
-        ],
-      },
+      slots: { default: 'actions' },
     },
   ];
 }

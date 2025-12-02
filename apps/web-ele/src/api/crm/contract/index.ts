@@ -5,19 +5,6 @@ import type { CrmPermissionApi } from '#/api/crm/permission';
 import { requestClient } from '#/api/request';
 
 export namespace CrmContractApi {
-  /** 合同产品信息 */
-  export interface ContractProduct {
-    id: number;
-    productId: number;
-    productName: string;
-    productNo: string;
-    productUnit: number;
-    productPrice: number;
-    contractPrice: number;
-    count: number;
-    totalPrice: number;
-  }
-
   /** 合同信息 */
   export interface Contract {
     id: number;
@@ -50,6 +37,20 @@ export namespace CrmContractApi {
     creatorName: string;
     updateTime?: Date;
     products?: ContractProduct[];
+    contactName?: string;
+  }
+
+  /** 合同产品信息 */
+  export interface ContractProduct {
+    id: number;
+    productId: number;
+    productName: string;
+    productNo: string;
+    productUnit: number;
+    productPrice: number;
+    contractPrice: number;
+    count: number;
+    totalPrice: number;
   }
 }
 
@@ -108,7 +109,7 @@ export function deleteContract(id: number) {
 
 /** 导出合同 */
 export function exportContract(params: any) {
-  return requestClient.download('/crm/contract/export-excel', params);
+  return requestClient.download('/crm/contract/export-excel', { params });
 }
 
 /** 提交审核 */
@@ -117,7 +118,7 @@ export function submitContract(id: number) {
 }
 
 /** 合同转移 */
-export function transferContract(data: CrmPermissionApi.TransferReq) {
+export function transferContract(data: CrmPermissionApi.BusinessTransferReqVO) {
   return requestClient.put('/crm/contract/transfer', data);
 }
 

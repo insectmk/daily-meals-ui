@@ -2,7 +2,7 @@
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { MemberLevelApi } from '#/api/member/level';
 
-import { Page, useVbenModal } from '@vben/common-ui';
+import { DocAlert, Page, useVbenModal } from '@vben/common-ui';
 
 import { ElLoading, ElMessage } from 'element-plus';
 
@@ -19,7 +19,7 @@ const [FormModal, formModalApi] = useVbenModal({
 });
 
 /** 刷新表格 */
-function onRefresh() {
+function handleRefresh() {
   gridApi.query();
 }
 
@@ -37,12 +37,11 @@ function handleEdit(row: MemberLevelApi.Level) {
 async function handleDelete(row: MemberLevelApi.Level) {
   const loadingInstance = ElLoading.service({
     text: $t('ui.actionMessage.deleting', [row.name]),
-    fullscreen: true,
   });
   try {
     await deleteLevel(row.id as number);
     ElMessage.success($t('ui.actionMessage.deleteSuccess', [row.name]));
-    onRefresh();
+    handleRefresh();
   } finally {
     loadingInstance.close();
   }
@@ -61,7 +60,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     },
     proxyConfig: {
       ajax: {
-        query: async (_params, formValues) => {
+        query: async (_, formValues) => {
           return await getLevelList({
             ...formValues,
           });
@@ -70,9 +69,10 @@ const [Grid, gridApi] = useVbenVxeGrid({
     },
     rowConfig: {
       keyField: 'id',
+      isHover: true,
     },
     toolbarConfig: {
-      refresh: { code: 'query' },
+      refresh: true,
       search: true,
     },
   } as VxeTableGridOptions<MemberLevelApi.Level>,
@@ -81,7 +81,14 @@ const [Grid, gridApi] = useVbenVxeGrid({
 
 <template>
   <Page auto-content-height>
-    <FormModal @success="onRefresh" />
+    <template #doc>
+      <DocAlert
+        title="会员等级、积分、签到"
+        url="https://doc.iocoder.cn/member/level/"
+      />
+    </template>
+
+    <FormModal @success="handleRefresh" />
     <Grid table-title="等级列表">
       <template #toolbar-tools>
         <TableAction

@@ -4,6 +4,8 @@ import type { DictSelectProps } from '../typing';
 
 import { computed, useAttrs } from 'vue';
 
+import { getDictOptions } from '@vben/hooks';
+
 import {
   Checkbox,
   CheckboxGroup,
@@ -12,8 +14,6 @@ import {
   Select,
   SelectOption,
 } from 'ant-design-vue';
-
-import { getDictOptions } from '#/utils';
 
 defineOptions({ name: 'DictSelect' });
 
@@ -24,7 +24,7 @@ const props = withDefaults(defineProps<DictSelectProps>(), {
 
 const attrs = useAttrs();
 
-// 获得字典配置
+/** 获得字典配置 */
 const getDictOption = computed(() => {
   switch (props.valueType) {
     case 'bool': {

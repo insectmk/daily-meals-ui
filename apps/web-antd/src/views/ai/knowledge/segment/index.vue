@@ -1,15 +1,15 @@
 <script lang="ts" setup>
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { AiKnowledgeKnowledgeApi } from '#/api/ai/knowledge/knowledge';
 import type { AiKnowledgeSegmentApi } from '#/api/ai/knowledge/segment';
 
 import { onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 
-import { useAccess } from '@vben/access';
 import { confirm, Page, useVbenModal } from '@vben/common-ui';
+import { DICT_TYPE } from '@vben/constants';
+import { getDictLabel } from '@vben/hooks';
 
-import { message, Switch } from 'ant-design-vue';
+import { message } from 'ant-design-vue';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
@@ -18,49 +18,67 @@ import {
   updateKnowledgeSegmentStatus,
 } from '#/api/ai/knowledge/segment';
 import { $t } from '#/locales';
-import { CommonStatusEnum } from '#/utils';
 
 import { useGridColumns, useGridFormSchema } from './data';
 import Form from './modules/form.vue';
 
 const route = useRoute();
-const { hasAccessByCodes } = useAccess();
+
 const [FormModal, formModalApi] = useVbenModal({
   connectedComponent: Form,
   destroyOnClose: true,
 });
 
 /** 刷新表格 */
-function onRefresh() {
+function handleRefresh() {
   gridApi.query();
 }
 
-/** 创建 */
+/** 创建知识库片段 */
 function handleCreate() {
   formModalApi.setData({ documentId: route.query.documentId }).open();
 }
 
-/** 编辑 */
-function handleEdit(row: AiKnowledgeKnowledgeApi.Knowledge) {
+/** 编辑知识库片段 */
+function handleEdit(row: AiKnowledgeSegmentApi.KnowledgeSegment) {
   formModalApi.setData(row).open();
 }
 
-/** 删除 */
-async function handleDelete(row: AiKnowledgeKnowledgeApi.Knowledge) {
+/** 删除知识库片段 */
+async function handleDelete(row: AiKnowledgeSegmentApi.KnowledgeSegment) {
   const hideLoading = message.loading({
     content: $t('ui.actionMessage.deleting', [row.id]),
-    key: 'action_key_msg',
+    duration: 0,
   });
   try {
-    await deleteKnowledgeSegment(row.id as number);
-    message.success({
-      content: $t('ui.actionMessage.deleteSuccess', [row.id]),
-      key: 'action_key_msg',
-    });
-    onRefresh();
+    await deleteKnowledgeSegment(row.id!);
+    message.success($t('ui.actionMessage.deleteSuccess', [row.id]));
+    handleRefresh();
   } finally {
     hideLoading();
   }
+}
+
+/** 更新知识库片段状态 */
+async function handleStatusChange(
+  newStatus: number,
+  row: AiKnowledgeSegmentApi.KnowledgeSegment,
+): Promise<boolean | undefined> {
+  return new Promise((resolve, reject) => {
+    confirm({
+      content: `你要将片段 ${row.id} 的状态切换为【${getDictLabel(DICT_TYPE.COMMON_STATUS, newStatus)}】吗？`,
+    })
+      .then(async () => {
+        // 更新片段状态
+        await updateKnowledgeSegmentStatus(row.id!, newStatus);
+        // 提示并返回成功
+        message.success($t('ui.actionMessage.operationSuccess'));
+        resolve(true);
+      })
+      .catch(() => {
+        reject(new Error('取消操作'));
+      });
+  });
 }
 
 const [Grid, gridApi] = useVbenVxeGrid({
@@ -68,7 +86,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     schema: useGridFormSchema(),
   },
   gridOptions: {
-    columns: useGridColumns(),
+    columns: useGridColumns(handleStatusChange),
     height: 'auto',
     keepSource: true,
     proxyConfig: {
@@ -84,34 +102,16 @@ const [Grid, gridApi] = useVbenVxeGrid({
     },
     rowConfig: {
       keyField: 'id',
+      isHover: true,
     },
     toolbarConfig: {
-      refresh: { code: 'query' },
+      refresh: true,
       search: true,
     },
-  } as VxeTableGridOptions<AiKnowledgeKnowledgeApi.Knowledge>,
+  } as VxeTableGridOptions<AiKnowledgeSegmentApi.KnowledgeSegment>,
 });
 
-/** 修改是否发布 */
-async function handleStatusChange(row: AiKnowledgeSegmentApi.KnowledgeSegment) {
-  try {
-    // 修改状态的二次确认
-    const text = row.status ? '启用' : '禁用';
-    await confirm(`确认要"${text}"该分段吗?`).then(async () => {
-      await updateKnowledgeSegmentStatus({
-        id: row.id,
-        status: row.status,
-      });
-      gridApi.reload();
-    });
-  } catch {
-    row.status =
-      row.status === CommonStatusEnum.ENABLE
-        ? CommonStatusEnum.DISABLE
-        : CommonStatusEnum.ENABLE;
-  }
-}
-
+/** 初始化 */
 onMounted(() => {
   gridApi.formApi.setFieldValue('documentId', route.query.documentId);
 });
@@ -119,7 +119,7 @@ onMounted(() => {
 
 <template>
   <Page auto-content-height>
-    <FormModal @success="onRefresh" />
+    <FormModal @success="handleRefresh" />
     <Grid table-title="分段列表">
       <template #toolbar-tools>
         <TableAction
@@ -132,15 +132,6 @@ onMounted(() => {
               onClick: handleCreate,
             },
           ]"
-        />
-      </template>
-      <template #status="{ row }">
-        <Switch
-          v-model:checked="row.status"
-          :checked-value="0"
-          :un-checked-value="1"
-          @change="handleStatusChange(row)"
-          :disabled="!hasAccessByCodes(['ai:knowledge:update'])"
         />
       </template>
       <template #expand_content="{ row }">

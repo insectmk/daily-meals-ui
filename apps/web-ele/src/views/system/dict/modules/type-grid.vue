@@ -1,13 +1,10 @@
 <script lang="ts" setup>
-import type {
-  OnActionClickParams,
-  VxeTableGridOptions,
-} from '#/adapter/vxe-table';
+import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { SystemDictTypeApi } from '#/api/system/dict/type';
 
 import { ref } from 'vue';
 
-import { useVbenModal } from '@vben/common-ui';
+import { confirm, useVbenModal } from '@vben/common-ui';
 import { downloadFileFromBlobPart, isEmpty } from '@vben/utils';
 
 import { ElLoading, ElMessage } from 'element-plus';
@@ -32,51 +29,51 @@ const [TypeFormModal, typeFormModalApi] = useVbenModal({
 });
 
 /** 刷新表格 */
-function onRefresh() {
+function handleRefresh() {
   gridApi.query();
 }
 
 /** 导出表格 */
-async function onExport() {
+async function handleExport() {
   const data = await exportDictType(await gridApi.formApi.getValues());
   downloadFileFromBlobPart({ fileName: '字典类型.xls', source: data });
 }
 
 /** 创建字典类型 */
-function onCreate() {
+function handleCreate() {
   typeFormModalApi.setData(null).open();
 }
 
 /** 编辑字典类型 */
-function onEdit(row: any) {
+function handleEdit(row: SystemDictTypeApi.DictType) {
   typeFormModalApi.setData(row).open();
 }
 
 /** 删除字典类型 */
-async function onDelete(row: SystemDictTypeApi.DictType) {
+async function handleDelete(row: SystemDictTypeApi.DictType) {
   const loadingInstance = ElLoading.service({
-    text: $t('common.processing'),
-    fullscreen: true,
+    text: $t('ui.actionMessage.deleting', [row.name]),
   });
   try {
-    await deleteDictType(row.id as number);
-    ElMessage.success($t('common.operationSuccess'));
-    onRefresh();
+    await deleteDictType(row.id!);
+    ElMessage.success($t('ui.actionMessage.deleteSuccess', [row.name]));
+    handleRefresh();
   } finally {
     loadingInstance.close();
   }
 }
 
 /** 批量删除字典类型 */
-async function onDeleteBatch() {
+async function handleDeleteBatch() {
+  await confirm($t('ui.actionMessage.deleteBatchConfirm'));
   const loadingInstance = ElLoading.service({
-    text: $t('ui.actionMessage.deleting'),
-    fullscreen: true,
+    text: $t('ui.actionMessage.deletingBatch'),
   });
   try {
     await deleteDictTypeList(checkedIds.value);
+    checkedIds.value = [];
     ElMessage.success($t('ui.actionMessage.deleteSuccess'));
-    onRefresh();
+    handleRefresh();
   } finally {
     loadingInstance.close();
   }
@@ -88,24 +85,7 @@ function handleRowCheckboxChange({
 }: {
   records: SystemDictTypeApi.DictType[];
 }) {
-  checkedIds.value = records.map((item) => item.id as number);
-}
-
-/** 表格操作按钮回调 */
-function onActionClick({
-  code,
-  row,
-}: OnActionClickParams<SystemDictTypeApi.DictType>) {
-  switch (code) {
-    case 'delete': {
-      onDelete(row);
-      break;
-    }
-    case 'edit': {
-      onEdit(row);
-      break;
-    }
-  }
+  checkedIds.value = records.map((item) => item.id!);
 }
 
 const [Grid, gridApi] = useVbenVxeGrid({
@@ -113,7 +93,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     schema: useTypeGridFormSchema(),
   },
   gridOptions: {
-    columns: useTypeGridColumns(onActionClick),
+    columns: useTypeGridColumns(),
     height: 'auto',
     keepSource: true,
     proxyConfig: {
@@ -130,9 +110,10 @@ const [Grid, gridApi] = useVbenVxeGrid({
     rowConfig: {
       keyField: 'id',
       isCurrent: true,
+      isHover: true,
     },
     toolbarConfig: {
-      refresh: { code: 'query' },
+      refresh: true,
       search: true,
     },
   } as VxeTableGridOptions<SystemDictTypeApi.DictType>,
@@ -148,8 +129,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
 
 <template>
   <div class="h-full">
-    <TypeFormModal @success="onRefresh" />
-
+    <TypeFormModal @success="handleRefresh" />
     <Grid table-title="字典类型列表">
       <template #toolbar-tools>
         <TableAction
@@ -159,14 +139,14 @@ const [Grid, gridApi] = useVbenVxeGrid({
               type: 'primary',
               icon: ACTION_ICON.ADD,
               auth: ['system:dict:create'],
-              onClick: onCreate,
+              onClick: handleCreate,
             },
             {
               label: $t('ui.actionTitle.export'),
               type: 'primary',
               icon: ACTION_ICON.DOWNLOAD,
               auth: ['system:dict:export'],
-              onClick: onExport,
+              onClick: handleExport,
             },
             {
               label: $t('ui.actionTitle.deleteBatch'),
@@ -174,7 +154,32 @@ const [Grid, gridApi] = useVbenVxeGrid({
               icon: ACTION_ICON.DELETE,
               disabled: isEmpty(checkedIds),
               auth: ['system:dict:delete'],
-              onClick: onDeleteBatch,
+              onClick: handleDeleteBatch,
+            },
+          ]"
+        />
+      </template>
+      <template #actions="{ row }">
+        <TableAction
+          :actions="[
+            {
+              label: $t('common.edit'),
+              type: 'primary',
+              link: true,
+              icon: ACTION_ICON.EDIT,
+              auth: ['system:dict:update'],
+              onClick: handleEdit.bind(null, row),
+            },
+            {
+              label: $t('common.delete'),
+              type: 'danger',
+              link: true,
+              icon: ACTION_ICON.DELETE,
+              auth: ['system:dict:delete'],
+              popConfirm: {
+                title: $t('ui.actionMessage.deleteConfirm', [row.name]),
+                confirm: handleDelete.bind(null, row),
+              },
             },
           ]"
         />

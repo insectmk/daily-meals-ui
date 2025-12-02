@@ -1,14 +1,17 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
+import type { SystemTenantPackageApi } from '#/api/system/tenant-package';
+
+import { CommonStatusEnum, DICT_TYPE } from '@vben/constants';
+import { getDictOptions } from '@vben/hooks';
 
 import { z } from '#/adapter/form';
 import { getTenantPackageList } from '#/api/system/tenant-package';
-import {
-  CommonStatusEnum,
-  DICT_TYPE,
-  getDictOptions,
-  getRangePickerDefaultProps,
-} from '#/utils';
+import { getRangePickerDefaultProps } from '#/utils';
+
+/** 关联数据 */
+let tenantPackageList: SystemTenantPackageApi.TenantPackage[] = [];
+getTenantPackageList().then((data) => (tenantPackageList = data));
 
 /** 新增/修改的表单 */
 export function useFormSchema(): VbenFormSchema[] {
@@ -25,6 +28,9 @@ export function useFormSchema(): VbenFormSchema[] {
       fieldName: 'name',
       label: '租户名称',
       component: 'Input',
+      componentProps: {
+        placeholder: '请输入租户名称',
+      },
       rules: 'required',
     },
     {
@@ -32,7 +38,7 @@ export function useFormSchema(): VbenFormSchema[] {
       label: '租户套餐',
       component: 'ApiSelect',
       componentProps: {
-        api: () => getTenantPackageList(),
+        api: getTenantPackageList,
         labelField: 'name',
         valueField: 'id',
         placeholder: '请选择租户套餐',
@@ -43,18 +49,27 @@ export function useFormSchema(): VbenFormSchema[] {
       fieldName: 'contactName',
       label: '联系人',
       component: 'Input',
+      componentProps: {
+        placeholder: '请输入联系人',
+      },
       rules: 'required',
     },
     {
       fieldName: 'contactMobile',
       label: '联系手机',
       component: 'Input',
+      componentProps: {
+        placeholder: '请输入联系手机',
+      },
       rules: 'mobile',
     },
     {
       label: '用户名称',
       fieldName: 'username',
       component: 'Input',
+      componentProps: {
+        placeholder: '请输入用户名称',
+      },
       rules: 'required',
       dependencies: {
         triggerFields: ['id'],
@@ -75,6 +90,9 @@ export function useFormSchema(): VbenFormSchema[] {
       label: '账号额度',
       fieldName: 'accountCount',
       component: 'InputNumber',
+      componentProps: {
+        placeholder: '请输入账号额度',
+      },
       rules: 'required',
     },
     {
@@ -90,9 +108,13 @@ export function useFormSchema(): VbenFormSchema[] {
     },
     {
       label: '绑定域名',
-      fieldName: 'website',
-      component: 'Input',
-      rules: 'required',
+      fieldName: 'websites',
+      component: 'Select',
+      componentProps: {
+        placeholder: '请输入绑定域名',
+        mode: 'tags',
+        allowClear: true,
+      },
     },
     {
       fieldName: 'status',
@@ -116,6 +138,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       label: '租户名',
       component: 'Input',
       componentProps: {
+        placeholder: '请输入租户名',
         allowClear: true,
       },
     },
@@ -124,6 +147,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       label: '联系人',
       component: 'Input',
       componentProps: {
+        placeholder: '请输入联系人',
         allowClear: true,
       },
     },
@@ -132,6 +156,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       label: '联系手机',
       component: 'Input',
       componentProps: {
+        placeholder: '请输入联系手机',
         allowClear: true,
       },
     },
@@ -140,6 +165,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       label: '状态',
       component: 'Select',
       componentProps: {
+        placeholder: '请选择状态',
         allowClear: true,
         options: getDictOptions(DICT_TYPE.COMMON_STATUS, 'number'),
       },
@@ -157,50 +183,59 @@ export function useGridFormSchema(): VbenFormSchema[] {
 }
 
 /** 列表的字段 */
-export function useGridColumns(
-  getPackageName?: (packageId: number) => string | undefined,
-): VxeTableGridOptions['columns'] {
+export function useGridColumns(): VxeTableGridOptions['columns'] {
   return [
     { type: 'checkbox', width: 40 },
     {
       field: 'id',
       title: '租户编号',
+      minWidth: 100,
     },
     {
       field: 'name',
       title: '租户名',
+      minWidth: 180,
     },
     {
       field: 'packageId',
       title: '租户套餐',
-      formatter: (row: { cellValue: number }) => {
-        return getPackageName?.(row.cellValue) || '-';
+      minWidth: 180,
+      formatter: ({ cellValue }) => {
+        return cellValue === 0
+          ? '系统租户'
+          : tenantPackageList.find((pkg) => pkg.id === cellValue)?.name || '-';
       },
     },
     {
       field: 'contactName',
       title: '联系人',
+      minWidth: 100,
     },
     {
       field: 'contactMobile',
       title: '联系手机',
+      minWidth: 180,
     },
     {
       field: 'accountCount',
       title: '账号额度',
+      minWidth: 100,
     },
     {
       field: 'expireTime',
       title: '过期时间',
+      minWidth: 180,
       formatter: 'formatDateTime',
     },
     {
-      field: 'website',
+      field: 'websites',
       title: '绑定域名',
+      minWidth: 180,
     },
     {
       field: 'status',
       title: '租户状态',
+      minWidth: 100,
       cellRender: {
         name: 'CellDict',
         props: { type: DICT_TYPE.COMMON_STATUS },
@@ -209,6 +244,7 @@ export function useGridColumns(
     {
       field: 'createTime',
       title: '创建时间',
+      minWidth: 180,
       formatter: 'formatDateTime',
     },
     {

@@ -34,7 +34,7 @@ const [Form, formApi] = useVbenForm({
       class: 'w-full',
     },
     formItemClass: 'col-span-2',
-    labelWidth: 120,
+    labelWidth: 200,
   },
   layout: 'horizontal',
   schema: useFormSchema(confType.value),
@@ -81,7 +81,7 @@ const [Modal, modalApi] = useVbenModal({
     modalApi.lock();
     try {
       if (data.id) {
-        data = await getCustomerLimitConfig(data.id as number);
+        data = await getCustomerLimitConfig(data.id);
       }
       formData.value = data;
       // 设置到 values

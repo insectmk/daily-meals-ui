@@ -23,7 +23,7 @@ const [FormModal, formModalApi] = useVbenModal({
 });
 
 /** 刷新表格 */
-function onRefresh() {
+function handleRefresh() {
   gridApi.query();
 }
 
@@ -41,15 +41,14 @@ function handleEdit(row: MallSeckillConfigApi.SeckillConfig) {
 async function handleDelete(row: MallSeckillConfigApi.SeckillConfig) {
   const hideLoading = message.loading({
     content: $t('ui.actionMessage.deleting', [row.name]),
-    key: 'action_key_msg',
+    duration: 0,
   });
   try {
     await deleteSeckillConfig(row.id as number);
     message.success({
       content: $t('ui.actionMessage.deleteSuccess', [row.name]),
-      key: 'action_key_msg',
     });
-    onRefresh();
+    handleRefresh();
   } finally {
     hideLoading();
   }
@@ -68,14 +67,10 @@ async function handleStatusChange(
     })
       .then(async () => {
         // 更新状态
-        const res = await updateSeckillConfigStatus(row.id, newStatus);
-        if (res) {
-          // 提示并返回成功
-          message.success(`${text}成功`);
-          resolve(true);
-        } else {
-          reject(new Error('操作失败'));
-        }
+        await updateSeckillConfigStatus(row.id, newStatus);
+        // 提示并返回成功
+        message.success(`${text}成功`);
+        resolve(true);
       })
       .catch(() => {
         reject(new Error('取消操作'));
@@ -106,7 +101,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
       keyField: 'id',
     },
     toolbarConfig: {
-      refresh: { code: 'query' },
+      refresh: true,
       search: true,
     },
   } as VxeTableGridOptions<MallSeckillConfigApi.SeckillConfig>,
@@ -115,7 +110,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
 
 <template>
   <Page auto-content-height>
-    <FormModal @success="onRefresh" />
+    <FormModal @success="handleRefresh" />
     <Grid table-title="秒杀时段列表">
       <template #toolbar-tools>
         <TableAction

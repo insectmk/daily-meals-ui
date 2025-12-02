@@ -9,7 +9,6 @@ import { message } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
 import { createModel, getModel, updateModel } from '#/api/ai/model/model';
-import {} from '#/api/bpm/model';
 import { $t } from '#/locales';
 
 import { useFormSchema } from '../data';
@@ -66,7 +65,7 @@ const [Modal, modalApi] = useVbenModal({
     }
     modalApi.lock();
     try {
-      formData.value = await getModel(data.id as number);
+      formData.value = await getModel(data.id);
       // 设置到 values
       await formApi.setValues(formData.value);
     } finally {
@@ -77,7 +76,7 @@ const [Modal, modalApi] = useVbenModal({
 </script>
 
 <template>
-  <Modal class="w-2/5" :title="getTitle">
+  <Modal :title="getTitle" class="w-2/5">
     <Form class="mx-4" />
   </Modal>
 </template>

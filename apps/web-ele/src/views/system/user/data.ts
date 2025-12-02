@@ -2,6 +2,8 @@ import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { SystemUserApi } from '#/api/system/user';
 
+import { CommonStatusEnum, DICT_TYPE } from '@vben/constants';
+import { getDictOptions } from '@vben/hooks';
 import { $t } from '@vben/locales';
 import { handleTree } from '@vben/utils';
 
@@ -9,12 +11,7 @@ import { z } from '#/adapter/form';
 import { getDeptList } from '#/api/system/dept';
 import { getSimplePostList } from '#/api/system/post';
 import { getSimpleRoleList } from '#/api/system/role';
-import {
-  CommonStatusEnum,
-  DICT_TYPE,
-  getDictOptions,
-  getRangePickerDefaultProps,
-} from '#/utils';
+import { getRangePickerDefaultProps } from '#/utils';
 
 /** 新增/修改的表单 */
 export function useFormSchema(): VbenFormSchema[] {
@@ -31,12 +28,18 @@ export function useFormSchema(): VbenFormSchema[] {
       fieldName: 'username',
       label: '用户名称',
       component: 'Input',
+      componentProps: {
+        placeholder: '请输入用户名称',
+      },
       rules: 'required',
     },
     {
       label: '用户密码',
       fieldName: 'password',
-      component: 'InputPassword',
+      component: 'Input',
+      componentProps: {
+        showPassword: true,
+      },
       rules: 'required',
       dependencies: {
         triggerFields: ['id'],
@@ -47,6 +50,9 @@ export function useFormSchema(): VbenFormSchema[] {
       fieldName: 'nickname',
       label: '用户昵称',
       component: 'Input',
+      componentProps: {
+        placeholder: '请输入用户昵称',
+      },
       rules: 'required',
     },
     {
@@ -73,7 +79,7 @@ export function useFormSchema(): VbenFormSchema[] {
         api: getSimplePostList,
         labelField: 'name',
         valueField: 'id',
-        mode: 'multiple',
+        multiple: true,
         placeholder: '请选择岗位',
       },
     },
@@ -82,11 +88,17 @@ export function useFormSchema(): VbenFormSchema[] {
       label: '邮箱',
       component: 'Input',
       rules: z.string().email('邮箱格式不正确').or(z.literal('')).optional(),
+      componentProps: {
+        placeholder: '请输入邮箱',
+      },
     },
     {
       fieldName: 'mobile',
       label: '手机号码',
       component: 'Input',
+      componentProps: {
+        placeholder: '请输入手机号码',
+      },
     },
     {
       fieldName: 'sex',
@@ -94,8 +106,6 @@ export function useFormSchema(): VbenFormSchema[] {
       component: 'RadioGroup',
       componentProps: {
         options: getDictOptions(DICT_TYPE.SYSTEM_USER_SEX, 'number'),
-        buttonStyle: 'solid',
-        optionType: 'button',
       },
       rules: z.number().default(1),
     },
@@ -105,8 +115,6 @@ export function useFormSchema(): VbenFormSchema[] {
       component: 'RadioGroup',
       componentProps: {
         options: getDictOptions(DICT_TYPE.COMMON_STATUS, 'number'),
-        buttonStyle: 'solid',
-        optionType: 'button',
       },
       rules: z.number().default(CommonStatusEnum.ENABLE),
     },
@@ -114,6 +122,9 @@ export function useFormSchema(): VbenFormSchema[] {
       fieldName: 'remark',
       label: '备注',
       component: 'Textarea',
+      componentProps: {
+        placeholder: '请输入备注',
+      },
     },
   ];
 }
@@ -213,7 +224,7 @@ export function useAssignRoleFormSchema(): VbenFormSchema[] {
         api: getSimpleRoleList,
         labelField: 'name',
         valueField: 'id',
-        mode: 'multiple',
+        multiple: true,
         placeholder: '请选择角色',
       },
     },
@@ -253,7 +264,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       component: 'Input',
       componentProps: {
         placeholder: '请输入用户名称',
-        allowClear: true,
+        clearable: true,
       },
     },
     {
@@ -262,7 +273,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       component: 'Input',
       componentProps: {
         placeholder: '请输入手机号码',
-        allowClear: true,
+        clearable: true,
       },
     },
     {
@@ -271,24 +282,21 @@ export function useGridFormSchema(): VbenFormSchema[] {
       component: 'RangePicker',
       componentProps: {
         ...getRangePickerDefaultProps(),
-        allowClear: true,
+        clearable: true,
       },
     },
   ];
 }
 
 /** 列表的字段 */
-export function useGridColumns<T = SystemUserApi.User>(
+export function useGridColumns(
   onStatusChange?: (
     newStatus: number,
-    row: T,
+    row: SystemUserApi.User,
   ) => PromiseLike<boolean | undefined>,
 ): VxeTableGridOptions['columns'] {
   return [
-    {
-      type: 'checkbox',
-      width: 40,
-    },
+    { type: 'checkbox', width: 40 },
     {
       field: 'id',
       title: '用户编号',
@@ -323,8 +331,8 @@ export function useGridColumns<T = SystemUserApi.User>(
         attrs: { beforeChange: onStatusChange },
         name: 'CellSwitch',
         props: {
-          checkedValue: CommonStatusEnum.ENABLE,
-          unCheckedValue: CommonStatusEnum.DISABLE,
+          activeValue: CommonStatusEnum.ENABLE,
+          inactiveValue: CommonStatusEnum.DISABLE,
         },
       },
     },

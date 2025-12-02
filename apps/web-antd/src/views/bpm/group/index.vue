@@ -1,17 +1,13 @@
 <script lang="ts" setup>
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { BpmUserGroupApi } from '#/api/bpm/userGroup';
-import type { SystemUserApi } from '#/api/system/user';
-
-import { onMounted, ref } from 'vue';
 
 import { DocAlert, Page, useVbenModal } from '@vben/common-ui';
 
-import { message, Tag } from 'ant-design-vue';
+import { message } from 'ant-design-vue';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import { deleteUserGroup, getUserGroupPage } from '#/api/bpm/userGroup';
-import { getSimpleUserList } from '#/api/system/user';
 import { $t } from '#/locales';
 
 import { useGridColumns, useGridFormSchema } from './data';
@@ -23,7 +19,7 @@ const [FormModal, formModalApi] = useVbenModal({
 });
 
 /** 刷新表格 */
-function onRefresh() {
+function handleRefresh() {
   gridApi.query();
 }
 
@@ -41,26 +37,16 @@ function handleEdit(row: BpmUserGroupApi.UserGroup) {
 async function handleDelete(row: BpmUserGroupApi.UserGroup) {
   const hideLoading = message.loading({
     content: $t('ui.actionMessage.deleting', [row.name]),
-    key: 'action_key_msg',
+    duration: 0,
   });
   try {
     await deleteUserGroup(row.id as number);
-    message.success({
-      content: $t('ui.actionMessage.deleteSuccess', [row.name]),
-      key: 'action_key_msg',
-    });
-    onRefresh();
-  } catch {
+    message.success($t('ui.actionMessage.deleteSuccess', [row.name]));
+    handleRefresh();
+  } finally {
     hideLoading();
   }
 }
-
-const userList = ref<SystemUserApi.User[]>([]);
-/** 初始化 */
-onMounted(async () => {
-  // 加载用户列表
-  userList.value = await getSimpleUserList();
-});
 
 const [Grid, gridApi] = useVbenVxeGrid({
   formOptions: {
@@ -83,9 +69,10 @@ const [Grid, gridApi] = useVbenVxeGrid({
     },
     rowConfig: {
       keyField: 'id',
+      isHover: true,
     },
     toolbarConfig: {
-      refresh: { code: 'query' },
+      refresh: true,
       search: true,
     },
   } as VxeTableGridOptions<BpmUserGroupApi.UserGroup>,
@@ -98,7 +85,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
       <DocAlert title="工作流手册" url="https://doc.iocoder.cn/bpm/" />
     </template>
 
-    <FormModal @success="onRefresh" />
+    <FormModal @success="handleRefresh" />
     <Grid table-title="用户分组">
       <template #toolbar-tools>
         <TableAction
@@ -112,11 +99,6 @@ const [Grid, gridApi] = useVbenVxeGrid({
             },
           ]"
         />
-      </template>
-      <template #userIds="{ row }">
-        <Tag v-for="userId in row.userIds" :key="userId" color="blue">
-          {{ userList.find((u) => u.id === userId)?.nickname }}
-        </Tag>
       </template>
       <template #actions="{ row }">
         <TableAction

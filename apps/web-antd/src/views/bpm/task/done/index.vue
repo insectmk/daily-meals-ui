@@ -4,8 +4,10 @@ import type { BpmTaskApi } from '#/api/bpm/task';
 
 import { DocAlert, Page } from '@vben/common-ui';
 
+import { message } from 'ant-design-vue';
+
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
-import { getTaskDonePage } from '#/api/bpm/task';
+import { getTaskDonePage, withdrawTask } from '#/api/bpm/task';
 import { router } from '#/router';
 
 import { useGridColumns, useGridFormSchema } from './data';
@@ -23,7 +25,22 @@ function handleHistory(row: BpmTaskApi.TaskManager) {
   });
 }
 
-const [Grid] = useVbenVxeGrid({
+/** 撤回任务 */
+async function handleWithdraw(row: BpmTaskApi.TaskManager) {
+  const hideLoading = message.loading({
+    content: '正在撤回中...',
+    duration: 0,
+  });
+  try {
+    await withdrawTask(row.id);
+    message.success('撤回成功');
+    await gridApi.query();
+  } finally {
+    hideLoading();
+  }
+}
+
+const [Grid, gridApi] = useVbenVxeGrid({
   formOptions: {
     schema: useGridFormSchema(),
   },
@@ -44,15 +61,13 @@ const [Grid] = useVbenVxeGrid({
     },
     rowConfig: {
       keyField: 'id',
+      isHover: true,
     },
     toolbarConfig: {
-      refresh: { code: 'query' },
+      refresh: true,
       search: true,
     },
-    cellConfig: {
-      height: 64,
-    },
-  } as VxeTableGridOptions<BpmTaskApi.Task>,
+  } as VxeTableGridOptions<BpmTaskApi.TaskManager>,
 });
 </script>
 
@@ -75,6 +90,16 @@ const [Grid] = useVbenVxeGrid({
       <template #actions="{ row }">
         <TableAction
           :actions="[
+            {
+              label: '撤回',
+              type: 'link',
+              danger: true,
+              icon: ACTION_ICON.DELETE,
+              popConfirm: {
+                title: '确定要撤回该任务吗？',
+                confirm: handleWithdraw.bind(null, row),
+              },
+            },
             {
               label: '历史',
               type: 'link',

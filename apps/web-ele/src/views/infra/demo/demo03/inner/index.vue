@@ -4,7 +4,7 @@ import type { Demo03StudentApi } from '#/api/infra/demo/demo03/inner';
 
 import { ref } from 'vue';
 
-import { Page, useVbenModal } from '@vben/common-ui';
+import { confirm, Page, useVbenModal } from '@vben/common-ui';
 import { downloadFileFromBlobPart, isEmpty } from '@vben/utils';
 
 import { ElLoading, ElMessage, ElTabPane, ElTabs } from 'element-plus';
@@ -32,13 +32,19 @@ const [FormModal, formModalApi] = useVbenModal({
 });
 
 /** 刷新表格 */
-function onRefresh() {
+function handleRefresh() {
   gridApi.reload();
+}
+
+/** 导出表格 */
+async function handleExport() {
+  const data = await exportDemo03Student(await gridApi.formApi.getValues());
+  downloadFileFromBlobPart({ fileName: '学生.xls', source: data });
 }
 
 /** 创建学生 */
 function handleCreate() {
-  formModalApi.setData({}).open();
+  formModalApi.setData(null).open();
 }
 
 /** 编辑学生 */
@@ -50,12 +56,11 @@ function handleEdit(row: Demo03StudentApi.Demo03Student) {
 async function handleDelete(row: Demo03StudentApi.Demo03Student) {
   const loadingInstance = ElLoading.service({
     text: $t('ui.actionMessage.deleting', [row.id]),
-    background: 'rgba(0, 0, 0, 0.7)',
   });
   try {
-    await deleteDemo03Student(row.id as number);
+    await deleteDemo03Student(row.id!);
     ElMessage.success($t('ui.actionMessage.deleteSuccess', [row.id]));
-    onRefresh();
+    handleRefresh();
   } finally {
     loadingInstance.close();
   }
@@ -63,14 +68,15 @@ async function handleDelete(row: Demo03StudentApi.Demo03Student) {
 
 /** 批量删除学生 */
 async function handleDeleteBatch() {
+  await confirm($t('ui.actionMessage.deleteBatchConfirm'));
   const loadingInstance = ElLoading.service({
-    text: $t('ui.actionMessage.deleting'),
-    background: 'rgba(0, 0, 0, 0.7)',
+    text: $t('ui.actionMessage.deletingBatch'),
   });
   try {
     await deleteDemo03StudentList(checkedIds.value);
+    checkedIds.value = [];
     ElMessage.success($t('ui.actionMessage.deleteSuccess'));
-    onRefresh();
+    handleRefresh();
   } finally {
     loadingInstance.close();
   }
@@ -82,13 +88,7 @@ function handleRowCheckboxChange({
 }: {
   records: Demo03StudentApi.Demo03Student[];
 }) {
-  checkedIds.value = records.map((item) => item.id);
-}
-
-/** 导出表格 */
-async function handleExport() {
-  const data = await exportDemo03Student(await gridApi.formApi.getValues());
-  downloadFileFromBlobPart({ fileName: '学生.xls', source: data });
+  checkedIds.value = records.map((item) => item.id!);
 }
 
 const [Grid, gridApi] = useVbenVxeGrid({
@@ -117,7 +117,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
       isHover: true,
     },
     toolbarConfig: {
-      refresh: { code: 'query' },
+      refresh: true,
       search: true,
     },
   } as VxeTableGridOptions<Demo03StudentApi.Demo03Student>,
@@ -130,8 +130,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
 
 <template>
   <Page auto-content-height>
-    <FormModal @success="onRefresh" />
-
+    <FormModal @success="handleRefresh" />
     <Grid table-title="学生列表">
       <template #expand_content="{ row }">
         <!-- 子表的表单 -->
@@ -177,7 +176,8 @@ const [Grid, gridApi] = useVbenVxeGrid({
           :actions="[
             {
               label: $t('common.edit'),
-              type: 'text',
+              type: 'primary',
+              link: true,
               icon: ACTION_ICON.EDIT,
               auth: ['infra:demo03-student:update'],
               onClick: handleEdit.bind(null, row),
@@ -185,7 +185,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
             {
               label: $t('common.delete'),
               type: 'danger',
-              text: true,
+              link: true,
               icon: ACTION_ICON.DELETE,
               auth: ['infra:demo03-student:delete'],
               popConfirm: {

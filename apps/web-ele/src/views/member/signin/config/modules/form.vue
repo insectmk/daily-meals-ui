@@ -31,7 +31,7 @@ const [Form, formApi] = useVbenForm({
       class: 'w-full',
     },
     formItemClass: 'col-span-2',
-    labelWidth: 80,
+    labelWidth: 90,
   },
   layout: 'horizontal',
   schema: useFormSchema(),
@@ -72,7 +72,7 @@ const [Modal, modalApi] = useVbenModal({
     }
     modalApi.lock();
     try {
-      formData.value = await getSignInConfig(data.id as number);
+      formData.value = await getSignInConfig(data.id);
       // 设置到 values
       await formApi.setValues(formData.value);
     } finally {

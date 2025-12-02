@@ -3,9 +3,12 @@ import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { SystemMailLogApi } from '#/api/system/mail/log';
 
 import { DocAlert, Page, useVbenModal } from '@vben/common-ui';
+import { DICT_TYPE } from '@vben/constants';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import { getMailLogPage } from '#/api/system/mail/log';
+import { DictTag } from '#/components/dict-tag';
+import { $t } from '#/locales';
 
 import { useGridColumns, useGridFormSchema } from './data';
 import Detail from './modules/detail.vue';
@@ -16,7 +19,7 @@ const [DetailModal, detailModalApi] = useVbenModal({
 });
 
 /** 刷新表格 */
-function onRefresh() {
+function handleRefresh() {
   gridApi.query();
 }
 
@@ -46,9 +49,10 @@ const [Grid, gridApi] = useVbenVxeGrid({
     },
     rowConfig: {
       keyField: 'id',
+      isHover: true,
     },
     toolbarConfig: {
-      refresh: { code: 'query' },
+      refresh: true,
       search: true,
     },
   } as VxeTableGridOptions<SystemMailLogApi.MailLog>,
@@ -60,8 +64,15 @@ const [Grid, gridApi] = useVbenVxeGrid({
       <DocAlert title="邮件配置" url="https://doc.iocoder.cn/mail" />
     </template>
 
-    <DetailModal @success="onRefresh" />
+    <DetailModal @success="handleRefresh" />
     <Grid table-title="邮件日志列表">
+      <template #userInfo="{ row }">
+        <div v-if="row.userType && row.userId" class="flex items-center gap-1">
+          <DictTag :type="DICT_TYPE.USER_TYPE" :value="row.userType" />
+          <span>({{ row.userId }})</span>
+        </div>
+        <div v-else>-</div>
+      </template>
       <template #actions="{ row }">
         <TableAction
           :actions="[

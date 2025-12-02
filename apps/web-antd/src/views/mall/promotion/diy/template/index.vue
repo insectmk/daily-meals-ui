@@ -29,42 +29,54 @@ const [FormModal, formModalApi] = useVbenModal({
 const router = useRouter();
 
 /** 刷新表格 */
-function onRefresh() {
+function handleRefresh() {
   gridApi.query();
 }
 
-/** 创建DIY模板 */
+/** 创建 DIY 模板 */
 function handleCreate() {
   formModalApi.setData(null).open();
 }
 
-/** 编辑DIY模板 */
+/** 编辑 DIY 模板 */
 function handleEdit(row: MallDiyTemplateApi.DiyTemplate) {
   formModalApi.setData(row).open();
 }
 
 /** 装修模板 */
 function handleDecorate(row: MallDiyTemplateApi.DiyTemplate) {
-  // 跳转到装修页面
   router.push({ name: 'DiyTemplateDecorate', params: { id: row.id } });
 }
 
 /** 使用模板 */
 async function handleUse(row: MallDiyTemplateApi.DiyTemplate) {
-  confirm({
-    content: `是否使用模板"${row.name}"?`,
-  }).then(async () => {
-    // 发起删除
+  await confirm(`是否使用模板"${row.name}"?`);
+  const hideLoading = message.loading({
+    content: `正在使用模板"${row.name}"...`,
+    duration: 0,
+  });
+  try {
     await useDiyTemplate(row.id as number);
     message.success('使用成功');
-    onRefresh();
-  });
+    handleRefresh();
+  } finally {
+    hideLoading();
+  }
 }
 
-/** 删除DIY模板 */
+/** 删除 DIY 模板 */
 async function handleDelete(row: MallDiyTemplateApi.DiyTemplate) {
-  await deleteDiyTemplate(row.id as number);
-  onRefresh();
+  const hideLoading = message.loading({
+    content: $t('ui.actionMessage.deleting', [row.name]),
+    duration: 0,
+  });
+  try {
+    await deleteDiyTemplate(row.id as number);
+    message.success($t('ui.actionMessage.deleteSuccess', [row.name]));
+    handleRefresh();
+  } finally {
+    hideLoading();
+  }
 }
 
 const [Grid, gridApi] = useVbenVxeGrid({
@@ -91,7 +103,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
       isHover: true,
     },
     toolbarConfig: {
-      refresh: { code: 'query' },
+      refresh: true,
       search: true,
     },
   } as VxeTableGridOptions<MallDiyTemplateApi.DiyTemplate>,
@@ -107,7 +119,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
       />
     </template>
 
-    <FormModal @success="onRefresh" />
+    <FormModal @success="handleRefresh" />
 
     <Grid table-title="装修模板列表">
       <template #toolbar-tools>
@@ -142,14 +154,14 @@ const [Grid, gridApi] = useVbenVxeGrid({
             },
             {
               label: '使用',
-              type: 'link' as const,
+              type: 'link',
               auth: ['promotion:diy-template:use'],
               ifShow: !row.used,
               onClick: handleUse.bind(null, row),
             },
             {
               label: $t('common.delete'),
-              type: 'link' as const,
+              type: 'link',
               danger: true,
               icon: ACTION_ICON.DELETE,
               auth: ['promotion:diy-template:delete'],

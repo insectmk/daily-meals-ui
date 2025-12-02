@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { UploadRawFile } from 'element-plus';
+import type { UploadFile, UploadRawFile } from 'element-plus';
 
 import { useVbenModal } from '@vben/common-ui';
 
@@ -48,9 +48,20 @@ const [Modal, modalApi] = useVbenModal({
   },
 });
 
-/** 上传前 */
-function beforeUpload(file: UploadRawFile) {
-  formApi.setFieldValue('file', file);
+/** 文件变化处理 */
+function handleChange(uploadFile: UploadFile) {
+  if (uploadFile.raw) {
+    formApi.setFieldValue('file', uploadFile.raw);
+  }
+}
+
+/** 文件数量超出限制 */
+function handleExceed() {
+  ElMessage.warning('最多只能上传一个文件！');
+}
+
+/** 上传前校验：不自动上传，仅保存文件 */
+function beforeUpload(_rawFile: UploadRawFile) {
   return false;
 }
 </script>
@@ -60,24 +71,27 @@ function beforeUpload(file: UploadRawFile) {
     <Form class="mx-4">
       <template #file>
         <div class="w-full">
-          <!-- 上传区域 -->
           <ElUpload
-            class="upload-demo"
-            drag
             :auto-upload="false"
             :limit="1"
-            accept=".jpg,.png,.gif,.webp"
+            :on-change="handleChange"
+            :on-exceed="handleExceed"
             :before-upload="beforeUpload"
-            list-type="picture-card"
+            accept=".jpg,.png,.gif,.webp"
+            drag
           >
-            <div class="el-upload__text">
-              <p>
-                <i class="el-icon-upload text-2xl"></i>
-              </p>
-              <p>点击或拖拽文件到此区域上传</p>
-              <p class="text-sm text-gray-500">
+            <div
+              class="flex min-h-[200px] flex-col items-center justify-center py-8"
+            >
+              <span
+                class="icon-[mdi--cloud-upload-outline] mb-4 text-6xl text-gray-400"
+              ></span>
+              <div class="text-base text-gray-600">
+                点击或拖拽文件到此区域上传
+              </div>
+              <div class="mt-2 text-sm text-gray-400">
                 支持 .jpg、.png、.gif、.webp 格式图片文件
-              </p>
+              </div>
             </div>
           </ElUpload>
         </div>

@@ -2,7 +2,10 @@ import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { Demo03StudentApi } from '#/api/infra/demo/demo03/inner';
 
-import { DICT_TYPE, getDictOptions, getRangePickerDefaultProps } from '#/utils';
+import { DICT_TYPE } from '@vben/constants';
+import { getDictOptions } from '@vben/hooks';
+
+import { getRangePickerDefaultProps } from '#/utils';
 
 /** 新增/修改的表单 */
 export function useFormSchema(): VbenFormSchema[] {
@@ -31,8 +34,6 @@ export function useFormSchema(): VbenFormSchema[] {
       component: 'RadioGroup',
       componentProps: {
         options: getDictOptions(DICT_TYPE.SYSTEM_USER_SEX, 'number'),
-        buttonStyle: 'solid',
-        optionType: 'button',
       },
     },
     {
@@ -44,6 +45,7 @@ export function useFormSchema(): VbenFormSchema[] {
         showTime: true,
         format: 'YYYY-MM-DD HH:mm:ss',
         valueFormat: 'x',
+        class: '!w-full',
       },
     },
     {
@@ -63,7 +65,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       label: '名字',
       component: 'Input',
       componentProps: {
-        allowClear: true,
+        clearable: true,
         placeholder: '请输入名字',
       },
     },
@@ -72,7 +74,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       label: '性别',
       component: 'Select',
       componentProps: {
-        allowClear: true,
+        clearable: true,
         options: getDictOptions(DICT_TYPE.SYSTEM_USER_SEX, 'number'),
         placeholder: '请选择性别',
       },
@@ -82,7 +84,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       label: '简介',
       component: 'Input',
       componentProps: {
-        allowClear: true,
+        clearable: true,
         placeholder: '请输入简介',
       },
     },
@@ -92,7 +94,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       component: 'RangePicker',
       componentProps: {
         ...getRangePickerDefaultProps(),
-        allowClear: true,
+        clearable: true,
       },
     },
   ];
@@ -141,7 +143,7 @@ export function useGridColumns(): VxeTableGridOptions<Demo03StudentApi.Demo03Stu
     },
     {
       title: '操作',
-      width: 200,
+      width: 280,
       fixed: 'right',
       slots: { default: 'actions' },
     },
@@ -167,7 +169,7 @@ export function useDemo03CourseGridEditColumns(): VxeTableGridOptions<Demo03Stud
     },
     {
       title: '操作',
-      width: 200,
+      width: 280,
       fixed: 'right',
       slots: { default: 'actions' },
     },
@@ -205,6 +207,7 @@ export function useDemo03CourseGridColumns(): VxeTableGridOptions<Demo03StudentA
     },
   ];
 }
+
 // ==================== 子表（学生班级） ====================
 
 /** 新增/修改的表单 */

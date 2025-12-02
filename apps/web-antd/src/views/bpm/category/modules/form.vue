@@ -26,6 +26,13 @@ const getTitle = computed(() => {
 });
 
 const [Form, formApi] = useVbenForm({
+  commonConfig: {
+    componentProps: {
+      class: 'w-full',
+    },
+    formItemClass: 'col-span-2',
+    labelWidth: 80,
+  },
   layout: 'horizontal',
   schema: useFormSchema(),
   showDefaultActions: false,
@@ -62,7 +69,7 @@ const [Modal, modalApi] = useVbenModal({
     }
     modalApi.lock();
     try {
-      formData.value = await getCategory(data.id as number);
+      formData.value = await getCategory(data.id);
       // 设置到 values
       await formApi.setValues(formData.value);
     } finally {
@@ -73,7 +80,7 @@ const [Modal, modalApi] = useVbenModal({
 </script>
 
 <template>
-  <Modal :title="getTitle">
+  <Modal :title="getTitle" class="w-1/3">
     <Form class="mx-4" />
   </Modal>
 </template>

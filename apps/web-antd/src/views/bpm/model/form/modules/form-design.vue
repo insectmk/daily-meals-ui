@@ -5,7 +5,9 @@ import type { BpmFormApi } from '#/api/bpm/form';
 
 import { ref, watch } from 'vue';
 
-import { CircleHelp } from '@vben/icons';
+import { BpmModelFormType, DICT_TYPE } from '@vben/constants';
+import { getDictOptions } from '@vben/hooks';
+import { IconifyIcon } from '@vben/icons';
 
 import FormCreate from '@form-create/ant-design-vue';
 import {
@@ -19,13 +21,8 @@ import {
   Tooltip,
 } from 'ant-design-vue';
 
-import { getFormDetail } from '#/api/bpm/form';
-import {
-  BpmModelFormType,
-  DICT_TYPE,
-  getDictOptions,
-  setConfAndFields2,
-} from '#/utils';
+import { getForm } from '#/api/bpm/form';
+import { setConfAndFields2 } from '#/components/form-create';
 
 const props = defineProps({
   formList: {
@@ -36,10 +33,7 @@ const props = defineProps({
 
 const formRef = ref();
 
-// 创建本地数据副本
-const modelData = defineModel<any>();
-
-// 表单预览数据
+const modelData = defineModel<any>(); // 创建本地数据副本
 const formPreview = ref({
   formData: {} as any,
   rule: [],
@@ -48,25 +42,7 @@ const formPreview = ref({
     resetBtn: false,
     formData: {},
   },
-});
-
-/** 监听表单ID变化，加载表单数据 */
-watch(
-  () => modelData.value.formId,
-  async (newFormId) => {
-    if (newFormId && modelData.value.formType === BpmModelFormType.NORMAL) {
-      const data = await getFormDetail(newFormId);
-      setConfAndFields2(formPreview.value, data.conf, data.fields);
-      // 设置只读
-      formPreview.value.rule.forEach((item: any) => {
-        item.props = { ...item.props, disabled: true };
-      });
-    } else {
-      formPreview.value.rule = [];
-    }
-  },
-  { immediate: true },
-);
+}); // 表单预览数据
 
 const rules: Record<string, Rule[]> = {
   formType: [{ required: true, message: '表单类型不能为空', trigger: 'blur' }],
@@ -78,6 +54,24 @@ const rules: Record<string, Rule[]> = {
     { required: true, message: '表单查看地址不能为空', trigger: 'blur' },
   ],
 };
+
+/** 监听表单 ID 变化，加载表单数据 */
+watch(
+  () => modelData.value.formId,
+  async (newFormId) => {
+    if (newFormId && modelData.value.formType === BpmModelFormType.NORMAL) {
+      const data = await getForm(newFormId);
+      setConfAndFields2(formPreview.value, data.conf, data.fields);
+      // 设置只读
+      formPreview.value.rule.forEach((item: any) => {
+        item.props = { ...item.props, disabled: true };
+      });
+    } else {
+      formPreview.value.rule = [];
+    }
+  },
+  { immediate: true },
+);
 
 /** 表单校验 */
 async function validate() {
@@ -98,11 +92,11 @@ defineExpose({ validate });
     <FormItem label="表单类型" name="formType" class="mb-5">
       <RadioGroup v-model:value="modelData.formType">
         <Radio
-          v-for="dict in getDictOptions(
+          v-for="(dict, index) in getDictOptions(
             DICT_TYPE.BPM_MODEL_FORM_TYPE,
             'number',
           )"
-          :key="dict.value"
+          :key="index"
           :value="dict.value"
         >
           {{ dict.label }}
@@ -115,7 +109,7 @@ defineExpose({ validate });
       name="formId"
       class="mb-5"
     >
-      <Select v-model:value="modelData.formId" clearable>
+      <Select v-model:value="modelData.formId" allow-clear>
         <SelectOption
           v-for="form in props.formList"
           :key="form.id"
@@ -141,7 +135,10 @@ defineExpose({ validate });
           title="自定义表单的提交路径，使用 Vue 的路由地址, 例如说: bpm/oa/leave/create.vue"
           placement="top"
         >
-          <CircleHelp class="ml-1 size-5 text-gray-900" />
+          <IconifyIcon
+            icon="lucide:circle-help"
+            class="ml-1 size-5 text-gray-900"
+          />
         </Tooltip>
       </div>
     </FormItem>
@@ -160,7 +157,10 @@ defineExpose({ validate });
           title="自定义表单的查看组件地址，使用 Vue 的组件地址，例如说：bpm/oa/leave/detail.vue"
           placement="top"
         >
-          <CircleHelp class="ml-1 size-5 text-gray-900" />
+          <IconifyIcon
+            icon="lucide:circle-help"
+            class="ml-1 size-5 text-gray-900"
+          />
         </Tooltip>
       </div>
     </FormItem>

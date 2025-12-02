@@ -3,20 +3,15 @@ import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { MallSpuApi } from '#/api/mall/product/spu';
 
 import { onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 import { confirm, DocAlert, Page } from '@vben/common-ui';
-import {
-  downloadFileFromBlobPart,
-  fenToYuan,
-  handleTree,
-  treeToString,
-} from '@vben/utils';
+import { ProductSpuStatusEnum } from '@vben/constants';
+import { downloadFileFromBlobPart } from '@vben/utils';
 
-import { Descriptions, message, Tabs } from 'ant-design-vue';
+import { message, Tabs } from 'ant-design-vue';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
-import { getCategoryList } from '#/api/mall/product/category';
 import {
   deleteSpu,
   exportSpu,
@@ -25,16 +20,12 @@ import {
   updateStatus,
 } from '#/api/mall/product/spu';
 import { $t } from '#/locales';
-import { ProductSpuStatusEnum } from '#/utils';
 
 import { useGridColumns, useGridFormSchema } from './data';
 
 const { push } = useRouter();
+const route = useRoute();
 const tabType = ref(0);
-
-const categoryList = ref();
-
-// tabs 数据
 const tabsData = ref([
   {
     name: '出售中',
@@ -64,8 +55,15 @@ const tabsData = ref([
 ]);
 
 /** 刷新表格 */
-function onRefresh() {
-  gridApi.query();
+async function handleRefresh() {
+  await gridApi.query();
+  await getTabCount();
+}
+
+/** 导出表格 */
+async function handleExport() {
+  const data = await exportSpu(await gridApi.formApi.getValues());
+  downloadFileFromBlobPart({ fileName: '商品.xls', source: data });
 }
 
 /** 获得每个 Tab 的数量 */
@@ -74,7 +72,7 @@ async function getTabCount() {
   for (const objName in res) {
     const index = Number(objName);
     if (tabsData.value[index]) {
-      tabsData.value[index].count = res[objName] as number;
+      tabsData.value[index].count = res[objName]!;
     }
   }
 }
@@ -82,12 +80,6 @@ async function getTabCount() {
 /** 创建商品 */
 function handleCreate() {
   push({ name: 'ProductSpuAdd' });
-}
-
-/** 导出表格 */
-async function handleExport() {
-  const data = await exportSpu(await gridApi.formApi.getValues());
-  downloadFileFromBlobPart({ fileName: '商品.xls', source: data });
 }
 
 /** 编辑商品 */
@@ -99,36 +91,15 @@ function handleEdit(row: MallSpuApi.Spu) {
 async function handleDelete(row: MallSpuApi.Spu) {
   const hideLoading = message.loading({
     content: $t('ui.actionMessage.deleting', [row.name]),
-    key: 'action_key_msg',
+    duration: 0,
   });
   try {
-    await deleteSpu(row.id as number);
-    message.success({
-      content: $t('ui.actionMessage.deleteSuccess', [row.name]),
-      key: 'action_key_msg',
-    });
-    onRefresh();
+    await deleteSpu(row.id!);
+    message.success($t('ui.actionMessage.deleteSuccess', [row.name]));
+    await handleRefresh();
   } finally {
     hideLoading();
   }
-}
-
-/** 添加到仓库 / 回收站的状态 */
-async function handleStatus02Change(row: MallSpuApi.Spu, newStatus: number) {
-  // 二次确认
-  const text =
-    newStatus === ProductSpuStatusEnum.RECYCLE.status
-      ? '加入到回收站'
-      : '恢复到仓库';
-  confirm(`确认要"${row.name}"${text}吗？`)
-    .then(async () => {
-      await updateStatus({ id: row.id as number, status: newStatus });
-      message.success(`${text}成功`);
-      onRefresh();
-    })
-    .catch(() => {
-      message.error(`${text}失败`);
-    });
 }
 
 /** 更新状态 */
@@ -138,28 +109,46 @@ async function handleStatusChange(
 ): Promise<boolean | undefined> {
   return new Promise((resolve, reject) => {
     // 二次确认
-    const text = row.status ? '上架' : '下架';
+    const text = newStatus ? '上架' : '下架';
     confirm({
       content: `确认要${text + row.name}吗?`,
     })
       .then(async () => {
         // 更新状态
-        const res = await updateStatus({
-          id: row.id as number,
+        await updateStatus({
+          id: row.id!,
           status: newStatus,
         });
-        if (res) {
-          // 提示并返回成功
-          message.success(`${text}成功`);
-          resolve(true);
-        } else {
-          reject(new Error('操作失败'));
-        }
+        // 提示并返回成功
+        message.success(`${text}成功`);
+        resolve(true);
       })
       .catch(() => {
         reject(new Error('取消操作'));
       });
   });
+}
+
+/** 添加到仓库 / 回收站的状态 */
+async function handleStatus02Change(row: MallSpuApi.Spu, newStatus: number) {
+  const text =
+    newStatus === ProductSpuStatusEnum.RECYCLE.status
+      ? '加入到回收站'
+      : '恢复到仓库';
+  await confirm({
+    content: `确认要"${row.name}"${text}吗？`,
+  });
+  const hideLoading = message.loading({
+    content: `正在${text}中...`,
+    duration: 0,
+  });
+  try {
+    await updateStatus({ id: row.id!, status: newStatus });
+    message.success(`${text}成功`);
+    await handleRefresh();
+  } finally {
+    hideLoading();
+  }
 }
 
 /** 查看商品详情 */
@@ -174,12 +163,6 @@ const [Grid, gridApi] = useVbenVxeGrid({
   gridOptions: {
     columns: useGridColumns(handleStatusChange),
     height: 'auto',
-    cellConfig: {
-      height: 80,
-    },
-    expandConfig: {
-      height: 100,
-    },
     keepSource: true,
     proxyConfig: {
       ajax: {
@@ -195,10 +178,10 @@ const [Grid, gridApi] = useVbenVxeGrid({
     },
     rowConfig: {
       keyField: 'id',
-      resizable: true,
+      isHover: true,
     },
     toolbarConfig: {
-      refresh: { code: 'query' },
+      refresh: true,
       search: true,
     },
   } as VxeTableGridOptions<MallSpuApi.Spu>,
@@ -209,11 +192,15 @@ function onChangeTab(key: any) {
   gridApi.query();
 }
 
-onMounted(() => {
-  getTabCount();
-  getCategoryList({}).then((res) => {
-    categoryList.value = handleTree(res, 'id', 'parentId', 'children');
-  });
+onMounted(async () => {
+  // 解析路由的 categoryId
+  if (route.query.categoryId) {
+    await gridApi.formApi.setValues({
+      categoryId: Number(route.query.categoryId),
+    });
+  }
+  // 获得每个 Tab 的数量
+  await getTabCount();
 });
 </script>
 
@@ -227,8 +214,8 @@ onMounted(() => {
     </template>
 
     <Grid>
-      <template #top>
-        <Tabs class="border-none" @change="onChangeTab">
+      <template #toolbar-actions>
+        <Tabs @change="onChangeTab" class="w-full">
           <Tabs.TabPane
             v-for="item in tabsData"
             :key="item.type"
@@ -256,38 +243,6 @@ onMounted(() => {
           ]"
         />
       </template>
-      <template #expand_content="{ row }">
-        <Descriptions
-          :column="4"
-          class="mt-4"
-          :label-style="{
-            width: '100px',
-            fontWeight: 'bold',
-            fontSize: '14px',
-          }"
-          :content-style="{ width: '100px', fontSize: '14px' }"
-        >
-          <Descriptions.Item label="商品分类">
-            {{ treeToString(categoryList, row.categoryId) }}
-          </Descriptions.Item>
-          <Descriptions.Item label="商品名称">
-            {{ row.name }}
-          </Descriptions.Item>
-
-          <Descriptions.Item label="市场价">
-            {{ fenToYuan(row.marketPrice) }} 元
-          </Descriptions.Item>
-          <Descriptions.Item label="成本价">
-            {{ fenToYuan(row.costPrice) }} 元
-          </Descriptions.Item>
-          <Descriptions.Item label="浏览量">
-            {{ row.browseCount }}
-          </Descriptions.Item>
-          <Descriptions.Item label="虚拟销量">
-            {{ row.virtualSalesCount }}
-          </Descriptions.Item>
-        </Descriptions>
-      </template>
       <template #actions="{ row }">
         <TableAction
           :actions="[
@@ -310,7 +265,7 @@ onMounted(() => {
               danger: true,
               icon: ACTION_ICON.DELETE,
               auth: ['product:spu:delete'],
-              ifShow: () => row.type === 4,
+              ifShow: () => tabType === 4,
               popConfirm: {
                 title: $t('ui.actionMessage.deleteConfirm', [row.name]),
                 confirm: handleDelete.bind(null, row),
@@ -321,7 +276,6 @@ onMounted(() => {
               type: 'link',
               icon: ACTION_ICON.EDIT,
               auth: ['product:spu:update'],
-              ifShow: () => row.type === 4,
               onClick: handleStatus02Change.bind(
                 null,
                 row,
@@ -333,7 +287,6 @@ onMounted(() => {
               type: 'link',
               icon: ACTION_ICON.EDIT,
               auth: ['product:spu:update'],
-              ifShow: () => row.type !== 4,
               onClick: handleStatus02Change.bind(
                 null,
                 row,

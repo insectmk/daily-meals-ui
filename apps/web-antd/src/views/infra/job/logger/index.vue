@@ -32,12 +32,9 @@ function handleDetail(row: InfraJobLogApi.JobLog) {
   detailModalApi.setData({ id: row.id }).open();
 }
 
-// 获取表单schema并设置默认jobId
-const formSchema = useGridFormSchema();
-
 const [Grid, gridApi] = useVbenVxeGrid({
   formOptions: {
-    schema: formSchema,
+    schema: useGridFormSchema(),
   },
   gridOptions: {
     columns: useGridColumns(),
@@ -57,9 +54,10 @@ const [Grid, gridApi] = useVbenVxeGrid({
     },
     rowConfig: {
       keyField: 'id',
+      isHover: true,
     },
     toolbarConfig: {
-      refresh: { code: 'query' },
+      refresh: true,
       search: true,
     },
   } as VxeTableGridOptions<InfraJobLogApi.JobLog>,

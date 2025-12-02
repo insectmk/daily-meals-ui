@@ -4,13 +4,14 @@ import type { DescriptionItemSchema } from '#/components/description';
 
 import { h, markRaw } from 'vue';
 
+import { DICT_TYPE } from '@vben/constants';
+import { getDictOptions } from '@vben/hooks';
 import { formatDateTime } from '@vben/utils';
 
 import { Timeline } from 'ant-design-vue';
 
 import { CronTab } from '#/components/cron-tab';
 import { DictTag } from '#/components/dict-tag';
-import { DICT_TYPE, getDictOptions } from '#/utils';
 
 /** 新增/修改的表单 */
 export function useFormSchema(): VbenFormSchema[] {
@@ -57,6 +58,9 @@ export function useFormSchema(): VbenFormSchema[] {
       fieldName: 'cronExpression',
       label: 'CRON 表达式',
       component: markRaw(CronTab),
+      componentProps: {
+        placeholder: '请输入 CRON 表达式',
+      },
       rules: 'required',
     },
     {
@@ -132,14 +136,17 @@ export function useGridColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'id',
       title: '任务编号',
+      minWidth: 80,
     },
     {
       field: 'name',
       title: '任务名称',
+      minWidth: 120,
     },
     {
       field: 'status',
       title: '任务状态',
+      minWidth: 100,
       cellRender: {
         name: 'CellDict',
         props: { type: DICT_TYPE.INFRA_JOB_STATUS },
@@ -148,14 +155,17 @@ export function useGridColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'handlerName',
       title: '处理器的名字',
+      minWidth: 180,
     },
     {
       field: 'handlerParam',
       title: '处理器的参数',
+      minWidth: 140,
     },
     {
       field: 'cronExpression',
       title: 'CRON 表达式',
+      minWidth: 120,
     },
     {
       title: '操作',
@@ -166,7 +176,7 @@ export function useGridColumns(): VxeTableGridOptions['columns'] {
   ];
 }
 
-/** 详情的配置 */
+/** 详情页的字段 */
 export function useDetailSchema(): DescriptionItemSchema[] {
   return [
     {
@@ -180,11 +190,12 @@ export function useDetailSchema(): DescriptionItemSchema[] {
     {
       field: 'status',
       label: '任务状态',
-      content: (data) =>
-        h(DictTag, {
+      render: (val) => {
+        return h(DictTag, {
           type: DICT_TYPE.INFRA_JOB_STATUS,
-          value: data?.status,
-        }),
+          value: val,
+        });
+      },
     },
     {
       field: 'handlerName',
@@ -196,37 +207,36 @@ export function useDetailSchema(): DescriptionItemSchema[] {
     },
     {
       field: 'cronExpression',
-      label: 'CRON 表达式',
+      label: 'Cron 表达式',
     },
     {
       field: 'retryCount',
       label: '重试次数',
     },
     {
-      field: 'retryInterval',
       label: '重试间隔',
+      field: 'retryInterval',
+      render: (val) => {
+        return val ? `${val} 毫秒` : '无间隔';
+      },
     },
     {
-      field: 'monitorTimeout',
       label: '监控超时时间',
-      content: (data) =>
-        data?.monitorTimeout && data.monitorTimeout > 0
-          ? `${data.monitorTimeout} 毫秒`
-          : '未开启',
+      field: 'monitorTimeout',
+      render: (val) => {
+        return val && val > 0 ? `${val} 毫秒` : '未开启';
+      },
     },
     {
       field: 'nextTimes',
       label: '后续执行时间',
-      content: (data) => {
-        if (!data?.nextTimes) {
-          return '无后续执行时间';
-        }
-        if (data.nextTimes.length === 0) {
+      render: (val) => {
+        if (!val || val.length === 0) {
           return '无后续执行时间';
         }
         return h(Timeline, {}, () =>
-          data.nextTimes.map((time: any) =>
-            h(Timeline.Item, {}, () => formatDateTime(time)?.toString()),
+          val?.map((time: Date) =>
+            h(Timeline.Item, {}, () => formatDateTime(time)),
           ),
         );
       },

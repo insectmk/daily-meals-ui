@@ -1,13 +1,13 @@
 <script lang="ts" setup>
-import type { SystemDeptApi } from '#/api/system/dept';
+import type { SystemMenuApi } from '#/api/system/menu';
 import type { SystemTenantPackageApi } from '#/api/system/tenant-package';
 
 import { computed, ref } from 'vue';
 
-import { useVbenModal, VbenTree } from '@vben/common-ui';
+import { Tree, useVbenModal } from '@vben/common-ui';
 import { handleTree } from '@vben/utils';
 
-import { Checkbox, message } from 'ant-design-vue';
+import { Checkbox, message, Spin } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
 import { getMenuList } from '#/api/system/menu';
@@ -27,7 +27,7 @@ const getTitle = computed(() => {
     ? $t('ui.actionTitle.edit', ['套餐'])
     : $t('ui.actionTitle.create', ['套餐']);
 });
-const menuTree = ref<SystemDeptApi.Dept[]>([]); // 菜单树
+const menuTree = ref<SystemMenuApi.Menu[]>([]); // 菜单树
 const menuLoading = ref(false); // 加载菜单列表
 const isAllSelected = ref(false); // 全选状态
 const isExpanded = ref(false); // 展开状态
@@ -82,7 +82,7 @@ const [Modal, modalApi] = useVbenModal({
     }
     modalApi.lock();
     try {
-      formData.value = await getTenantPackage(data.id as number);
+      formData.value = await getTenantPackage(data.id);
       await formApi.setValues(data);
     } finally {
       modalApi.unlock();
@@ -95,14 +95,14 @@ async function loadMenuTree() {
   menuLoading.value = true;
   try {
     const data = await getMenuList();
-    menuTree.value = handleTree(data) as SystemDeptApi.Dept[];
+    menuTree.value = handleTree(data) as SystemMenuApi.Menu[];
   } finally {
     menuLoading.value = false;
   }
 }
 
 /** 全选/全不选 */
-function toggleSelectAll() {
+function handleSelectAll() {
   isAllSelected.value = !isAllSelected.value;
   if (isAllSelected.value) {
     const allIds = getAllNodeIds(menuTree.value);
@@ -113,7 +113,7 @@ function toggleSelectAll() {
 }
 
 /** 展开/折叠所有节点 */
-function toggleExpandAll() {
+function handleExpandAll() {
   isExpanded.value = !isExpanded.value;
   expandedKeys.value = isExpanded.value ? getAllNodeIds(menuTree.value) : [];
 }
@@ -134,26 +134,26 @@ function getAllNodeIds(nodes: any[], ids: number[] = []): number[] {
   <Modal :title="getTitle" class="w-2/5">
     <Form class="mx-6">
       <template #menuIds="slotProps">
-        <!-- TODO @芋艿：可优化，使用 antd 的 tree？原因是，更原生 -->
-        <VbenTree
-          class="max-h-96 overflow-y-auto"
-          :loading="menuLoading"
-          :tree-data="menuTree"
-          multiple
-          bordered
-          :expanded="expandedKeys"
-          v-bind="slotProps"
-          value-field="id"
-          label-field="name"
-        />
+        <Spin :spinning="menuLoading" wrapper-class-name="w-full">
+          <Tree
+            class="max-h-96 overflow-y-auto"
+            :tree-data="menuTree"
+            multiple
+            bordered
+            :default-expanded-keys="expandedKeys"
+            v-bind="slotProps"
+            value-field="id"
+            label-field="name"
+          />
+        </Spin>
       </template>
     </Form>
     <template #prepend-footer>
       <div class="flex flex-auto items-center">
-        <Checkbox :checked="isAllSelected" @change="toggleSelectAll">
+        <Checkbox :checked="isAllSelected" @change="handleSelectAll">
           全选
         </Checkbox>
-        <Checkbox :checked="isExpanded" @change="toggleExpandAll">
+        <Checkbox :checked="isExpanded" @change="handleExpandAll">
           全部展开
         </Checkbox>
       </div>

@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import type { UploadRawFile } from 'element-plus';
-
 import { useVbenModal } from '@vben/common-ui';
 import { downloadFileFromBlobPart } from '@vben/utils';
 
@@ -16,11 +14,8 @@ const emit = defineEmits(['success']);
 
 const [Form, formApi] = useVbenForm({
   commonConfig: {
-    componentProps: {
-      class: 'w-full',
-    },
     formItemClass: 'col-span-2',
-    labelWidth: 80,
+    labelWidth: 120,
   },
   layout: 'horizontal',
   schema: useImportFormSchema(),
@@ -48,29 +43,30 @@ const [Modal, modalApi] = useVbenModal({
   },
 });
 
-/** 上传前 */
-function beforeUpload(file: UploadRawFile) {
-  formApi.setFieldValue('file', file);
-  return false;
+/** 文件改变时 */
+function handleChange(file: any) {
+  if (file.raw) {
+    formApi.setFieldValue('file', file.raw);
+  }
 }
 
 /** 下载模版 */
-async function onDownload() {
+async function handleDownload() {
   const data = await importUserTemplate();
   downloadFileFromBlobPart({ fileName: '用户导入模板.xls', source: data });
 }
 </script>
 
 <template>
-  <Modal title="导入用户">
+  <Modal title="导入用户" class="w-1/3">
     <Form class="mx-4">
       <template #file>
         <div class="w-full">
           <ElUpload
-            :max-count="1"
+            :limit="1"
             accept=".xls,.xlsx"
+            :on-change="handleChange"
             :auto-upload="false"
-            :before-upload="beforeUpload"
           >
             <ElButton type="primary"> 选择 Excel 文件 </ElButton>
           </ElUpload>
@@ -79,7 +75,7 @@ async function onDownload() {
     </Form>
     <template #prepend-footer>
       <div class="flex flex-auto items-center">
-        <ElButton @click="onDownload"> 下载导入模板 </ElButton>
+        <ElButton @click="handleDownload"> 下载导入模板 </ElButton>
       </div>
     </template>
   </Modal>

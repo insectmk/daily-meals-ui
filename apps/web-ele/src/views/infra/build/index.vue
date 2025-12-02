@@ -24,11 +24,10 @@ const [Modal, modalApi] = useVbenModal();
 const designer = ref(); // 表单设计器
 
 // 表单设计器配置
-// TODO @puhui999：表单选择器，版本号从 package.json 拿到全局哈
 const designerConfig = ref({
   switchType: [], // 是否可以切换组件类型,或者可以相互切换的字段
   autoActive: true, // 是否自动选中拖入的组件
-  useTemplate: false, // 是否生成vue2语法的模板组件
+  useTemplate: false, // 是否生成 Vue 语法的模板组件
   formOptions: {
     form: {
       labelWidth: '100px', // 设置默认的 label 宽度为 100px
@@ -61,34 +60,35 @@ const formData = ref(''); // 表单数据
 useFormCreateDesigner(designer); // 表单设计器增强
 
 /** 打开弹窗 */
-const openModel = (title: string) => {
+function openModel(title: string) {
   dialogVisible.value = true;
   dialogTitle.value = title;
   modalApi.open();
-};
+}
 
 /** 生成 JSON */
-const showJson = () => {
+function showJson() {
   openModel('生成 JSON');
   formType.value = 0;
   formData.value = designer.value.getRule();
-};
+}
 
 /** 生成 Options */
-const showOption = () => {
+function showOption() {
   openModel('生成 Options');
   formType.value = 1;
   formData.value = designer.value.getOption();
-};
+}
 
 /** 生成组件 */
-const showTemplate = () => {
+function showTemplate() {
   openModel('生成组件');
   formType.value = 2;
   formData.value = makeTemplate();
-};
+}
 
-const makeTemplate = () => {
+/** 生成组件 */
+function makeTemplate() {
   const rule = designer.value.getRule();
   const opt = designer.value.getOption();
   return `<template>
@@ -112,10 +112,10 @@ const makeTemplate = () => {
     }
     init()
   <\/script>`;
-};
+}
 
 /** 复制 */
-const copy = async (text: string) => {
+async function copy(text: string) {
   const textToCopy = JSON.stringify(text, null, 2);
   const { copy, copied, isSupported } = useClipboard({ source: textToCopy });
   if (isSupported) {
@@ -126,12 +126,10 @@ const copy = async (text: string) => {
   } else {
     ElMessage.error('复制失败');
   }
-};
+}
 
-/**
- * 代码高亮
- */
-const highlightedCode = (code: string) => {
+/** 代码高亮 */
+function highlightedCode(code: string) {
   // 处理语言和代码
   let language = 'json';
   if (formType.value === 2) {
@@ -144,7 +142,7 @@ const highlightedCode = (code: string) => {
   // 高亮
   const result = hljs.highlight(code, { language, ignoreIllegals: true });
   return result.value || '&nbsp;';
-};
+}
 
 /** 初始化 */
 onMounted(async () => {

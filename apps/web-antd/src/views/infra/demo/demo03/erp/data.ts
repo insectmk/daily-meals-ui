@@ -1,12 +1,11 @@
 import type { VbenFormSchema } from '#/adapter/form';
-import type { OnActionClickFn, VxeTableGridOptions } from '#/adapter/vxe-table';
+import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { Demo03StudentApi } from '#/api/infra/demo/demo03/erp';
 
-import { useAccess } from '@vben/access';
+import { DICT_TYPE } from '@vben/constants';
+import { getDictOptions } from '@vben/hooks';
 
-import { DICT_TYPE, getDictOptions, getRangePickerDefaultProps } from '#/utils';
-
-const { hasAccessByCodes } = useAccess();
+import { getRangePickerDefaultProps } from '#/utils';
 
 /** 新增/修改的表单 */
 export function useFormSchema(): VbenFormSchema[] {
@@ -48,6 +47,7 @@ export function useFormSchema(): VbenFormSchema[] {
         showTime: true,
         format: 'YYYY-MM-DD HH:mm:ss',
         valueFormat: 'x',
+        placeholder: '请选择出生日期',
       },
     },
     {
@@ -103,9 +103,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
 }
 
 /** 列表的字段 */
-export function useGridColumns(
-  onActionClick?: OnActionClickFn<Demo03StudentApi.Demo03Student>,
-): VxeTableGridOptions<Demo03StudentApi.Demo03Student>['columns'] {
+export function useGridColumns(): VxeTableGridOptions<Demo03StudentApi.Demo03Student>['columns'] {
   return [
     { type: 'checkbox', width: 40 },
     {
@@ -145,30 +143,10 @@ export function useGridColumns(
       formatter: 'formatDateTime',
     },
     {
-      field: 'operation',
       title: '操作',
-      minWidth: 200,
-      align: 'center',
+      width: 280,
       fixed: 'right',
-      showOverflow: false,
-      cellRender: {
-        attrs: {
-          nameField: 'id',
-          nameTitle: '学生',
-          onClick: onActionClick,
-        },
-        name: 'CellOperation',
-        options: [
-          {
-            code: 'edit',
-            show: hasAccessByCodes(['infra:demo03-student:update']),
-          },
-          {
-            code: 'delete',
-            show: hasAccessByCodes(['infra:demo03-student:delete']),
-          },
-        ],
-      },
+      slots: { default: 'actions' },
     },
   ];
 }
@@ -250,9 +228,7 @@ export function useDemo03CourseGridFormSchema(): VbenFormSchema[] {
 }
 
 /** 列表的字段 */
-export function useDemo03CourseGridColumns(
-  onActionClick?: OnActionClickFn<Demo03StudentApi.Demo03Course>,
-): VxeTableGridOptions<Demo03StudentApi.Demo03Course>['columns'] {
+export function useDemo03CourseGridColumns(): VxeTableGridOptions<Demo03StudentApi.Demo03Course>['columns'] {
   return [
     { type: 'checkbox', width: 40 },
     {
@@ -282,31 +258,10 @@ export function useDemo03CourseGridColumns(
       formatter: 'formatDateTime',
     },
     {
-      field: 'operation',
       title: '操作',
-      minWidth: 200,
-      align: 'center',
+      width: 280,
       fixed: 'right',
-
-      showOverflow: false,
-      cellRender: {
-        attrs: {
-          nameField: 'id',
-          nameTitle: '学生课程',
-          onClick: onActionClick,
-        },
-        name: 'CellOperation',
-        options: [
-          {
-            code: 'edit',
-            show: hasAccessByCodes(['infra:demo03-student:update']),
-          },
-          {
-            code: 'delete',
-            show: hasAccessByCodes(['infra:demo03-student:delete']),
-          },
-        ],
-      },
+      slots: { default: 'actions' },
     },
   ];
 }
@@ -388,9 +343,7 @@ export function useDemo03GradeGridFormSchema(): VbenFormSchema[] {
 }
 
 /** 列表的字段 */
-export function useDemo03GradeGridColumns(
-  onActionClick?: OnActionClickFn<Demo03StudentApi.Demo03Grade>,
-): VxeTableGridOptions<Demo03StudentApi.Demo03Grade>['columns'] {
+export function useDemo03GradeGridColumns(): VxeTableGridOptions<Demo03StudentApi.Demo03Grade>['columns'] {
   return [
     { type: 'checkbox', width: 40 },
     {
@@ -420,31 +373,10 @@ export function useDemo03GradeGridColumns(
       formatter: 'formatDateTime',
     },
     {
-      field: 'operation',
       title: '操作',
-      minWidth: 200,
-      align: 'center',
+      width: 280,
       fixed: 'right',
-
-      showOverflow: false,
-      cellRender: {
-        attrs: {
-          nameField: 'id',
-          nameTitle: '学生班级',
-          onClick: onActionClick,
-        },
-        name: 'CellOperation',
-        options: [
-          {
-            code: 'edit',
-            show: hasAccessByCodes(['infra:demo03-student:update']),
-          },
-          {
-            code: 'delete',
-            show: hasAccessByCodes(['infra:demo03-student:delete']),
-          },
-        ],
-      },
+      slots: { default: 'actions' },
     },
   ];
 }

@@ -25,15 +25,8 @@ const [FormModal, formModalApi] = useVbenModal({
   destroyOnClose: true,
 });
 
-/** 切换树形展开/收缩状态 */
-const isExpanded = ref(true);
-function toggleExpand() {
-  isExpanded.value = !isExpanded.value;
-  gridApi.grid.setAllTreeExpand(isExpanded.value);
-}
-
 /** 刷新表格 */
-function onRefresh() {
+function handleRefresh() {
   gridApi.query();
 }
 
@@ -53,7 +46,7 @@ function handleEdit(row: Demo02CategoryApi.Demo02Category) {
   formModalApi.setData(row).open();
 }
 
-/** 新增下级示例分类 */
+/** 添加下级示例分类 */
 function handleAppend(row: Demo02CategoryApi.Demo02Category) {
   formModalApi.setData({ parentId: row.id }).open();
 }
@@ -61,19 +54,23 @@ function handleAppend(row: Demo02CategoryApi.Demo02Category) {
 /** 删除示例分类 */
 async function handleDelete(row: Demo02CategoryApi.Demo02Category) {
   const hideLoading = message.loading({
-    content: $t('ui.actionMessage.deleting', [row.id]),
-    key: 'action_key_msg',
+    content: $t('ui.actionMessage.deleting', [row.name]),
+    duration: 0,
   });
   try {
-    await deleteDemo02Category(row.id as number);
-    message.success({
-      content: $t('ui.actionMessage.deleteSuccess', [row.name]),
-      key: 'action_key_msg',
-    });
-    onRefresh();
+    await deleteDemo02Category(row.id!);
+    message.success($t('ui.actionMessage.deleteSuccess', [row.name]));
+    handleRefresh();
   } finally {
     hideLoading();
   }
+}
+
+/** 切换树形展开/收缩状态 */
+const isExpanded = ref(true);
+function handleExpand() {
+  isExpanded.value = !isExpanded.value;
+  gridApi.grid.setAllTreeExpand(isExpanded.value);
 }
 
 const [Grid, gridApi] = useVbenVxeGrid({
@@ -105,7 +102,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
       isHover: true,
     },
     toolbarConfig: {
-      refresh: { code: 'query' },
+      refresh: true,
       search: true,
     },
   } as VxeTableGridOptions<Demo02CategoryApi.Demo02Category>,
@@ -114,23 +111,22 @@ const [Grid, gridApi] = useVbenVxeGrid({
 
 <template>
   <Page auto-content-height>
-    <FormModal @success="onRefresh" />
-
+    <FormModal @success="handleRefresh" />
     <Grid table-title="示例分类列表">
       <template #toolbar-tools>
         <TableAction
           :actions="[
             {
-              label: isExpanded ? '收缩' : '展开',
-              type: 'primary',
-              onClick: toggleExpand,
-            },
-            {
-              label: $t('ui.actionTitle.create', ['菜单']),
+              label: $t('ui.actionTitle.create', ['示例分类']),
               type: 'primary',
               icon: ACTION_ICON.ADD,
               auth: ['infra:demo02-category:create'],
               onClick: handleCreate,
+            },
+            {
+              label: isExpanded ? '收缩' : '展开',
+              type: 'primary',
+              onClick: handleExpand,
             },
             {
               label: $t('ui.actionTitle.export'),

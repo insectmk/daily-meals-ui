@@ -1,12 +1,17 @@
 import type { VbenFormSchema } from '#/adapter/form';
-import type { OnActionClickFn, VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { InfraJobApi } from '#/api/infra/job';
+import type { VxeTableGridOptions } from '#/adapter/vxe-table';
+import type { DescriptionItemSchema } from '#/components/description';
 
-import { useAccess } from '@vben/access';
+import { h, markRaw } from 'vue';
 
-import { DICT_TYPE, getDictOptions, InfraJobStatusEnum } from '#/utils';
+import { DICT_TYPE } from '@vben/constants';
+import { getDictOptions } from '@vben/hooks';
+import { formatDateTime } from '@vben/utils';
 
-const { hasAccessByCodes } = useAccess();
+import { ElTimeline, ElTimelineItem } from 'element-plus';
+
+import { CronTab } from '#/components/cron-tab';
+import { DictTag } from '#/components/dict-tag';
 
 /** 新增/修改的表单 */
 export function useFormSchema(): VbenFormSchema[] {
@@ -34,10 +39,12 @@ export function useFormSchema(): VbenFormSchema[] {
       component: 'Input',
       componentProps: {
         placeholder: '请输入处理器的名字',
-        // readonly: ({ values }) => !!values.id,
+      },
+      dependencies: {
+        triggerFields: ['id'],
+        disabled: (values) => !!values.id,
       },
       rules: 'required',
-      // TODO @芋艿：在修改场景下，禁止调整
     },
     {
       fieldName: 'handlerParam',
@@ -50,12 +57,11 @@ export function useFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'cronExpression',
       label: 'CRON 表达式',
-      component: 'Input',
+      component: markRaw(CronTab),
       componentProps: {
         placeholder: '请输入 CRON 表达式',
       },
       rules: 'required',
-      // TODO @芋艿：未来支持动态的 CRON 表达式选择
     },
     {
       fieldName: 'retryCount',
@@ -64,6 +70,8 @@ export function useFormSchema(): VbenFormSchema[] {
       componentProps: {
         placeholder: '请输入重试次数。设置为 0 时，不进行重试',
         min: 0,
+        controlsPosition: 'right',
+        class: '!w-full',
       },
       rules: 'required',
     },
@@ -74,6 +82,8 @@ export function useFormSchema(): VbenFormSchema[] {
       componentProps: {
         placeholder: '请输入重试间隔，单位：毫秒。设置为 0 时，无需间隔',
         min: 0,
+        controlsPosition: 'right',
+        class: '!w-full',
       },
       rules: 'required',
     },
@@ -84,6 +94,8 @@ export function useFormSchema(): VbenFormSchema[] {
       componentProps: {
         placeholder: '请输入监控超时时间，单位：毫秒',
         min: 0,
+        controlsPosition: 'right',
+        class: '!w-full',
       },
     },
   ];
@@ -97,7 +109,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       label: '任务名称',
       component: 'Input',
       componentProps: {
-        allowClear: true,
+        clearable: true,
         placeholder: '请输入任务名称',
       },
     },
@@ -107,7 +119,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       component: 'Select',
       componentProps: {
         options: getDictOptions(DICT_TYPE.INFRA_JOB_STATUS, 'number'),
-        allowClear: true,
+        clearable: true,
         placeholder: '请选择任务状态',
       },
     },
@@ -116,7 +128,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       label: '处理器的名字',
       component: 'Input',
       componentProps: {
-        allowClear: true,
+        clearable: true,
         placeholder: '请输入处理器的名字',
       },
     },
@@ -124,9 +136,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
 }
 
 /** 表格列配置 */
-export function useGridColumns<T = InfraJobApi.Job>(
-  onActionClick: OnActionClickFn<T>,
-): VxeTableGridOptions['columns'] {
+export function useGridColumns(): VxeTableGridOptions['columns'] {
   return [
     { type: 'checkbox', width: 40 },
     {
@@ -164,58 +174,77 @@ export function useGridColumns<T = InfraJobApi.Job>(
       minWidth: 120,
     },
     {
-      field: 'operation',
       title: '操作',
-      width: 280,
+      width: 240,
       fixed: 'right',
-      align: 'center',
-      cellRender: {
-        attrs: {
-          nameField: 'name',
-          nameTitle: '任务',
-          onClick: onActionClick,
-        },
-        name: 'CellOperation',
-        options: [
-          {
-            code: 'edit',
-            show: hasAccessByCodes(['infra:job:update']),
-          },
-          {
-            code: 'update-status',
-            text: '开启',
-            show: (row: any) =>
-              hasAccessByCodes(['infra:job:update']) &&
-              row.status === InfraJobStatusEnum.STOP,
-          },
-          {
-            code: 'update-status',
-            text: '暂停',
-            show: (row: any) =>
-              hasAccessByCodes(['infra:job:update']) &&
-              row.status === InfraJobStatusEnum.NORMAL,
-          },
-          {
-            code: 'trigger',
-            text: '执行',
-            show: hasAccessByCodes(['infra:job:trigger']),
-          },
-          // TODO @芋艿：增加一个“更多”选项
-          {
-            code: 'detail',
-            text: '详细',
-            show: hasAccessByCodes(['infra:job:query']),
-          },
-          {
-            code: 'log',
-            text: '日志',
-            show: hasAccessByCodes(['infra:job:query']),
-          },
-          {
-            code: 'delete',
-            show: hasAccessByCodes(['infra:job:delete']),
-          },
-        ],
+      slots: { default: 'actions' },
+    },
+  ];
+}
+
+/** 详情页的字段 */
+export function useDetailSchema(): DescriptionItemSchema[] {
+  return [
+    {
+      field: 'id',
+      label: '任务编号',
+    },
+    {
+      field: 'name',
+      label: '任务名称',
+    },
+    {
+      field: 'status',
+      label: '任务状态',
+      render: (val) => {
+        return h(DictTag, {
+          type: DICT_TYPE.INFRA_JOB_STATUS,
+          value: val,
+        });
+      },
+    },
+    {
+      field: 'handlerName',
+      label: '处理器的名字',
+    },
+    {
+      field: 'handlerParam',
+      label: '处理器的参数',
+    },
+    {
+      field: 'cronExpression',
+      label: 'Cron 表达式',
+    },
+    {
+      field: 'retryCount',
+      label: '重试次数',
+    },
+    {
+      label: '重试间隔',
+      field: 'retryInterval',
+      render: (val) => {
+        return val ? `${val} 毫秒` : '无间隔';
+      },
+    },
+    {
+      label: '监控超时时间',
+      field: 'monitorTimeout',
+      render: (val) => {
+        return val && val > 0 ? `${val} 毫秒` : '未开启';
+      },
+    },
+    {
+      field: 'nextTimes',
+      label: '后续执行时间',
+      render: (val) => {
+        if (!val || val.length === 0) {
+          return '无后续执行时间';
+        }
+        return h(ElTimeline, {}, () =>
+          val?.map((time: Date) =>
+            h(ElTimelineItem, {}, () => formatDateTime(time)),
+          ),
+        );
       },
     },
   ];

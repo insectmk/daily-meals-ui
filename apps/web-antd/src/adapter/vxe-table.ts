@@ -6,13 +6,17 @@ import { h } from 'vue';
 import { IconifyIcon } from '@vben/icons';
 import { $te } from '@vben/locales';
 import {
-  AsyncComponents,
+  AsyncVxeColumn,
+  AsyncVxeTable,
+  createRequiredValidation,
   setupVbenVxeTable,
   useVbenVxeGrid,
 } from '@vben/plugins/vxe-table';
 import {
   erpCountInputFormatter,
   erpNumberFormatter,
+  fenToYuan,
+  formatFileSize,
   formatPast2,
   isFunction,
   isString,
@@ -31,8 +35,6 @@ import { DictTag } from '#/components/dict-tag';
 import { $t } from '#/locales';
 
 import { useVbenForm } from './form';
-
-import '#/adapter/style.css';
 
 setupVbenVxeTable({
   configVxeTable: (vxeUI) => {
@@ -331,34 +333,39 @@ setupVbenVxeTable({
       },
     });
 
-    // add by 星语：数量格式化，例如说：金额
-    vxeUI.formats.add('formatNumber', {
+    // add by 星语：数量格式化，保留 3 位
+    vxeUI.formats.add('formatAmount3', {
       tableCellFormatMethod({ cellValue }) {
         return erpCountInputFormatter(cellValue);
       },
     });
-
+    // add by 星语：数量格式化，保留 2 位
     vxeUI.formats.add('formatAmount2', {
       tableCellFormatMethod({ cellValue }, digits = 2) {
-        return `${erpNumberFormatter(cellValue, digits)}元`;
+        return `${erpNumberFormatter(cellValue, digits)}`;
+      },
+    });
+
+    vxeUI.formats.add('formatFenToYuanAmount', {
+      tableCellFormatMethod({ cellValue }, digits = 2) {
+        return `${erpNumberFormatter(fenToYuan(cellValue), digits)}`;
+      },
+    });
+
+    // add by 星语：文件大小格式化
+    vxeUI.formats.add('formatFileSize', {
+      tableCellFormatMethod({ cellValue }, digits = 2) {
+        return formatFileSize(cellValue, digits);
       },
     });
   },
   useVbenForm,
 });
 
-export { useVbenVxeGrid };
+export { createRequiredValidation, useVbenVxeGrid };
 
-const [VxeTable, VxeColumn, VxeToolbar] = AsyncComponents;
-export { VxeColumn, VxeTable, VxeToolbar };
+export const [VxeTable, VxeColumn] = [AsyncVxeTable, AsyncVxeColumn];
 
-// add by 芋艿：from https://github.com/vbenjs/vue-vben-admin/blob/main/playground/src/adapter/vxe-table.ts#L264-L270
-export type OnActionClickParams<T = Recordable<any>> = {
-  code: string;
-  row: T;
-};
-export type OnActionClickFn<T = Recordable<any>> = (
-  params: OnActionClickParams<T>,
-) => void;
 export * from '#/components/table-action';
+
 export type * from '@vben/plugins/vxe-table';

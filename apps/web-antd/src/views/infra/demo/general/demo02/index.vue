@@ -1,10 +1,11 @@
 <script lang="ts" setup>
 import type { Demo02CategoryApi } from '#/api/infra/demo/demo02';
 
-import { h, onMounted, reactive, ref } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 
-import { Page, useVbenModal } from '@vben/common-ui';
-import { Download, Plus } from '@vben/icons';
+import { ContentWrap, Page, useVbenModal } from '@vben/common-ui';
+import { IconifyIcon } from '@vben/icons';
+import { useTableToolbar, VbenVxeTableToolbar } from '@vben/plugins/vxe-table';
 import {
   cloneDeep,
   downloadFileFromBlobPart,
@@ -20,9 +21,6 @@ import {
   exportDemo02Category,
   getDemo02CategoryList,
 } from '#/api/infra/demo/demo02';
-import { ContentWrap } from '#/components/content-wrap';
-import { TableToolbar } from '#/components/table-toolbar';
-import { useTableToolbar } from '#/hooks';
 import { $t } from '#/locales';
 import { getRangePickerDefaultProps } from '#/utils';
 
@@ -40,7 +38,7 @@ const queryFormRef = ref(); // 搜索的表单
 const exportLoading = ref(false); // 导出的加载中
 
 /** 查询列表 */
-const getList = async () => {
+async function getList() {
   loading.value = true;
   try {
     const params = cloneDeep(queryParams) as any;
@@ -51,18 +49,18 @@ const getList = async () => {
   } finally {
     loading.value = false;
   }
-};
+}
 
 /** 搜索按钮操作 */
-const handleQuery = () => {
+function handleQuery() {
   getList();
-};
+}
 
 /** 重置按钮操作 */
-const resetQuery = () => {
+function resetQuery() {
   queryFormRef.value.resetFields();
   handleQuery();
-};
+}
 
 const [FormModal, formModalApi] = useVbenModal({
   connectedComponent: Demo02CategoryForm,
@@ -70,31 +68,30 @@ const [FormModal, formModalApi] = useVbenModal({
 });
 
 /** 创建示例分类 */
-function onCreate() {
-  formModalApi.setData({}).open();
+function handleCreate() {
+  formModalApi.setData(null).open();
 }
 
 /** 编辑示例分类 */
-function onEdit(row: Demo02CategoryApi.Demo02Category) {
+function handleEdit(row: Demo02CategoryApi.Demo02Category) {
   formModalApi.setData(row).open();
 }
 
 /** 新增下级示例分类 */
-function onAppend(row: Demo02CategoryApi.Demo02Category) {
+function handleAppend(row: Demo02CategoryApi.Demo02Category) {
   formModalApi.setData({ parentId: row.id }).open();
 }
 
 /** 删除示例分类 */
-async function onDelete(row: Demo02CategoryApi.Demo02Category) {
+async function handleDelete(row: Demo02CategoryApi.Demo02Category) {
   const hideLoading = message.loading({
     content: $t('ui.actionMessage.deleting', [row.id]),
-    key: 'action_key_msg',
+    duration: 0,
   });
   try {
-    await deleteDemo02Category(row.id as number);
+    await deleteDemo02Category(row.id!);
     message.success({
       content: $t('ui.actionMessage.deleteSuccess', [row.id]),
-      key: 'action_key_msg',
     });
     await getList();
   } finally {
@@ -103,7 +100,7 @@ async function onDelete(row: Demo02CategoryApi.Demo02Category) {
 }
 
 /** 导出表格 */
-async function onExport() {
+async function handleExport() {
   try {
     exportLoading.value = true;
     const data = await exportDemo02Category(queryParams);
@@ -171,7 +168,7 @@ onMounted(() => {
     <!-- 列表 -->
     <ContentWrap title="示例分类">
       <template #extra>
-        <TableToolbar
+        <VbenVxeTableToolbar
           ref="tableToolbarRef"
           v-model:hidden-search="hiddenSearchBar"
         >
@@ -180,24 +177,24 @@ onMounted(() => {
           </Button>
           <Button
             class="ml-2"
-            :icon="h(Plus)"
             type="primary"
-            @click="onCreate"
+            @click="handleCreate"
             v-access:code="['infra:demo02-category:create']"
           >
+            <IconifyIcon icon="lucide:plus" />
             {{ $t('ui.actionTitle.create', ['示例分类']) }}
           </Button>
           <Button
-            :icon="h(Download)"
             type="primary"
             class="ml-2"
             :loading="exportLoading"
-            @click="onExport"
+            @click="handleExport"
             v-access:code="['infra:demo02-category:export']"
           >
+            <IconifyIcon icon="lucide:download" />
             {{ $t('ui.actionTitle.export') }}
           </Button>
-        </TableToolbar>
+        </VbenVxeTableToolbar>
       </template>
       <VxeTable
         ref="tableRef"
@@ -225,7 +222,7 @@ onMounted(() => {
             <Button
               size="small"
               type="link"
-              @click="onAppend(row as any)"
+              @click="handleAppend(row)"
               v-access:code="['infra:demo02-category:create']"
             >
               新增下级
@@ -233,7 +230,7 @@ onMounted(() => {
             <Button
               size="small"
               type="link"
-              @click="onEdit(row as any)"
+              @click="handleEdit(row)"
               v-access:code="['infra:demo02-category:update']"
             >
               {{ $t('ui.actionTitle.edit') }}
@@ -243,8 +240,8 @@ onMounted(() => {
               type="link"
               danger
               class="ml-2"
-              :disabled="!isEmpty(row?.children)"
-              @click="onDelete(row as any)"
+              :disabled="!isEmpty(row.children)"
+              @click="handleDelete(row)"
               v-access:code="['infra:demo02-category:delete']"
             >
               {{ $t('ui.actionTitle.delete') }}

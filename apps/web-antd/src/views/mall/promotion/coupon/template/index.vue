@@ -2,12 +2,11 @@
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { MallCouponTemplateApi } from '#/api/mall/promotion/coupon/couponTemplate';
 
-import { ref } from 'vue';
-
-import { DocAlert, Page, useVbenModal } from '@vben/common-ui';
+import { confirm, DocAlert, Page, useVbenModal } from '@vben/common-ui';
+import { CommonStatusEnum } from '@vben/constants';
 import { $t } from '@vben/locales';
 
-import { message, Switch } from 'ant-design-vue';
+import { message } from 'ant-design-vue';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
@@ -15,7 +14,6 @@ import {
   getCouponTemplatePage,
   updateCouponTemplateStatus,
 } from '#/api/mall/promotion/coupon/couponTemplate';
-import { CommonStatusEnum } from '#/utils';
 
 import { useGridColumns, useGridFormSchema } from './data';
 import Form from './modules/form.vue';
@@ -28,7 +26,7 @@ const [FormModal, formModalApi] = useVbenModal({
 });
 
 /** 刷新表格 */
-function onRefresh() {
+function handleRefresh() {
   gridApi.query();
 }
 
@@ -46,51 +44,37 @@ function handleCreate() {
 async function handleDelete(row: MallCouponTemplateApi.CouponTemplate) {
   const hideLoading = message.loading({
     content: $t('ui.actionMessage.deleting', [row.name]),
-    key: 'action_key_msg',
+    duration: 0,
   });
   try {
-    await deleteCouponTemplate(row.id as number);
-    message.success({
-      content: $t('ui.actionMessage.deleteSuccess', [row.name]),
-      key: 'action_key_msg',
-    });
-    onRefresh();
+    await deleteCouponTemplate(row.id!);
+    message.success($t('ui.actionMessage.deleteSuccess', [row.name]));
+    handleRefresh();
   } finally {
     hideLoading();
   }
-}
-
-const checkedIds = ref<number[]>([]);
-function handleRowCheckboxChange({
-  records,
-}: {
-  records: MallCouponTemplateApi.CouponTemplate[];
-}) {
-  checkedIds.value = records.map((item) => item.id as number);
 }
 
 /** 优惠券模板状态修改 */
-async function handleStatusChange(row: MallCouponTemplateApi.CouponTemplate) {
-  const text = row.status === CommonStatusEnum.ENABLE ? '启用' : '停用';
-  const hideLoading = message.loading({
-    content: `正在${text}优惠券模板...`,
-    key: 'status_key_msg',
+async function handleStatusChange(
+  newStatus: number,
+  row: MallCouponTemplateApi.CouponTemplate,
+): Promise<boolean | undefined> {
+  return new Promise((resolve, reject) => {
+    confirm({
+      content: `你要将${row.name}的状态切换为【${newStatus === CommonStatusEnum.ENABLE ? '启用' : '停用'}】吗？`,
+    })
+      .then(async () => {
+        // 更新优惠券模板状态
+        await updateCouponTemplateStatus(row.id!, newStatus);
+        // 提示并返回成功
+        message.success($t('ui.actionMessage.operationSuccess'));
+        resolve(true);
+      })
+      .catch(() => {
+        reject(new Error('取消操作'));
+      });
   });
-  try {
-    await updateCouponTemplateStatus(row.id as number, row.status as number);
-    message.success({
-      content: `${text}成功`,
-      key: 'status_key_msg',
-    });
-  } catch {
-    // 异常时，需要将 row.status 状态重置回之前的
-    row.status =
-      row.status === CommonStatusEnum.ENABLE
-        ? CommonStatusEnum.DISABLE
-        : CommonStatusEnum.ENABLE;
-  } finally {
-    hideLoading();
-  }
 }
 
 const [Grid, gridApi] = useVbenVxeGrid({
@@ -98,7 +82,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     schema: useGridFormSchema(),
   },
   gridOptions: {
-    columns: useGridColumns(),
+    columns: useGridColumns(handleStatusChange),
     height: 'auto',
     keepSource: true,
     proxyConfig: {
@@ -117,14 +101,10 @@ const [Grid, gridApi] = useVbenVxeGrid({
       isHover: true,
     },
     toolbarConfig: {
-      refresh: { code: 'query' },
+      refresh: true,
       search: true,
     },
   } as VxeTableGridOptions<MallCouponTemplateApi.CouponTemplate>,
-  gridEvents: {
-    checkboxAll: handleRowCheckboxChange,
-    checkboxChange: handleRowCheckboxChange,
-  },
 });
 </script>
 
@@ -137,7 +117,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
       />
     </template>
 
-    <FormModal @success="onRefresh" />
+    <FormModal @success="handleRefresh" />
     <Grid table-title="优惠券列表">
       <template #toolbar-tools>
         <TableAction
@@ -152,15 +132,6 @@ const [Grid, gridApi] = useVbenVxeGrid({
           ]"
         />
       </template>
-      <template #status="{ row }">
-        <Switch
-          v-model:checked="row.status"
-          :checked-value="CommonStatusEnum.ENABLE"
-          :un-checked-value="CommonStatusEnum.DISABLE"
-          @change="handleStatusChange(row)"
-        />
-      </template>
-
       <template #actions="{ row }">
         <TableAction
           :actions="[

@@ -25,21 +25,20 @@ const [FormModal, formModalApi] = useVbenModal({
   destroyOnClose: true,
 });
 
-/** 切换树形展开/收缩状态 */
-const isExpanded = ref(true);
-function toggleExpand() {
-  isExpanded.value = !isExpanded.value;
-  gridApi.grid.setAllTreeExpand(isExpanded.value);
+/** 刷新表格 */
+function handleRefresh() {
+  gridApi.query();
 }
 
-/** 刷新表格 */
-function onRefresh() {
-  gridApi.query();
+/** 导出表格 */
+async function handleExport() {
+  const data = await exportDemo02Category(await gridApi.formApi.getValues());
+  downloadFileFromBlobPart({ fileName: '示例分类.xls', source: data });
 }
 
 /** 创建示例分类 */
 function handleCreate() {
-  formModalApi.setData({}).open();
+  formModalApi.setData(null).open();
 }
 
 /** 编辑示例分类 */
@@ -47,7 +46,7 @@ function handleEdit(row: Demo02CategoryApi.Demo02Category) {
   formModalApi.setData(row).open();
 }
 
-/** 新增下级示例分类 */
+/** 添加下级示例分类 */
 function handleAppend(row: Demo02CategoryApi.Demo02Category) {
   formModalApi.setData({ parentId: row.id }).open();
 }
@@ -55,22 +54,22 @@ function handleAppend(row: Demo02CategoryApi.Demo02Category) {
 /** 删除示例分类 */
 async function handleDelete(row: Demo02CategoryApi.Demo02Category) {
   const loadingInstance = ElLoading.service({
-    text: $t('ui.actionMessage.deleting', [row.id]),
-    background: 'rgba(0, 0, 0, 0.7)',
+    text: $t('ui.actionMessage.deleting', [row.name]),
   });
   try {
-    await deleteDemo02Category(row.id as number);
-    ElMessage.success($t('ui.actionMessage.deleteSuccess', [row.id]));
-    onRefresh();
+    await deleteDemo02Category(row.id!);
+    ElMessage.success($t('ui.actionMessage.deleteSuccess', [row.name]));
+    handleRefresh();
   } finally {
     loadingInstance.close();
   }
 }
 
-/** 导出表格 */
-async function handleExport() {
-  const data = await exportDemo02Category(await gridApi.formApi.getValues());
-  downloadFileFromBlobPart({ fileName: '示例分类.xls', source: data });
+/** 切换树形展开/收缩状态 */
+const isExpanded = ref(true);
+function handleExpand() {
+  isExpanded.value = !isExpanded.value;
+  gridApi.grid.setAllTreeExpand(isExpanded.value);
 }
 
 const [Grid, gridApi] = useVbenVxeGrid({
@@ -102,33 +101,31 @@ const [Grid, gridApi] = useVbenVxeGrid({
       isHover: true,
     },
     toolbarConfig: {
-      refresh: { code: 'query' },
+      refresh: true,
       search: true,
     },
   } as VxeTableGridOptions<Demo02CategoryApi.Demo02Category>,
-  gridEvents: {},
 });
 </script>
 
 <template>
   <Page auto-content-height>
-    <FormModal @success="onRefresh" />
-
+    <FormModal @success="handleRefresh" />
     <Grid table-title="示例分类列表">
       <template #toolbar-tools>
         <TableAction
           :actions="[
-            {
-              label: isExpanded ? '收缩' : '展开',
-              type: 'primary',
-              onClick: toggleExpand,
-            },
             {
               label: $t('ui.actionTitle.create', ['示例分类']),
               type: 'primary',
               icon: ACTION_ICON.ADD,
               auth: ['infra:demo02-category:create'],
               onClick: handleCreate,
+            },
+            {
+              label: isExpanded ? '收缩' : '展开',
+              type: 'primary',
+              onClick: handleExpand,
             },
             {
               label: $t('ui.actionTitle.export'),
@@ -145,14 +142,16 @@ const [Grid, gridApi] = useVbenVxeGrid({
           :actions="[
             {
               label: '新增下级',
-              type: 'text',
+              type: 'primary',
+              link: true,
               icon: ACTION_ICON.ADD,
               auth: ['infra:demo02-category:create'],
               onClick: handleAppend.bind(null, row),
             },
             {
               label: $t('common.edit'),
-              type: 'text',
+              type: 'primary',
+              link: true,
               icon: ACTION_ICON.EDIT,
               auth: ['infra:demo02-category:update'],
               onClick: handleEdit.bind(null, row),
@@ -160,11 +159,11 @@ const [Grid, gridApi] = useVbenVxeGrid({
             {
               label: $t('common.delete'),
               type: 'danger',
-              text: true,
+              link: true,
               icon: ACTION_ICON.DELETE,
               auth: ['infra:demo02-category:delete'],
               popConfirm: {
-                title: $t('ui.actionMessage.deleteConfirm', [row.id]),
+                title: $t('ui.actionMessage.deleteConfirm', [row.name]),
                 confirm: handleDelete.bind(null, row),
               },
             },

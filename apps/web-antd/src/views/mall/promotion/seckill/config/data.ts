@@ -2,7 +2,8 @@ import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { MallSeckillConfigApi } from '#/api/mall/promotion/seckill/seckillConfig';
 
-import { DICT_TYPE, getDictOptions } from '#/utils';
+import { DICT_TYPE } from '@vben/constants';
+import { getDictOptions } from '@vben/hooks';
 
 /** 新增/修改的表单 */
 export function useFormSchema(): VbenFormSchema[] {
@@ -19,6 +20,9 @@ export function useFormSchema(): VbenFormSchema[] {
       fieldName: 'name',
       label: '秒杀时段名称',
       component: 'Input',
+      componentProps: {
+        placeholder: '请输入秒杀时段名称',
+      },
       rules: 'required',
     },
     {
@@ -90,10 +94,10 @@ export function useGridFormSchema(): VbenFormSchema[] {
 }
 
 /** 表格列配置 */
-export function useGridColumns<T = MallSeckillConfigApi.SeckillConfig>(
+export function useGridColumns(
   onStatusChange?: (
     newStatus: number,
-    row: T,
+    row: MallSeckillConfigApi.SeckillConfig,
   ) => PromiseLike<boolean | undefined>,
 ): VxeTableGridOptions['columns'] {
   return [

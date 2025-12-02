@@ -66,7 +66,8 @@ const [Modal, modalApi] = useVbenModal({
     }
     modalApi.lock();
     // 提交表单
-    const data = (await formApi.getValues()) as CrmPermissionApi.TransferReq;
+    const data =
+      (await formApi.getValues()) as CrmPermissionApi.BusinessTransferReqVO;
     try {
       switch (bizType.value) {
         case BizTypeEnum.CRM_BUSINESS: {
@@ -99,7 +100,7 @@ const [Modal, modalApi] = useVbenModal({
   },
   async onOpenChange(isOpen: boolean) {
     if (!isOpen) {
-      formApi.resetForm();
+      await formApi.resetForm();
       return;
     }
     // 加载数据
@@ -108,7 +109,7 @@ const [Modal, modalApi] = useVbenModal({
       return;
     }
     bizType.value = data.bizType;
-    formApi.setFieldValue('id', data.bizType);
+    await formApi.setFieldValue('id', data.bizType);
   },
 });
 </script>

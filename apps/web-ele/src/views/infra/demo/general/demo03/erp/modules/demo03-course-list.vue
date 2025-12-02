@@ -3,8 +3,9 @@ import type { Demo03StudentApi } from '#/api/infra/demo/demo03/erp';
 
 import { h, nextTick, onMounted, reactive, ref, watch } from 'vue';
 
-import { useVbenModal } from '@vben/common-ui';
+import { ContentWrap, useVbenModal } from '@vben/common-ui';
 import { Plus, Trash2 } from '@vben/icons';
+import { useTableToolbar, VbenVxeTableToolbar } from '@vben/plugins/vxe-table';
 import { cloneDeep, formatDateTime, isEmpty } from '@vben/utils';
 
 import {
@@ -24,9 +25,6 @@ import {
   deleteDemo03CourseList,
   getDemo03CoursePage,
 } from '#/api/infra/demo/demo03/erp';
-import { ContentWrap } from '#/components/content-wrap';
-import { TableToolbar } from '#/components/table-toolbar';
-import { useTableToolbar } from '#/hooks';
 import { $t } from '#/locales';
 
 import Demo03CourseForm from './demo03-course-form.vue';
@@ -58,10 +56,9 @@ function handleEdit(row: Demo03StudentApi.Demo03Course) {
 async function handleDelete(row: Demo03StudentApi.Demo03Course) {
   const loadingInstance = ElLoading.service({
     text: $t('ui.actionMessage.deleting', [row.id]),
-    background: 'rgba(0, 0, 0, 0.7)',
   });
   try {
-    await deleteDemo03Course(row.id as number);
+    await deleteDemo03Course(row.id!);
     ElMessage.success($t('ui.actionMessage.deleteSuccess', [row.id]));
     await getList();
   } finally {
@@ -73,10 +70,10 @@ async function handleDelete(row: Demo03StudentApi.Demo03Course) {
 async function handleDeleteBatch() {
   const loadingInstance = ElLoading.service({
     text: $t('ui.actionMessage.deleting'),
-    background: 'rgba(0, 0, 0, 0.7)',
   });
   try {
     await deleteDemo03CourseList(checkedIds.value);
+    checkedIds.value = [];
     ElMessage.success($t('ui.actionMessage.deleteSuccess'));
     await getList();
   } finally {
@@ -90,7 +87,7 @@ function handleRowCheckboxChange({
 }: {
   records: Demo03StudentApi.Demo03Course[];
 }) {
-  checkedIds.value = records.map((item) => item.id);
+  checkedIds.value = records.map((item) => item.id!);
 }
 
 const loading = ref(true); // 列表的加载中
@@ -107,18 +104,18 @@ const queryParams = reactive({
 });
 
 /** 搜索按钮操作 */
-const handleQuery = () => {
+function handleQuery() {
   queryParams.pageNo = 1;
   getList();
-};
+}
 
 /** 重置按钮操作 */
-const resetQuery = () => {
+function resetQuery() {
   queryFormRef.value.resetFields();
   handleQuery();
-};
+}
 /** 查询列表 */
-const getList = async () => {
+async function getList() {
   loading.value = true;
   try {
     if (!props.studentId) {
@@ -135,7 +132,7 @@ const getList = async () => {
   } finally {
     loading.value = false;
   }
-};
+}
 
 /** 监听主表的关联字段的变化，加载对应的子表数据 */
 watch(
@@ -213,7 +210,7 @@ onMounted(() => {
     <!-- 列表 -->
     <ContentWrap title="学生">
       <template #extra>
-        <TableToolbar
+        <VbenVxeTableToolbar
           ref="tableToolbarRef"
           v-model:hidden-search="hiddenSearchBar"
         >
@@ -236,7 +233,7 @@ onMounted(() => {
           >
             批量删除
           </ElButton>
-        </TableToolbar>
+        </VbenVxeTableToolbar>
       </template>
       <VxeTable
         ref="tableRef"

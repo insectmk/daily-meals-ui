@@ -21,8 +21,8 @@ const emit = defineEmits(['success']);
 const formData = ref<MallCategoryApi.Category>();
 const getTitle = computed(() => {
   return formData.value?.id
-    ? $t('ui.actionTitle.edit', ['产品分类'])
-    : $t('ui.actionTitle.create', ['产品分类']);
+    ? $t('ui.actionTitle.edit', ['商品分类'])
+    : $t('ui.actionTitle.create', ['商品分类']);
 });
 
 const [Form, formApi] = useVbenForm({
@@ -31,7 +31,7 @@ const [Form, formApi] = useVbenForm({
       class: 'w-full',
     },
     formItemClass: 'col-span-2',
-    labelWidth: 120,
+    labelWidth: 100,
   },
   layout: 'horizontal',
   schema: useFormSchema(),
@@ -70,7 +70,7 @@ const [Modal, modalApi] = useVbenModal({
     modalApi.lock();
     try {
       if (data.id) {
-        data = await getCategory(data.id as number);
+        data = await getCategory(data.id);
       }
       // 设置到 values
       formData.value = data;
@@ -83,7 +83,7 @@ const [Modal, modalApi] = useVbenModal({
 </script>
 
 <template>
-  <Modal class="w-2/5" :title="getTitle">
+  <Modal :title="getTitle" class="w-1/4">
     <Form class="mx-4" />
   </Modal>
 </template>

@@ -21,15 +21,24 @@ import Form from './modules/form.vue';
 
 const configType = ref(LimitConfType.CUSTOMER_QUANTITY_LIMIT);
 
-/** 刷新表格 */
-function onRefresh() {
-  gridApi.query();
-}
-
 const [FormModal, formModalApi] = useVbenModal({
   connectedComponent: Form,
   destroyOnClose: true,
 });
+
+/** 刷新表格 */
+function handleRefresh() {
+  gridApi.query();
+}
+
+/** 处理配置类型的切换 */
+function handleChangeConfigType(key: number | string) {
+  configType.value = key as LimitConfType;
+  gridApi.setGridOptions({
+    columns: useGridColumns(configType.value),
+  });
+  handleRefresh();
+}
 
 /** 创建规则 */
 function handleCreate(type: LimitConfType) {
@@ -50,15 +59,12 @@ async function handleDelete(
 ) {
   const hideLoading = message.loading({
     content: $t('ui.actionMessage.deleting', [row.id]),
-    key: 'action_key_msg',
+    duration: 0,
   });
   try {
-    await deleteCustomerLimitConfig(row.id as number);
-    message.success({
-      content: $t('ui.actionMessage.deleteSuccess', [row.id]),
-      key: 'action_key_msg',
-    });
-    onRefresh();
+    await deleteCustomerLimitConfig(row.id!);
+    message.success($t('ui.actionMessage.deleteSuccess', [row.id]));
+    handleRefresh();
   } finally {
     hideLoading();
   }
@@ -83,21 +89,14 @@ const [Grid, gridApi] = useVbenVxeGrid({
     },
     rowConfig: {
       keyField: 'id',
+      isHover: true,
     },
     toolbarConfig: {
-      refresh: { code: 'query' },
+      refresh: true,
       search: true,
     },
   } as VxeTableGridOptions<CrmCustomerLimitConfigApi.CustomerLimitConfig>,
 });
-
-function onChangeConfigType(key: number | string) {
-  configType.value = key as LimitConfType;
-  gridApi.setGridOptions({
-    columns: useGridColumns(configType.value),
-  });
-  onRefresh();
-}
 </script>
 
 <template>
@@ -113,10 +112,10 @@ function onChangeConfigType(key: number | string) {
       />
     </template>
 
-    <FormModal />
+    <FormModal @success="handleRefresh" />
     <Grid>
-      <template #top>
-        <Tabs class="border-none" @change="onChangeConfigType">
+      <template #toolbar-actions>
+        <Tabs class="w-full" @change="handleChangeConfigType">
           <Tabs.TabPane
             tab="拥有客户数限制"
             :key="LimitConfType.CUSTOMER_QUANTITY_LIMIT"
@@ -157,7 +156,7 @@ function onChangeConfigType(key: number | string) {
               icon: ACTION_ICON.DELETE,
               auth: ['crm:customer-limit-config:delete'],
               popConfirm: {
-                title: $t('ui.actionMessage.deleteConfirm', [row.name]),
+                title: $t('ui.actionMessage.deleteConfirm', [row.id]),
                 confirm: handleDelete.bind(null, row),
               },
             },

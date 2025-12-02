@@ -2,7 +2,10 @@ import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { Demo03StudentApi } from '#/api/infra/demo/demo03/erp';
 
-import { DICT_TYPE, getDictOptions, getRangePickerDefaultProps } from '#/utils';
+import { DICT_TYPE } from '@vben/constants';
+import { getDictOptions } from '@vben/hooks';
+
+import { getRangePickerDefaultProps } from '#/utils';
 
 /** 新增/修改的表单 */
 export function useFormSchema(): VbenFormSchema[] {
@@ -31,8 +34,6 @@ export function useFormSchema(): VbenFormSchema[] {
       component: 'RadioGroup',
       componentProps: {
         options: getDictOptions(DICT_TYPE.SYSTEM_USER_SEX, 'number'),
-        buttonStyle: 'solid',
-        optionType: 'button',
       },
     },
     {
@@ -44,6 +45,8 @@ export function useFormSchema(): VbenFormSchema[] {
         showTime: true,
         format: 'YYYY-MM-DD HH:mm:ss',
         valueFormat: 'x',
+        placeholder: '请选择出生日期',
+        class: '!w-full',
       },
     },
     {
@@ -63,7 +66,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       label: '名字',
       component: 'Input',
       componentProps: {
-        allowClear: true,
+        clearable: true,
         placeholder: '请输入名字',
       },
     },
@@ -72,7 +75,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       label: '性别',
       component: 'Select',
       componentProps: {
-        allowClear: true,
+        clearable: true,
         options: getDictOptions(DICT_TYPE.SYSTEM_USER_SEX, 'number'),
         placeholder: '请选择性别',
       },
@@ -82,7 +85,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       label: '简介',
       component: 'Input',
       componentProps: {
-        allowClear: true,
+        clearable: true,
         placeholder: '请输入简介',
       },
     },
@@ -92,7 +95,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       component: 'RangePicker',
       componentProps: {
         ...getRangePickerDefaultProps(),
-        allowClear: true,
+        clearable: true,
       },
     },
   ];
@@ -140,7 +143,7 @@ export function useGridColumns(): VxeTableGridOptions<Demo03StudentApi.Demo03Stu
     },
     {
       title: '操作',
-      width: 200,
+      width: 280,
       fixed: 'right',
       slots: { default: 'actions' },
     },
@@ -189,7 +192,7 @@ export function useDemo03CourseGridFormSchema(): VbenFormSchema[] {
       label: '学生编号',
       component: 'Input',
       componentProps: {
-        allowClear: true,
+        clearable: true,
         placeholder: '请输入学生编号',
       },
     },
@@ -198,7 +201,7 @@ export function useDemo03CourseGridFormSchema(): VbenFormSchema[] {
       label: '名字',
       component: 'Input',
       componentProps: {
-        allowClear: true,
+        clearable: true,
         placeholder: '请输入名字',
       },
     },
@@ -207,7 +210,7 @@ export function useDemo03CourseGridFormSchema(): VbenFormSchema[] {
       label: '分数',
       component: 'Input',
       componentProps: {
-        allowClear: true,
+        clearable: true,
         placeholder: '请输入分数',
       },
     },
@@ -217,7 +220,7 @@ export function useDemo03CourseGridFormSchema(): VbenFormSchema[] {
       component: 'RangePicker',
       componentProps: {
         ...getRangePickerDefaultProps(),
-        allowClear: true,
+        clearable: true,
       },
     },
   ];
@@ -255,7 +258,7 @@ export function useDemo03CourseGridColumns(): VxeTableGridOptions<Demo03StudentA
     },
     {
       title: '操作',
-      width: 200,
+      width: 280,
       fixed: 'right',
       slots: { default: 'actions' },
     },
@@ -304,7 +307,7 @@ export function useDemo03GradeGridFormSchema(): VbenFormSchema[] {
       label: '学生编号',
       component: 'Input',
       componentProps: {
-        allowClear: true,
+        clearable: true,
         placeholder: '请输入学生编号',
       },
     },
@@ -313,7 +316,7 @@ export function useDemo03GradeGridFormSchema(): VbenFormSchema[] {
       label: '名字',
       component: 'Input',
       componentProps: {
-        allowClear: true,
+        clearable: true,
         placeholder: '请输入名字',
       },
     },
@@ -322,7 +325,7 @@ export function useDemo03GradeGridFormSchema(): VbenFormSchema[] {
       label: '班主任',
       component: 'Input',
       componentProps: {
-        allowClear: true,
+        clearable: true,
         placeholder: '请输入班主任',
       },
     },
@@ -332,7 +335,7 @@ export function useDemo03GradeGridFormSchema(): VbenFormSchema[] {
       component: 'RangePicker',
       componentProps: {
         ...getRangePickerDefaultProps(),
-        allowClear: true,
+        clearable: true,
       },
     },
   ];
@@ -370,7 +373,7 @@ export function useDemo03GradeGridColumns(): VxeTableGridOptions<Demo03StudentAp
     },
     {
       title: '操作',
-      width: 200,
+      width: 280,
       fixed: 'right',
       slots: { default: 'actions' },
     },

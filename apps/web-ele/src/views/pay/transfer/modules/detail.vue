@@ -12,6 +12,12 @@ import { useDetailSchema } from '../data';
 
 const formData = ref<PayTransferApi.Transfer>();
 
+const [Descriptions] = useDescription({
+  border: true,
+  column: 2,
+  schema: useDetailSchema(),
+});
+
 const [Modal, modalApi] = useVbenModal({
   async onOpenChange(isOpen: boolean) {
     if (!isOpen) {
@@ -31,18 +37,6 @@ const [Modal, modalApi] = useVbenModal({
     }
   },
 });
-
-const [Description] = useDescription({
-  componentProps: {
-    title: '基本信息',
-    border: false,
-    column: 2,
-    direction: 'horizontal',
-    labelWidth: 200,
-    extra: '',
-  },
-  schema: useDetailSchema(),
-});
 </script>
 
 <template>
@@ -52,6 +46,6 @@ const [Description] = useDescription({
     :show-cancel-button="false"
     :show-confirm-button="false"
   >
-    <Description :data="formData" />
+    <Descriptions :data="formData" />
   </Modal>
 </template>

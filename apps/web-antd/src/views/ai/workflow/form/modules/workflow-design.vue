@@ -5,18 +5,18 @@ import { inject, ref } from 'vue';
 
 import { useVbenDrawer } from '@vben/common-ui';
 import { IconifyIcon } from '@vben/icons';
+import { Tinyflow } from '@vben/plugins/tinyflow';
 import { isNumber } from '@vben/utils';
 
 import { Button, Input, Select } from 'ant-design-vue';
 
 import { testWorkflow } from '#/api/ai/workflow';
-import { Tinyflow } from '#/components/tinyflow';
 
 defineProps<{
   provider: any;
 }>();
 
-const tinyflowRef = ref();
+const tinyflowRef = ref<InstanceType<typeof Tinyflow> | null>(null);
 const workflowData = inject('workflowData') as Ref;
 const params4Test = ref<any[]>([]);
 const paramsOfStartNode = ref<any>({});
@@ -28,73 +28,81 @@ const [Drawer, drawerApi] = useVbenDrawer({
   footer: false,
   closeOnClickModal: false,
   modal: false,
+  onOpenChange(isOpen: boolean) {
+    if (!isOpen) {
+      return;
+    }
+    try {
+      // 查找 start 节点
+      const startNode = getStartNode();
+      // 获取参数定义
+      const parameters: any[] = (startNode.data?.parameters as any[]) || [];
+      const paramDefinitions: Record<string, any> = {};
+      // 加入参数选项方便用户添加非必须参数
+      parameters.forEach((param: any) => {
+        paramDefinitions[param.name] = param;
+      });
+      // 自动装载需必填的参数
+      function mergeIfRequiredButNotSet(target: any[]) {
+        const needPushList = [];
+        for (const key in paramDefinitions) {
+          const param = paramDefinitions[key];
+
+          if (param.required) {
+            const item = target.find((item: any) => item.key === key);
+
+            if (!item) {
+              needPushList.push({
+                key: param.name,
+                value: param.defaultValue || '',
+              });
+            }
+          }
+        }
+        target.push(...needPushList);
+      }
+      mergeIfRequiredButNotSet(params4Test.value);
+
+      // 设置参数
+      paramsOfStartNode.value = paramDefinitions;
+    } catch (error) {
+      console.error('加载参数失败:', error);
+    }
+  },
 });
+
 /** 展示工作流测试抽屉 */
 function testWorkflowModel() {
   drawerApi.open();
-  const startNode = getStartNode();
-
-  // 获取参数定义
-  const parameters = startNode.data?.parameters || [];
-  const paramDefinitions: Record<string, any> = {};
-
-  // 加入参数选项方便用户添加非必须参数
-  parameters.forEach((param: any) => {
-    paramDefinitions[param.name] = param;
-  });
-
-  function mergeIfRequiredButNotSet(target: any) {
-    const needPushList = [];
-    for (const key in paramDefinitions) {
-      const param = paramDefinitions[key];
-
-      if (param.required) {
-        const item = target.find((item: any) => item.key === key);
-
-        if (!item) {
-          needPushList.push({
-            key: param.name,
-            value: param.defaultValue || '',
-          });
-        }
-      }
-    }
-    target.push(...needPushList);
-  }
-  // 自动装载需必填的参数
-  mergeIfRequiredButNotSet(params4Test.value);
-
-  paramsOfStartNode.value = paramDefinitions;
 }
 
 /** 运行流程 */
 async function goRun() {
   try {
-    const val = tinyflowRef.value.getData();
+    const val = tinyflowRef.value?.getData();
     loading.value = true;
     error.value = null;
     testResult.value = null;
-    // / 查找start节点
-    const startNode = getStartNode();
 
+    // 查找start节点
+    const startNode = getStartNode();
     // 获取参数定义
-    const parameters = startNode.data?.parameters || [];
+    const parameters: any[] = (startNode.data?.parameters as any[]) || [];
     const paramDefinitions: Record<string, any> = {};
     parameters.forEach((param: any) => {
       paramDefinitions[param.name] = param.dataType;
     });
-
     // 参数类型转换
     const convertedParams: Record<string, any> = {};
     for (const { key, value } of params4Test.value) {
       const paramKey = key.trim();
-      if (!paramKey) continue;
-
+      if (!paramKey) {
+        continue;
+      }
       let dataType = paramDefinitions[paramKey];
       if (!dataType) {
         dataType = 'String';
       }
-
       try {
         convertedParams[paramKey] = convertParamValue(value, dataType);
       } catch (error: any) {
@@ -102,13 +110,11 @@ async function goRun() {
       }
     }
 
-    const data = {
+    // 执行测试请求
+    testResult.value = await testWorkflow({
       graph: JSON.stringify(val),
       params: convertedParams,
-    };
-
-    const response = await testWorkflow(data);
-    testResult.value = response;
+    });
   } catch (error: any) {
     error.value =
       error.response?.data?.message || '运行失败，请检查参数和网络连接';
@@ -119,12 +125,16 @@ async function goRun() {
 
 /** 获取开始节点 */
 function getStartNode() {
-  const val = tinyflowRef.value.getData();
-  const startNode = val.nodes.find((node: any) => node.type === 'startNode');
-  if (!startNode) {
-    throw new Error('流程缺少开始节点');
+  if (tinyflowRef.value) {
+    // TODO @xingyu：不确定是不是这里封装了 Tinyflow，现在 .getData() 会报错；
+    const val = tinyflowRef.value.getData();
+    const startNode = val!.nodes.find((node: any) => node.type === 'startNode');
+    if (!startNode) {
+      throw new Error('流程缺少开始节点');
+    }
+    return startNode;
   }
-  return startNode;
+  throw new Error('请设计流程');
 }
 
 /** 添加参数项 */
@@ -139,8 +149,9 @@ function removeParam(index: number) {
 
 /** 类型转换函数 */
 function convertParamValue(value: string, dataType: string) {
-  if (value === '') return null; // 空值处理
-
+  if (value === '') {
+    return null;
+  }
   switch (dataType) {
     case 'Number': {
       const num = Number(value);
@@ -151,8 +162,12 @@ function convertParamValue(value: string, dataType: string) {
       return String(value);
     }
     case 'Boolean': {
-      if (value.toLowerCase() === 'true') return true;
-      if (value.toLowerCase() === 'false') return false;
+      if (value.toLowerCase() === 'true') {
+        return true;
+      }
+      if (value.toLowerCase() === 'false') {
+        return false;
+      }
       throw new Error('必须为 true/false');
     }
     case 'Array':
@@ -168,10 +183,10 @@ function convertParamValue(value: string, dataType: string) {
     }
   }
 }
+
 /** 表单校验 */
 async function validate() {
-  // 获取最新的流程数据
-  if (!workflowData.value) {
+  if (!workflowData.value || !tinyflowRef.value) {
     throw new Error('请设计流程');
   }
   workflowData.value = tinyflowRef.value.getData();
@@ -182,7 +197,7 @@ defineExpose({ validate });
 </script>
 
 <template>
-  <div class="relative h-[700px] w-full">
+  <div class="relative h-[800px] w-full">
     <Tinyflow
       v-if="workflowData"
       ref="tinyflowRef"
@@ -242,7 +257,7 @@ defineExpose({ validate });
       </fieldset>
 
       <fieldset
-        class="m-0 mt-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-4"
+        class="m-0 mt-10 rounded-lg border border-gray-200 bg-card px-3 py-4"
       >
         <legend class="ml-2 px-2.5 text-base font-semibold text-gray-600">
           <h3>运行结果</h3>

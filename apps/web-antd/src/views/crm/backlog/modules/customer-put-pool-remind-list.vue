@@ -31,7 +31,7 @@ const [Grid] = useVbenVxeGrid({
           allowClear: true,
           options: SCENE_TYPES,
         },
-        defaultValue: 1,
+        defaultValue: SCENE_TYPES[0]!.value,
       },
     ],
   },
@@ -53,9 +53,10 @@ const [Grid] = useVbenVxeGrid({
     },
     rowConfig: {
       keyField: 'id',
+      isHover: true,
     },
     toolbarConfig: {
-      refresh: { code: 'query' },
+      refresh: true,
       search: true,
     },
   } as VxeTableGridOptions<CrmCustomerApi.Customer>,

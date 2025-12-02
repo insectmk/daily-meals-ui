@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { MallArticleCategoryApi } from '#/api/mall/promotion/articleCategory';
+import type { MallArticleCategoryApi } from '#/api/mall/promotion/article/category';
 
 import { computed, ref } from 'vue';
 
@@ -12,7 +12,7 @@ import {
   createArticleCategory,
   getArticleCategory,
   updateArticleCategory,
-} from '#/api/mall/promotion/articleCategory';
+} from '#/api/mall/promotion/article/category';
 import { $t } from '#/locales';
 
 import { useFormSchema } from '../data';
@@ -32,7 +32,7 @@ const [Form, formApi] = useVbenForm({
       class: 'w-full',
     },
     formItemClass: 'col-span-2',
-    labelWidth: 120,
+    labelWidth: 80,
   },
   layout: 'horizontal',
   schema: useFormSchema(),
@@ -73,7 +73,7 @@ const [Modal, modalApi] = useVbenModal({
     }
     modalApi.lock();
     try {
-      formData.value = await getArticleCategory(data.id as number);
+      formData.value = await getArticleCategory(data.id);
       // 设置到 values
       await formApi.setValues(formData.value);
     } finally {
@@ -84,7 +84,7 @@ const [Modal, modalApi] = useVbenModal({
 </script>
 
 <template>
-  <Modal class="w-2/5" :title="getTitle">
+  <Modal :title="getTitle" class="w-2/5">
     <Form class="mx-4" />
   </Modal>
 </template>

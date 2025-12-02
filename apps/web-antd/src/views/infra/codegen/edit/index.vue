@@ -61,7 +61,7 @@ async function submitForm() {
   // 提交表单
   const hideLoading = message.loading({
     content: $t('ui.actionMessage.updating'),
-    key: 'action_process_msg',
+    duration: 0,
   });
   try {
     // 拼接相关信息
@@ -73,10 +73,7 @@ async function submitForm() {
       columns,
     });
     // 关闭并提示
-    message.success({
-      content: $t('ui.actionMessage.operationSuccess'),
-      key: 'action_key_msg',
-    });
+    message.success($t('ui.actionMessage.operationSuccess'));
     close();
   } catch (error) {
     console.error('保存失败', error);
@@ -84,11 +81,12 @@ async function submitForm() {
     hideLoading();
   }
 }
-const tabs = useTabs();
+
 /** 返回列表 */
+const tabs = useTabs();
 function close() {
   tabs.closeCurrentTab();
-  router.push('/infra/codegen');
+  router.push({ name: 'InfraCodegen' });
 }
 
 /** 下一步 */
@@ -122,7 +120,7 @@ getDetail();
 
 <template>
   <Page auto-content-height v-loading="loading">
-    <div class="bg-card flex h-[95%] flex-col rounded-md p-4">
+    <div class="flex h-[95%] flex-col rounded-md bg-card p-4">
       <Steps
         type="navigation"
         v-model:current="currentStep"
@@ -156,8 +154,8 @@ getDetail();
       </div>
 
       <div class="mt-4 flex justify-end space-x-2">
-        <Button v-show="currentStep > 0" @click="prevStep">上一步</Button>
-        <Button v-show="currentStep < steps.length - 1" @click="nextStep">
+        <Button :disabled="currentStep === 0" @click="prevStep">上一步</Button>
+        <Button :disabled="currentStep === steps.length - 1" @click="nextStep">
           下一步
         </Button>
         <Button type="primary" :loading="loading" @click="submitForm">

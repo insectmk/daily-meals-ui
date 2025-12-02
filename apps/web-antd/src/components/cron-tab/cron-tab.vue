@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue';
 
+import type { CronData, CronValue, ShortcutsType } from './types';
+
 import { computed, onMounted, reactive, ref, watch } from 'vue';
 
 import {
@@ -15,6 +17,8 @@ import {
   Select,
   Tabs,
 } from 'ant-design-vue';
+
+import { CronDataDefault, CronValueDefault } from './types';
 
 defineOptions({ name: 'Crontab' });
 
@@ -31,276 +35,12 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue']);
 
-interface ShortcutsType {
-  text: string;
-  value: string;
-}
-
-interface CronRange {
-  start: number | string | undefined;
-  end: number | string | undefined;
-}
-
-interface CronLoop {
-  start: number | string | undefined;
-  end: number | string | undefined;
-}
-
-interface CronItem {
-  type: string;
-  range: CronRange;
-  loop: CronLoop;
-  appoint: string[];
-  last?: string;
-}
-
-interface CronValue {
-  second: CronItem;
-  minute: CronItem;
-  hour: CronItem;
-  day: CronItem;
-  month: CronItem;
-  week: CronItem & { last: string };
-  year: CronItem;
-}
-
-interface WeekOption {
-  value: string;
-  label: string;
-}
-
-interface CronData {
-  second: string[];
-  minute: string[];
-  hour: string[];
-  day: string[];
-  month: string[];
-  week: WeekOption[];
-  year: number[];
-}
-
 const defaultValue = ref('');
 const dialogVisible = ref(false);
 
-const getYear = (): number[] => {
-  const v: number[] = [];
-  const y = new Date().getFullYear();
-  for (let i = 0; i < 11; i++) {
-    v.push(y + i);
-  }
-  return v;
-};
+const cronValue = reactive<CronValue>(CronValueDefault);
 
-const cronValue = reactive<CronValue>({
-  second: {
-    type: '0',
-    range: {
-      start: 1,
-      end: 2,
-    },
-    loop: {
-      start: 0,
-      end: 1,
-    },
-    appoint: [],
-  },
-  minute: {
-    type: '0',
-    range: {
-      start: 1,
-      end: 2,
-    },
-    loop: {
-      start: 0,
-      end: 1,
-    },
-    appoint: [],
-  },
-  hour: {
-    type: '0',
-    range: {
-      start: 1,
-      end: 2,
-    },
-    loop: {
-      start: 0,
-      end: 1,
-    },
-    appoint: [],
-  },
-  day: {
-    type: '0',
-    range: {
-      start: 1,
-      end: 2,
-    },
-    loop: {
-      start: 1,
-      end: 1,
-    },
-    appoint: [],
-  },
-  month: {
-    type: '0',
-    range: {
-      start: 1,
-      end: 2,
-    },
-    loop: {
-      start: 1,
-      end: 1,
-    },
-    appoint: [],
-  },
-  week: {
-    type: '5',
-    range: {
-      start: '2',
-      end: '3',
-    },
-    loop: {
-      start: 0,
-      end: '2',
-    },
-    last: '2',
-    appoint: [],
-  },
-  year: {
-    type: '-1',
-    range: {
-      start: getYear()[0],
-      end: getYear()[1],
-    },
-    loop: {
-      start: getYear()[0],
-      end: 1,
-    },
-    appoint: [],
-  },
-});
-
-const data = reactive<CronData>({
-  second: [
-    '0',
-    '5',
-    '15',
-    '20',
-    '25',
-    '30',
-    '35',
-    '40',
-    '45',
-    '50',
-    '55',
-    '59',
-  ],
-  minute: [
-    '0',
-    '5',
-    '15',
-    '20',
-    '25',
-    '30',
-    '35',
-    '40',
-    '45',
-    '50',
-    '55',
-    '59',
-  ],
-  hour: [
-    '0',
-    '1',
-    '2',
-    '3',
-    '4',
-    '5',
-    '6',
-    '7',
-    '8',
-    '9',
-    '10',
-    '11',
-    '12',
-    '13',
-    '14',
-    '15',
-    '16',
-    '17',
-    '18',
-    '19',
-    '20',
-    '21',
-    '22',
-    '23',
-  ],
-  day: [
-    '1',
-    '2',
-    '3',
-    '4',
-    '5',
-    '6',
-    '7',
-    '8',
-    '9',
-    '10',
-    '11',
-    '12',
-    '13',
-    '14',
-    '15',
-    '16',
-    '17',
-    '18',
-    '19',
-    '20',
-    '21',
-    '22',
-    '23',
-    '24',
-    '25',
-    '26',
-    '27',
-    '28',
-    '29',
-    '30',
-    '31',
-  ],
-  month: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'],
-  week: [
-    {
-      value: '1',
-      label: '周日',
-    },
-    {
-      value: '2',
-      label: '周一',
-    },
-    {
-      value: '3',
-      label: '周二',
-    },
-    {
-      value: '4',
-      label: '周三',
-    },
-    {
-      value: '5',
-      label: '周四',
-    },
-    {
-      value: '6',
-      label: '周五',
-    },
-    {
-      value: '7',
-      label: '周六',
-    },
-  ],
-  year: getYear(),
-});
-
+const data = reactive<CronData>(CronDataDefault);
 const value_second = computed(() => {
   const v = cronValue.second;
   switch (v.type) {
@@ -514,14 +254,13 @@ function open() {
 function set() {
   defaultValue.value = props.modelValue;
   let arr = (props.modelValue || '* * * * * ?').split(' ');
-
-  /** 简单检查 */
+  // 简单检查
   if (arr.length < 6) {
     message.warning('cron表达式错误，已转换为默认表达式');
     arr = '* * * * * ?'.split(' ');
   }
 
-  /** 秒 */
+  // 秒
   if (arr[0] === '*') {
     cronValue.second.type = '0';
   } else if (arr[0]?.includes('-')) {
@@ -537,7 +276,7 @@ function set() {
     cronValue.second.appoint = arr[0]?.split(',') || [];
   }
 
-  /** 分 */
+  // 分
   if (arr[1] === '*') {
     cronValue.minute.type = '0';
   } else if (arr[1]?.includes('-')) {
@@ -553,7 +292,7 @@ function set() {
     cronValue.minute.appoint = arr[1]?.split(',') || [];
   }
 
-  /** 小时 */
+  // 小时
   if (arr[2] === '*') {
     cronValue.hour.type = '0';
   } else if (arr[2]?.includes('-')) {
@@ -569,21 +308,18 @@ function set() {
     cronValue.hour.appoint = arr[2]?.split(',') || [];
   }
 
-  /** 日 */
+  // 日
   switch (arr[3]) {
     case '*': {
       cronValue.day.type = '0';
-
       break;
     }
     case '?': {
       cronValue.day.type = '5';
-
       break;
     }
     case 'L': {
       cronValue.day.type = '4';
-
       break;
     }
     default: {
@@ -602,7 +338,7 @@ function set() {
     }
   }
 
-  /** 月 */
+  // 月
   if (arr[4] === '*') {
     cronValue.month.type = '0';
   } else if (arr[4]?.includes('-')) {
@@ -618,7 +354,7 @@ function set() {
     cronValue.month.appoint = arr[4]?.split(',') || [];
   }
 
-  /** 周 */
+  // 周
   if (arr[5] === '*') {
     cronValue.week.type = '0';
   } else if (arr[5] === '?') {
@@ -639,7 +375,7 @@ function set() {
     cronValue.week.appoint = arr[5]?.split(',') || [];
   }
 
-  /** 年 */
+  // 年
   if (!arr[6]) {
     cronValue.year.type = '-1';
   } else if (arr[6] === '*') {
@@ -680,7 +416,7 @@ function inputChange() {
     @input="inputChange"
   >
     <template #addonAfter>
-      <Select v-model:value="select" placeholder="生成器" style="width: 115px">
+      <Select v-model:value="select" placeholder="生成器" class="w-36">
         <Select.Option value="0 * * * * ?">每分钟</Select.Option>
         <Select.Option value="0 0 * * * ?">每小时</Select.Option>
         <Select.Option value="0 0 0 * * ?">每天零点</Select.Option>
@@ -1206,20 +942,20 @@ function inputChange() {
   padding: 0 15px;
   font-size: 12px;
   line-height: 30px;
-  background: var(--ant-primary-color-active-bg);
+  background: hsl(var(--primary) / 10%);
   border-radius: 4px;
 }
 
 .sc-cron :deep(.ant-tabs-tab.ant-tabs-tab-active) .sc-cron-num h4 {
   color: #fff;
-  background: var(--ant-primary-color);
+  background: hsl(var(--primary));
 }
 
 [data-theme='dark'] .sc-cron-num h4 {
-  background: var(--ant-color-white);
+  background: hsl(var(--white));
 }
 
 .input-with-select .ant-input-group-addon {
-  background-color: var(--ant-color-fill-alter);
+  background-color: hsl(var(--muted));
 }
 </style>

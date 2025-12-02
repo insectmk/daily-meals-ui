@@ -1,15 +1,13 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 
+import { AiModelTypeEnum, CommonStatusEnum, DICT_TYPE } from '@vben/constants';
+import { getDictOptions } from '@vben/hooks';
+
 import { z } from '#/adapter/form';
 import { getModelSimpleList } from '#/api/ai/model/model';
-import {
-  AiModelTypeEnum,
-  CommonStatusEnum,
-  DICT_TYPE,
-  getDictOptions,
-  getRangePickerDefaultProps,
-} from '#/utils';
+import { getRangePickerDefaultProps } from '#/utils';
+
 /** 新增/修改的表单 */
 export function useFormSchema(): VbenFormSchema[] {
   return [
@@ -25,6 +23,9 @@ export function useFormSchema(): VbenFormSchema[] {
       component: 'Input',
       fieldName: 'name',
       label: '知识库名称',
+      componentProps: {
+        placeholder: '请输入知识库名称',
+      },
       rules: 'required',
     },
     {
@@ -54,9 +55,7 @@ export function useFormSchema(): VbenFormSchema[] {
       label: '检索 topK',
       component: 'InputNumber',
       componentProps: {
-        controlsPosition: 'right',
         placeholder: '请输入检索 topK',
-        class: 'w-full',
         min: 0,
         max: 10,
       },
@@ -67,9 +66,7 @@ export function useFormSchema(): VbenFormSchema[] {
       label: '检索相似度阈值',
       component: 'InputNumber',
       componentProps: {
-        controlsPosition: 'right',
         placeholder: '请输入检索相似度阈值',
-        class: 'w-full',
         min: 0,
         max: 1,
         step: 0.01,
@@ -98,14 +95,19 @@ export function useGridFormSchema(): VbenFormSchema[] {
       fieldName: 'name',
       label: '知识库名称',
       component: 'Input',
+      componentProps: {
+        placeholder: '请输入知识库名称',
+        allowClear: true,
+      },
     },
     {
       fieldName: 'status',
       label: '是否启用',
       component: 'Select',
       componentProps: {
-        allowClear: true,
         options: getDictOptions(DICT_TYPE.COMMON_STATUS, 'number'),
+        placeholder: '请选择是否启用',
+        allowClear: true,
       },
     },
     {
@@ -126,22 +128,27 @@ export function useGridColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'id',
       title: '编号',
+      minWidth: 100,
     },
     {
       field: 'name',
       title: '知识库名称',
+      minWidth: 150,
     },
     {
       field: 'description',
       title: '知识库描述',
+      minWidth: 200,
     },
     {
       field: 'embeddingModel',
       title: '向量化模型',
+      minWidth: 150,
     },
     {
       field: 'status',
       title: '是否启用',
+      minWidth: 100,
       cellRender: {
         name: 'CellDict',
         props: { type: DICT_TYPE.COMMON_STATUS },
@@ -150,11 +157,12 @@ export function useGridColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'createTime',
       title: '创建时间',
+      minWidth: 180,
       formatter: 'formatDateTime',
     },
     {
       title: '操作',
-      width: 150,
+      width: 280,
       fixed: 'right',
       slots: { default: 'actions' },
     },

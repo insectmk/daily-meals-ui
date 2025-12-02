@@ -1,13 +1,11 @@
 import type { VbenFormSchema } from '#/adapter/form';
-import type { OnActionClickFn, VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { SystemOperateLogApi } from '#/api/system/operate-log';
+import type { VxeTableGridOptions } from '#/adapter/vxe-table';
+import type { DescriptionItemSchema } from '#/components/description';
 
-import { useAccess } from '@vben/access';
+import { formatDateTime } from '@vben/utils';
 
 import { getSimpleUserList } from '#/api/system/user';
 import { getRangePickerDefaultProps } from '#/utils';
-
-const { hasAccessByCodes } = useAccess();
 
 /** 列表的搜索表单 */
 export function useGridFormSchema(): VbenFormSchema[] {
@@ -18,11 +16,9 @@ export function useGridFormSchema(): VbenFormSchema[] {
       component: 'ApiSelect',
       componentProps: {
         api: getSimpleUserList,
-        fieldNames: {
-          label: 'nickname',
-          value: 'id',
-        },
-        allowClear: true,
+        labelField: 'nickname',
+        valueField: 'id',
+        clearable: true,
         placeholder: '请选择操作人员',
       },
     },
@@ -31,7 +27,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       label: '操作模块',
       component: 'Input',
       componentProps: {
-        allowClear: true,
+        clearable: true,
         placeholder: '请输入操作模块',
       },
     },
@@ -40,7 +36,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       label: '操作名',
       component: 'Input',
       componentProps: {
-        allowClear: true,
+        clearable: true,
         placeholder: '请输入操作名',
       },
     },
@@ -49,7 +45,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       label: '操作内容',
       component: 'Input',
       componentProps: {
-        allowClear: true,
+        clearable: true,
         placeholder: '请输入操作内容',
       },
     },
@@ -59,7 +55,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       component: 'RangePicker',
       componentProps: {
         ...getRangePickerDefaultProps(),
-        allowClear: true,
+        clearable: true,
       },
     },
     {
@@ -67,7 +63,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       label: '业务编号',
       component: 'Input',
       componentProps: {
-        allowClear: true,
+        clearable: true,
         placeholder: '请输入业务编号',
       },
     },
@@ -75,9 +71,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
 }
 
 /** 列表的字段 */
-export function useGridColumns<T = SystemOperateLogApi.OperateLog>(
-  onActionClick: OnActionClickFn<T>,
-): VxeTableGridOptions['columns'] {
+export function useGridColumns(): VxeTableGridOptions['columns'] {
   return [
     {
       field: 'id',
@@ -117,30 +111,81 @@ export function useGridColumns<T = SystemOperateLogApi.OperateLog>(
     },
     {
       field: 'userIp',
-      title: '操作IP',
+      title: '操作 IP',
       minWidth: 120,
     },
     {
-      field: 'operation',
       title: '操作',
-      minWidth: 120,
-      align: 'center',
+      width: 80,
       fixed: 'right',
-      cellRender: {
-        attrs: {
-          nameField: 'action',
-          nameTitle: '操作日志',
-          onClick: onActionClick,
-        },
-        name: 'CellOperation',
-        options: [
-          {
-            code: 'detail',
-            text: '详情',
-            show: hasAccessByCodes(['system:operate-log:query']),
-          },
-        ],
+      slots: { default: 'actions' },
+    },
+  ];
+}
+
+/** 详情页的字段 */
+export function useDetailSchema(): DescriptionItemSchema[] {
+  return [
+    {
+      field: 'id',
+      label: '日志编号',
+    },
+    {
+      field: 'traceId',
+      label: '链路追踪',
+      show: (val) => !val,
+    },
+    {
+      field: 'userId',
+      label: '操作人编号',
+    },
+    {
+      field: 'userName',
+      label: '操作人名字',
+    },
+    {
+      field: 'userIp',
+      label: '操作人 IP',
+    },
+    {
+      field: 'userAgent',
+      label: '操作人 UA',
+    },
+    {
+      field: 'type',
+      label: '操作模块',
+    },
+    {
+      field: 'subType',
+      label: '操作名',
+    },
+    {
+      field: 'action',
+      label: '操作内容',
+    },
+    {
+      field: 'extra',
+      label: '操作拓展参数',
+      show: (val) => !val,
+    },
+    {
+      field: 'requestUrl',
+      label: '请求 URL',
+      render: (val, data) => {
+        if (data?.requestMethod && val) {
+          return `${data.requestMethod} ${val}`;
+        }
+        return '';
       },
+    },
+    {
+      field: 'createTime',
+      label: '操作时间',
+      render: (val) => formatDateTime(val) as string,
+    },
+    {
+      field: 'bizId',
+      label: '业务编号',
     },
   ];
 }

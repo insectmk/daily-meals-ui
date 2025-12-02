@@ -5,7 +5,7 @@ import {
   makeRequiredRule,
 } from '#/components/form-create/helpers';
 
-export const useUploadFileRule = () => {
+export function useUploadFileRule() {
   const label = '文件上传';
   const name = 'FileUpload';
   return {
@@ -37,7 +37,7 @@ export const useUploadFileRule = () => {
             { label: 'pdf', value: 'pdf' },
           ],
           props: {
-            multiple: true,
+            mode: 'multiple',
           },
         },
         {
@@ -81,4 +81,4 @@ export const useUploadFileRule = () => {
       ]);
     },
   };
-};
+}

@@ -24,7 +24,7 @@ const [FormModal, formModalApi] = useVbenModal({
 });
 
 /** 刷新表格 */
-function onRefresh() {
+function handleRefresh() {
   gridApi.query();
 }
 
@@ -42,15 +42,12 @@ function handleEdit(row: MpAccountApi.Account) {
 async function handleDelete(row: MpAccountApi.Account) {
   const hideLoading = message.loading({
     content: $t('ui.actionMessage.deleting', [row.name]),
-    key: 'action_key_msg',
+    duration: 0,
   });
   try {
-    await deleteAccount(row.id as number);
-    message.success({
-      content: $t('ui.actionMessage.deleteSuccess', [row.name]),
-      key: 'action_key_msg',
-    });
-    onRefresh();
+    await deleteAccount(row.id!);
+    message.success($t('ui.actionMessage.deleteSuccess', [row.name]));
+    handleRefresh();
   } finally {
     hideLoading();
   }
@@ -59,16 +56,13 @@ async function handleDelete(row: MpAccountApi.Account) {
 /** 生成二维码 */
 async function handleGenerateQrCode(row: MpAccountApi.Account) {
   const hideLoading = message.loading({
-    content: '生成二维码',
-    key: 'action_key_msg',
+    content: '正在生成二维码中...',
+    duration: 0,
   });
   try {
-    await generateAccountQrCode(row.id as number);
-    message.success({
-      content: '生成二维码成功',
-      key: 'action_key_msg',
-    });
-    onRefresh();
+    await generateAccountQrCode(row.id!);
+    message.success($t('ui.actionMessage.operationSuccess'));
+    handleRefresh();
   } finally {
     hideLoading();
   }
@@ -77,15 +71,12 @@ async function handleGenerateQrCode(row: MpAccountApi.Account) {
 /** 清空 API 配额 */
 async function handleCleanQuota(row: MpAccountApi.Account) {
   const hideLoading = message.loading({
-    content: '清空 API 配额',
-    key: 'action_key_msg',
+    content: '正在清空 API 配额',
+    duration: 0,
   });
   try {
-    await clearAccountQuota(row.id as number);
-    message.success({
-      content: '清空 API 配额成功',
-      key: 'action_key_msg',
-    });
+    await clearAccountQuota(row.id!);
+    message.success($t('ui.actionMessage.operationSuccess'));
   } finally {
     hideLoading();
   }
@@ -112,9 +103,10 @@ const [Grid, gridApi] = useVbenVxeGrid({
     },
     rowConfig: {
       keyField: 'id',
+      isHover: true,
     },
     toolbarConfig: {
-      refresh: { code: 'query' },
+      refresh: true,
       search: true,
     },
   } as VxeTableGridOptions<MpAccountApi.Account>,
@@ -123,7 +115,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
 
 <template>
   <Page auto-content-height>
-    <FormModal @success="onRefresh" />
+    <FormModal @success="handleRefresh" />
     <Grid table-title="公众号账号列表">
       <template #toolbar-tools>
         <TableAction
@@ -134,22 +126,6 @@ const [Grid, gridApi] = useVbenVxeGrid({
               icon: ACTION_ICON.ADD,
               auth: ['mp:account:create'],
               onClick: handleCreate,
-            },
-          ]"
-        />
-      </template>
-      <template #qrCodeUrl="{ row }">
-        <a v-if="row.qrCodeUrl" :href="row.qrCodeUrl" target="_blank">
-          <img :src="row.qrCodeUrl" alt="二维码" />
-        </a>
-        <TableAction
-          :actions="[
-            {
-              label: '生成二维码',
-              type: 'link',
-              icon: 'qrcode',
-              auth: ['mp:account:qr-code'],
-              onClick: handleGenerateQrCode.bind(null, row),
             },
           ]"
         />
@@ -175,14 +151,23 @@ const [Grid, gridApi] = useVbenVxeGrid({
                 confirm: handleDelete.bind(null, row),
               },
             },
+          ]"
+          :drop-down-actions="[
+            {
+              label: '生成二维码',
+              type: 'link',
+              icon: 'qrcode',
+              auth: ['mp:account:qr-code'],
+              onClick: handleGenerateQrCode.bind(null, row),
+            },
             {
               label: '清空 API 配额',
               type: 'link',
               danger: true,
-              icon: ACTION_ICON.DELETE,
+              icon: 'clear',
               auth: ['mp:account:clear-quota'],
               popConfirm: {
-                title: '清空 API 配额',
+                title: '你确认要清空 API 配额？',
                 confirm: handleCleanQuota.bind(null, row),
               },
             },

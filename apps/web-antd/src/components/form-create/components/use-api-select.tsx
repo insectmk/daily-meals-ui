@@ -15,7 +15,7 @@ import {
 
 import { requestClient } from '#/api/request';
 
-export const useApiSelect = (option: ApiSelectProps) => {
+export function useApiSelect(option: ApiSelectProps) {
   return defineComponent({
     name: option.name,
     props: {
@@ -68,6 +68,11 @@ export const useApiSelect = (option: ApiSelectProps) => {
       remoteField: {
         type: String,
         default: 'label',
+      },
+      // 返回值类型（用于部门选择器等）：id 返回 ID，name 返回名称
+      returnType: {
+        type: String,
+        default: 'id',
       },
     },
     setup(props) {
@@ -129,10 +134,21 @@ export const useApiSelect = (option: ApiSelectProps) => {
 
       function parseOptions0(data: any[]) {
         if (Array.isArray(data)) {
-          options.value = data.map((item: any) => ({
-            label: parseExpression(item, props.labelField),
-            value: parseExpression(item, props.valueField),
-          }));
+          options.value = data.map((item: any) => {
+            const label = parseExpression(item, props.labelField);
+            let value = parseExpression(item, props.valueField);
+
+            // 根据 returnType 决定返回值
+            // 如果设置了 returnType 为 'name'，则返回 label 作为 value
+            if (props.returnType === 'name') {
+              value = label;
+            }
+
+            return {
+              label,
+              value,
+            };
+          });
           return;
         }
         console.warn(`接口[${props.url}] 返回结果不是一个数组`);
@@ -186,6 +202,12 @@ export const useApiSelect = (option: ApiSelectProps) => {
       });
 
       const buildSelect = () => {
+        const {
+          modelValue,
+          'onUpdate:modelValue': onUpdateModelValue,
+          ...restAttrs
+        } = attrs;
+
         if (props.multiple) {
           // fix：多写此步是为了解决 multiple 属性问题
           return (
@@ -193,8 +215,10 @@ export const useApiSelect = (option: ApiSelectProps) => {
               class="w-full"
               loading={loading.value}
               mode="multiple"
-              {...attrs}
-              // TODO: remote 对等实现
+              onUpdate:value={onUpdateModelValue as any}
+              value={modelValue as any}
+              {...restAttrs}
+              // TODO @xingyu remote 对等实现, 还是说没作用
               // remote={props.remote}
               {...(props.remote && { remoteMethod })}
             >
@@ -212,8 +236,10 @@ export const useApiSelect = (option: ApiSelectProps) => {
           <Select
             class="w-full"
             loading={loading.value}
-            {...attrs}
-            // TODO: @dhb52 remote 对等实现, 还是说没作用
+            onUpdate:value={onUpdateModelValue as any}
+            value={modelValue as any}
+            {...restAttrs}
+            // TODO: @xingyu remote 对等实现, 还是说没作用
             // remote={props.remote}
             {...(props.remote && { remoteMethod })}
           >
@@ -228,6 +254,11 @@ export const useApiSelect = (option: ApiSelectProps) => {
         );
       };
       const buildCheckbox = () => {
+        const {
+          modelValue,
+          'onUpdate:modelValue': onUpdateModelValue,
+          ...restAttrs
+        } = attrs;
         if (isEmpty(options.value)) {
           options.value = [
             { label: '选项1', value: '选项1' },
@@ -235,7 +266,12 @@ export const useApiSelect = (option: ApiSelectProps) => {
           ];
         }
         return (
-          <CheckboxGroup class="w-full" {...attrs}>
+          <CheckboxGroup
+            class="w-full"
+            onUpdate:value={onUpdateModelValue as any}
+            value={modelValue as any}
+            {...restAttrs}
+          >
             {options.value.map(
               (item: { label: any; value: any }, index: any) => (
                 <Checkbox key={index} value={item.value}>
@@ -247,6 +283,11 @@ export const useApiSelect = (option: ApiSelectProps) => {
         );
       };
       const buildRadio = () => {
+        const {
+          modelValue,
+          'onUpdate:modelValue': onUpdateModelValue,
+          ...restAttrs
+        } = attrs;
         if (isEmpty(options.value)) {
           options.value = [
             { label: '选项1', value: '选项1' },
@@ -254,7 +295,12 @@ export const useApiSelect = (option: ApiSelectProps) => {
           ];
         }
         return (
-          <RadioGroup class="w-full" {...attrs}>
+          <RadioGroup
+            class="w-full"
+            onUpdate:value={onUpdateModelValue as any}
+            value={modelValue as any}
+            {...restAttrs}
+          >
             {options.value.map(
               (item: { label: any; value: any }, index: any) => (
                 <Radio key={index} value={item.value}>
@@ -287,4 +333,4 @@ export const useApiSelect = (option: ApiSelectProps) => {
       );
     },
   });
-};
+}

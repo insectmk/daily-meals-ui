@@ -42,8 +42,10 @@ const [Modal, modalApi] = useVbenModal({
         paramsObj[param] = values[`param_${param}`];
       });
     }
-    const data: SystemMailTemplateApi.MailSendReq = {
-      mail: values.mail,
+    const data: SystemMailTemplateApi.MailSendReqVO = {
+      toMails: values.toMails,
+      ccMails: values.ccMails,
+      bccMails: values.bccMails,
       templateCode: formData.value?.code || '',
       templateParams: paramsObj,
     };
@@ -55,8 +57,6 @@ const [Modal, modalApi] = useVbenModal({
       await modalApi.close();
       emit('success');
       message.success('邮件发送成功');
-    } catch (error) {
-      console.error('发送邮件失败', error);
     } finally {
       modalApi.unlock();
     }
@@ -103,7 +103,7 @@ function buildFormSchema() {
 </script>
 
 <template>
-  <Modal title="测试发送邮件">
+  <Modal title="测试发送邮件" class="w-1/3">
     <Form class="mx-4" />
   </Modal>
 </template>

@@ -1,6 +1,6 @@
 {
   "name": "@vben/web-antd",
-  "version": "5.5.7",
+  "version": "5.5.9",
   "homepage": "https://vben.pro",
   "bugs": "https://github.com/vbenjs/vue-vben-admin/issues",
   "repository": {
@@ -43,20 +43,29 @@
     "@vben/styles": "workspace:*",
     "@vben/types": "workspace:*",
     "@vben/utils": "workspace:*",
+    "@videojs-player/vue": "catalog:",
     "@vueuse/core": "catalog:",
     "@vueuse/integrations": "catalog:",
     "ant-design-vue": "catalog:",
+    "benz-amr-recorder": "catalog:",
+    "bpmn-js": "catalog:",
+    "bpmn-js-properties-panel": "catalog:",
+    "bpmn-js-token-simulation": "catalog:",
+    "camunda-bpmn-moddle": "catalog:",
     "cropperjs": "catalog:",
-    "crypto-js": "catalog:",
     "dayjs": "catalog:",
+    "diagram-js": "catalog:",
+    "fast-xml-parser": "catalog:",
     "highlight.js": "catalog:",
     "pinia": "catalog:",
+    "steady-xml": "catalog:",
+    "tinymce": "catalog:",
+    "video.js": "catalog:",
     "vue": "catalog:",
     "vue-dompurify-html": "catalog:",
     "vue-router": "catalog:",
-    "vue3-signature": "catalog:"
-  },
-  "devDependencies": {
-    "@types/crypto-js": "catalog:"
+    "vue3-print-nb": "catalog:",
+    "vue3-signature": "catalog:",
+    "vuedraggable": "catalog:"
   }
 }

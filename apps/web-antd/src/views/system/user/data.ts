@@ -2,18 +2,16 @@ import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { SystemUserApi } from '#/api/system/user';
 
+import { CommonStatusEnum, DICT_TYPE } from '@vben/constants';
+import { getDictOptions } from '@vben/hooks';
+import { $t } from '@vben/locales';
 import { handleTree } from '@vben/utils';
 
 import { z } from '#/adapter/form';
 import { getDeptList } from '#/api/system/dept';
 import { getSimplePostList } from '#/api/system/post';
 import { getSimpleRoleList } from '#/api/system/role';
-import {
-  CommonStatusEnum,
-  DICT_TYPE,
-  getDictOptions,
-  getRangePickerDefaultProps,
-} from '#/utils';
+import { getRangePickerDefaultProps } from '#/utils';
 
 /** 新增/修改的表单 */
 export function useFormSchema(): VbenFormSchema[] {
@@ -30,6 +28,9 @@ export function useFormSchema(): VbenFormSchema[] {
       fieldName: 'username',
       label: '用户名称',
       component: 'Input',
+      componentProps: {
+        placeholder: '请输入用户名称',
+      },
       rules: 'required',
     },
     {
@@ -46,6 +47,9 @@ export function useFormSchema(): VbenFormSchema[] {
       fieldName: 'nickname',
       label: '用户昵称',
       component: 'Input',
+      componentProps: {
+        placeholder: '请输入用户昵称',
+      },
       rules: 'required',
     },
     {
@@ -81,11 +85,17 @@ export function useFormSchema(): VbenFormSchema[] {
       label: '邮箱',
       component: 'Input',
       rules: z.string().email('邮箱格式不正确').or(z.literal('')).optional(),
+      componentProps: {
+        placeholder: '请输入邮箱',
+      },
     },
     {
       fieldName: 'mobile',
       label: '手机号码',
       component: 'Input',
+      componentProps: {
+        placeholder: '请输入手机号码',
+      },
     },
     {
       fieldName: 'sex',
@@ -113,6 +123,9 @@ export function useFormSchema(): VbenFormSchema[] {
       fieldName: 'remark',
       label: '备注',
       component: 'Textarea',
+      componentProps: {
+        placeholder: '请输入备注',
+      },
     },
   ];
 }
@@ -129,31 +142,50 @@ export function useResetPasswordFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'newPassword',
-      label: '新密码',
-      component: 'InputPassword',
+      component: 'VbenInputPassword',
       componentProps: {
+        passwordStrength: true,
         placeholder: '请输入新密码',
       },
+      dependencies: {
+        rules(values) {
+          return z
+            .string({ message: '请输入新密码' })
+            .min(5, '密码长度不能少于 5 个字符')
+            .max(20, '密码长度不能超过 20 个字符')
+            .refine(
+              (value) => value !== values.oldPassword,
+              '新旧密码不能相同',
+            );
+        },
+        triggerFields: ['newPassword', 'oldPassword'],
+      },
+      fieldName: 'newPassword',
+      label: '新密码',
       rules: 'required',
     },
     {
-      fieldName: 'confirmPassword',
-      label: '确认密码',
-      component: 'InputPassword',
+      component: 'VbenInputPassword',
       componentProps: {
-        placeholder: '请再次输入新密码',
+        passwordStrength: true,
+        placeholder: $t('authentication.confirmPassword'),
       },
       dependencies: {
-        rules(values: Record<string, any>) {
-          const { newPassword } = values;
+        rules(values) {
           return z
-            .string()
-            .nonempty('确认密码不能为空')
-            .refine((value) => value === newPassword, '两次输入的密码不一致');
+            .string({ message: '请输入确认密码' })
+            .min(5, '密码长度不能少于 5 个字符')
+            .max(20, '密码长度不能超过 20 个字符')
+            .refine(
+              (value) => value === values.newPassword,
+              '新密码和确认密码不一致',
+            );
         },
-        triggerFields: ['newPassword'],
+        triggerFields: ['newPassword', 'confirmPassword'],
       },
+      fieldName: 'confirmPassword',
+      label: '确认密码',
+      rules: 'required',
     },
   ];
 }
@@ -258,10 +290,10 @@ export function useGridFormSchema(): VbenFormSchema[] {
 }
 
 /** 列表的字段 */
-export function useGridColumns<T = SystemUserApi.User>(
+export function useGridColumns(
   onStatusChange?: (
     newStatus: number,
-    row: T,
+    row: SystemUserApi.User,
   ) => PromiseLike<boolean | undefined>,
 ): VxeTableGridOptions['columns'] {
   return [
@@ -269,26 +301,32 @@ export function useGridColumns<T = SystemUserApi.User>(
     {
       field: 'id',
       title: '用户编号',
+      minWidth: 100,
     },
     {
       field: 'username',
       title: '用户名称',
+      minWidth: 120,
     },
     {
       field: 'nickname',
       title: '用户昵称',
+      minWidth: 120,
     },
     {
       field: 'deptName',
       title: '部门',
+      minWidth: 120,
     },
     {
       field: 'mobile',
       title: '手机号码',
+      minWidth: 120,
     },
     {
       field: 'status',
       title: '状态',
+      minWidth: 100,
       align: 'center',
       cellRender: {
         attrs: { beforeChange: onStatusChange },
@@ -302,6 +340,7 @@ export function useGridColumns<T = SystemUserApi.User>(
     {
       field: 'createTime',
       title: '创建时间',
+      minWidth: 180,
       formatter: 'formatDateTime',
     },
     {

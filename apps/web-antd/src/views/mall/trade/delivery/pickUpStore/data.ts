@@ -1,15 +1,13 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 
+import { CommonStatusEnum, DICT_TYPE } from '@vben/constants';
+import { getDictOptions } from '@vben/hooks';
+
 import { z } from '#/adapter/form';
 import { getAreaTree } from '#/api/system/area';
 import { getSimpleUserList } from '#/api/system/user';
-import {
-  CommonStatusEnum,
-  DICT_TYPE,
-  getDictOptions,
-  getRangePickerDefaultProps,
-} from '#/utils';
+import { getRangePickerDefaultProps } from '#/utils';
 
 /** 新增/修改的表单 */
 export function useFormSchema(): VbenFormSchema[] {
@@ -23,71 +21,72 @@ export function useFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      component: 'ImageUpload',
-      fieldName: 'logo',
-      label: '门店logo',
-      rules: 'required',
-    },
-    {
       component: 'Input',
       fieldName: 'name',
       label: '门店名称',
       rules: 'required',
+      componentProps: {
+        placeholder: '请输入门店名称',
+      },
     },
     {
       component: 'Input',
       fieldName: 'phone',
       label: '门店手机',
       rules: 'mobileRequired',
+      componentProps: {
+        placeholder: '请输入门店手机',
+      },
+    },
+    {
+      component: 'ImageUpload',
+      fieldName: 'logo',
+      label: '门店 logo',
+      rules: 'required',
+      formItemClass: 'col-span-2',
+      componentProps: {
+        placeholder: '请上传门店 logo',
+      },
+      help: '推荐 180x180 图片分辨率',
     },
     {
       component: 'Textarea',
       fieldName: 'introduction',
       label: '门店简介',
+      formItemClass: 'col-span-2',
+      componentProps: {
+        placeholder: '请输入门店简介',
+        rows: 4,
+      },
     },
     {
       fieldName: 'areaId',
-      label: '地址',
+      label: '门店所在地区',
       component: 'ApiTreeSelect',
+      rules: 'required',
       componentProps: {
-        api: () => getAreaTree(),
+        api: getAreaTree,
         fieldNames: { label: 'name', value: 'id', children: 'children' },
+        placeholder: '请选择省市区',
       },
     },
     {
       component: 'Input',
       fieldName: 'detailAddress',
-      label: '详细地址',
+      label: '门店详细地址',
       rules: 'required',
+      componentProps: {
+        placeholder: '请输入门店详细地址',
+      },
     },
     {
-      component: 'TimePicker',
-      fieldName: 'openingTime',
-      label: '营业开始时间',
+      component: 'TimeRangePicker',
+      fieldName: 'rangeTime',
+      label: '营业时间',
       rules: 'required',
-    },
-    {
-      component: 'TimePicker',
-      fieldName: 'closingTime',
-      label: '营业结束时间',
-      rules: 'required',
-    },
-    {
-      component: 'Input',
-      fieldName: 'longitude',
-      label: '经度',
-      rules: 'required',
-    },
-    {
-      component: 'Input',
-      fieldName: 'latitude',
-      label: '纬度',
-      rules: 'required',
-    },
-    {
-      component: 'Input',
-      fieldName: 'getGeo',
-      label: '获取经纬度',
+      componentProps: {
+        format: 'HH:mm',
+      },
     },
     {
       fieldName: 'status',
@@ -99,6 +98,24 @@ export function useFormSchema(): VbenFormSchema[] {
         optionType: 'button',
       },
       rules: z.number().default(CommonStatusEnum.ENABLE),
+    },
+    {
+      component: 'Input',
+      fieldName: 'longitude',
+      label: '经度',
+      rules: 'required',
+      componentProps: {
+        placeholder: '请输入门店经度',
+      },
+    },
+    {
+      component: 'Input',
+      fieldName: 'latitude',
+      label: '纬度',
+      rules: 'required',
+      componentProps: {
+        placeholder: '请输入门店纬度',
+      },
     },
   ];
 }
@@ -129,27 +146,12 @@ export function useBindFormSchema(): VbenFormSchema[] {
       label: '门店店员',
       rules: 'required',
       componentProps: {
-        api: () => getSimpleUserList(),
-        fieldNames: { label: 'nickname', value: 'id' },
+        api: getSimpleUserList,
+        labelField: 'nickname',
+        valueField: 'id',
         mode: 'tags',
         allowClear: true,
-      },
-    },
-    {
-      component: 'Select',
-      fieldName: 'verifyUsers',
-      label: '店员列表',
-      rules: 'required',
-      componentProps: {
-        options: [],
-        mode: 'tags',
-      },
-      dependencies: {
-        triggerFields: ['verifyUserIds'],
-        trigger(values, form) {
-          form.setFieldValue('verifyUsers', values.verifyUserIds);
-        },
-        disabled: true,
+        placeholder: '请选择门店店员',
       },
     },
   ];
@@ -162,11 +164,19 @@ export function useGridFormSchema(): VbenFormSchema[] {
       fieldName: 'phone',
       label: '门店手机',
       component: 'Input',
+      componentProps: {
+        placeholder: '请输入门店手机',
+        allowClear: true,
+      },
     },
     {
       fieldName: 'name',
       label: '门店名称',
       component: 'Input',
+      componentProps: {
+        placeholder: '请输入门店名称',
+        allowClear: true,
+      },
     },
     {
       fieldName: 'status',
@@ -175,6 +185,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       componentProps: {
         allowClear: true,
         options: getDictOptions(DICT_TYPE.COMMON_STATUS, 'number'),
+        placeholder: '请选择门店状态',
       },
     },
     {
@@ -195,10 +206,12 @@ export function useGridColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'id',
       title: '编号',
+      minWidth: 80,
     },
     {
       field: 'logo',
-      title: '门店logo',
+      title: '门店 logo',
+      minWidth: 100,
       cellRender: {
         name: 'CellImage',
       },
@@ -206,18 +219,22 @@ export function useGridColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'name',
       title: '门店名称',
+      minWidth: 150,
     },
     {
       field: 'phone',
       title: '门店手机',
+      minWidth: 120,
     },
     {
       field: 'detailAddress',
       title: '地址',
+      minWidth: 200,
     },
     {
       field: 'openingTime',
       title: '营业时间',
+      minWidth: 160,
       formatter: ({ row }) => {
         return `${row.openingTime} ~ ${row.closingTime}`;
       },
@@ -225,6 +242,7 @@ export function useGridColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'status',
       title: '开启状态',
+      minWidth: 100,
       cellRender: {
         name: 'CellDict',
         props: { type: DICT_TYPE.COMMON_STATUS },
@@ -233,11 +251,12 @@ export function useGridColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'createTime',
       title: '创建时间',
+      minWidth: 160,
       formatter: 'formatDateTime',
     },
     {
       title: '操作',
-      width: 200,
+      width: 220,
       fixed: 'right',
       slots: { default: 'actions' },
     },

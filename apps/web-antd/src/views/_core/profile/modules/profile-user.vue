@@ -14,7 +14,7 @@ import { CropperAvatar } from '#/components/cropper';
 import { useUpload } from '#/components/upload/use-upload';
 
 const props = defineProps<{
-  profile?: SystemUserProfileApi.UserProfileResp;
+  profile?: SystemUserProfileApi.UserProfileRespVO;
 }>();
 
 const emit = defineEmits<{
@@ -115,7 +115,11 @@ async function handelUpload({
               所属岗位
             </div>
           </template>
-          {{ profile.posts.map((post) => post.name).join(',') }}
+          {{
+            profile.posts && profile.posts.length > 0
+              ? profile.posts.map((post) => post.name).join(',')
+              : '-'
+          }}
         </DescriptionsItem>
         <DescriptionsItem>
           <template #label>

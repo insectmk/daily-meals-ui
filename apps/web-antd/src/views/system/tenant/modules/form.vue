@@ -27,8 +27,7 @@ const [Form, formApi] = useVbenForm({
       class: 'w-full',
     },
   },
-  // 一共2列
-  wrapperClass: 'grid-cols-2',
+  wrapperClass: 'grid-cols-1',
   layout: 'horizontal',
   schema: useFormSchema(),
   showDefaultActions: false,
@@ -65,7 +64,9 @@ const [Modal, modalApi] = useVbenModal({
     }
     modalApi.lock();
     try {
-      formData.value = await getTenant(data.id as number);
+      formData.value = await getTenant(data.id);
+      // @ts-ignore 特殊：https://gitee.com/yudaocode/yudao-ui-admin-vben/issues/ID43CX
+      formData.value.expireTime = String(formData.value.expireTime);
       // 设置到 values
       await formApi.setValues(formData.value);
     } finally {
@@ -75,7 +76,7 @@ const [Modal, modalApi] = useVbenModal({
 });
 </script>
 <template>
-  <Modal :title="getTitle" class="w-1/3">
+  <Modal :title="getTitle">
     <Form class="mx-4" />
   </Modal>
 </template>

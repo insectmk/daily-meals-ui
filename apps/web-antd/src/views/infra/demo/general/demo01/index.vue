@@ -1,10 +1,13 @@
 <script lang="ts" setup>
 import type { Demo01ContactApi } from '#/api/infra/demo/demo01';
 
-import { h, onMounted, reactive, ref } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 
-import { Page, useVbenModal } from '@vben/common-ui';
-import { Download, Plus, Trash2 } from '@vben/icons';
+import { ContentWrap, Page, useVbenModal } from '@vben/common-ui';
+import { DICT_TYPE } from '@vben/constants';
+import { getDictOptions } from '@vben/hooks';
+import { IconifyIcon } from '@vben/icons';
+import { useTableToolbar, VbenVxeTableToolbar } from '@vben/plugins/vxe-table';
 import {
   cloneDeep,
   downloadFileFromBlobPart,
@@ -29,12 +32,9 @@ import {
   exportDemo01Contact,
   getDemo01ContactPage,
 } from '#/api/infra/demo/demo01';
-import { ContentWrap } from '#/components/content-wrap';
 import { DictTag } from '#/components/dict-tag';
-import { TableToolbar } from '#/components/table-toolbar';
-import { useTableToolbar } from '#/hooks';
 import { $t } from '#/locales';
-import { DICT_TYPE, getDictOptions, getRangePickerDefaultProps } from '#/utils';
+import { getRangePickerDefaultProps } from '#/utils';
 
 import Demo01ContactForm from './modules/form.vue';
 
@@ -53,7 +53,7 @@ const queryFormRef = ref(); // 搜索的表单
 const exportLoading = ref(false); // 导出的加载中
 
 /** 查询列表 */
-const getList = async () => {
+async function getList() {
   loading.value = true;
   try {
     const params = cloneDeep(queryParams) as any;
@@ -66,19 +66,19 @@ const getList = async () => {
   } finally {
     loading.value = false;
   }
-};
+}
 
 /** 搜索按钮操作 */
-const handleQuery = () => {
+function handleQuery() {
   queryParams.pageNo = 1;
   getList();
-};
+}
 
 /** 重置按钮操作 */
-const resetQuery = () => {
+function resetQuery() {
   queryFormRef.value.resetFields();
   handleQuery();
-};
+}
 
 const [FormModal, formModalApi] = useVbenModal({
   connectedComponent: Demo01ContactForm,
@@ -87,7 +87,7 @@ const [FormModal, formModalApi] = useVbenModal({
 
 /** 创建示例联系人 */
 function handleCreate() {
-  formModalApi.setData({}).open();
+  formModalApi.setData(null).open();
 }
 
 /** 编辑示例联系人 */
@@ -103,7 +103,7 @@ async function handleDelete(row: Demo01ContactApi.Demo01Contact) {
     key: 'action_process_msg',
   });
   try {
-    await deleteDemo01Contact(row.id as number);
+    await deleteDemo01Contact(row.id!);
     message.success({
       content: $t('ui.actionMessage.deleteSuccess', [row.id]),
       key: 'action_process_msg',
@@ -123,6 +123,7 @@ async function handleDeleteBatch() {
   });
   try {
     await deleteDemo01ContactList(checkedIds.value);
+    checkedIds.value = [];
     message.success($t('ui.actionMessage.deleteSuccess'));
     await getList();
   } finally {
@@ -136,11 +137,11 @@ function handleRowCheckboxChange({
 }: {
   records: Demo01ContactApi.Demo01Contact[];
 }) {
-  checkedIds.value = records.map((item) => item.id);
+  checkedIds.value = records.map((item) => item.id!);
 }
 
 /** 导出表格 */
-async function onExport() {
+async function handleExport() {
   try {
     exportLoading.value = true;
     const data = await exportDemo01Contact(queryParams);
@@ -211,31 +212,30 @@ onMounted(() => {
     <!-- 列表 -->
     <ContentWrap title="示例联系人">
       <template #extra>
-        <TableToolbar
+        <VbenVxeTableToolbar
           ref="tableToolbarRef"
           v-model:hidden-search="hiddenSearchBar"
         >
           <Button
             class="ml-2"
-            :icon="h(Plus)"
             type="primary"
             @click="handleCreate"
             v-access:code="['infra:demo01-contact:create']"
           >
+            <IconifyIcon icon="lucide:plus" />
             {{ $t('ui.actionTitle.create', ['示例联系人']) }}
           </Button>
           <Button
-            :icon="h(Download)"
             type="primary"
             class="ml-2"
             :loading="exportLoading"
-            @click="onExport"
+            @click="handleExport"
             v-access:code="['infra:demo01-contact:export']"
           >
+            <IconifyIcon icon="lucide:download" />
             {{ $t('ui.actionTitle.export') }}
           </Button>
           <Button
-            :icon="h(Trash2)"
             type="primary"
             danger
             class="ml-2"
@@ -243,9 +243,10 @@ onMounted(() => {
             @click="handleDeleteBatch"
             v-access:code="['infra:demo01-contact:delete']"
           >
+            <IconifyIcon icon="lucide:trash-2" />
             批量删除
           </Button>
-        </TableToolbar>
+        </VbenVxeTableToolbar>
       </template>
       <VxeTable
         ref="tableRef"
@@ -280,7 +281,7 @@ onMounted(() => {
             <Button
               size="small"
               type="link"
-              @click="handleEdit(row as any)"
+              @click="handleEdit(row)"
               v-access:code="['infra:demo01-contact:update']"
             >
               {{ $t('ui.actionTitle.edit') }}
@@ -290,7 +291,7 @@ onMounted(() => {
               type="link"
               danger
               class="ml-2"
-              @click="handleDelete(row as any)"
+              @click="handleDelete(row)"
               v-access:code="['infra:demo01-contact:delete']"
             >
               {{ $t('ui.actionTitle.delete') }}

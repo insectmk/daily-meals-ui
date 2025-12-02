@@ -1,16 +1,14 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 
+import { AiModelTypeEnum, CommonStatusEnum, DICT_TYPE } from '@vben/constants';
+import { getDictOptions } from '@vben/hooks';
+
 import { z } from '#/adapter/form';
 import { getSimpleKnowledgeList } from '#/api/ai/knowledge/knowledge';
 import { getModelSimpleList } from '#/api/ai/model/model';
 import { getToolSimpleList } from '#/api/ai/model/tool';
-import {
-  AiModelTypeEnum,
-  CommonStatusEnum,
-  DICT_TYPE,
-  getDictOptions,
-} from '#/utils';
+
 /** 新增/修改的表单 */
 export function useFormSchema(): VbenFormSchema[] {
   return [
@@ -35,6 +33,9 @@ export function useFormSchema(): VbenFormSchema[] {
       fieldName: 'name',
       label: '角色名称',
       rules: 'required',
+      componentProps: {
+        placeholder: '请输入角色名称',
+      },
     },
     {
       component: 'ImageUpload',
@@ -65,6 +66,9 @@ export function useFormSchema(): VbenFormSchema[] {
       fieldName: 'category',
       label: '角色类别',
       rules: 'required',
+      componentProps: {
+        placeholder: '请输入角色类别',
+      },
       dependencies: {
         triggerFields: ['formType'],
         show: (values) => {
@@ -117,6 +121,17 @@ export function useFormSchema(): VbenFormSchema[] {
       },
     },
     {
+      fieldName: 'mcpClientNames',
+      label: '引用 MCP',
+      component: 'Select',
+      componentProps: {
+        placeholder: '请选择 MCP',
+        options: getDictOptions(DICT_TYPE.AI_MCP_CLIENT_NAME, 'string'),
+        mode: 'multiple',
+        allowClear: true,
+      },
+    },
+    {
       fieldName: 'publicStatus',
       label: '是否公开',
       component: 'RadioGroup',
@@ -139,9 +154,7 @@ export function useFormSchema(): VbenFormSchema[] {
       label: '角色排序',
       component: 'InputNumber',
       componentProps: {
-        controlsPosition: 'right',
         placeholder: '请输入角色排序',
-        class: 'w-full',
       },
       dependencies: {
         triggerFields: ['formType'],
@@ -178,11 +191,17 @@ export function useGridFormSchema(): VbenFormSchema[] {
       fieldName: 'name',
       label: '角色名称',
       component: 'Input',
+      componentProps: {
+        placeholder: '请输入角色名称',
+      },
     },
     {
       fieldName: 'category',
       label: '角色类别',
       component: 'Input',
+      componentProps: {
+        placeholder: '请输入角色类别',
+      },
     },
     {
       fieldName: 'publicStatus',
@@ -213,8 +232,15 @@ export function useGridColumns(): VxeTableGridOptions['columns'] {
     },
     {
       title: '角色头像',
-      slots: { default: 'avatar' },
+      field: 'avatar',
       minWidth: 140,
+      cellRender: {
+        name: 'CellImage',
+        props: {
+          width: 40,
+          height: 40,
+        },
+      },
     },
     {
       title: '角色类别',
@@ -233,13 +259,33 @@ export function useGridColumns(): VxeTableGridOptions['columns'] {
     },
     {
       title: '知识库',
-      slots: { default: 'knowledgeIds' },
+      field: 'knowledgeIds',
       minWidth: 100,
+      formatter: ({ cellValue }) => {
+        return !cellValue || cellValue.length === 0
+          ? '-'
+          : `引用${cellValue.length}个`;
+      },
     },
     {
       title: '工具',
-      slots: { default: 'toolIds' },
+      field: 'toolIds',
       minWidth: 100,
+      formatter: ({ cellValue }) => {
+        return !cellValue || cellValue.length === 0
+          ? '-'
+          : `引用${cellValue.length}个`;
+      },
+    },
+    {
+      title: 'MCP',
+      field: 'mcpClientNames',
+      minWidth: 100,
+      formatter: ({ cellValue }) => {
+        return !cellValue || cellValue.length === 0
+          ? '-'
+          : `引用${cellValue.length}个`;
+      },
     },
     {
       field: 'publicStatus',

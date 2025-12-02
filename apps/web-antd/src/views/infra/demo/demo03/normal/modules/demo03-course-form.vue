@@ -1,14 +1,13 @@
 <script lang="ts" setup>
-import type { OnActionClickParams } from '#/adapter/vxe-table';
 import type { Demo03StudentApi } from '#/api/infra/demo/demo03/normal';
 
-import { h, nextTick, watch } from 'vue';
+import { nextTick, watch } from 'vue';
 
-import { Plus } from '@vben/icons';
+import { IconifyIcon } from '@vben/icons';
 
 import { Button, Input } from 'ant-design-vue';
 
-import { useVbenVxeGrid } from '#/adapter/vxe-table';
+import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import { getDemo03CourseListByStudentId } from '#/api/infra/demo/demo03/normal';
 import { $t } from '#/locales';
 
@@ -18,22 +17,9 @@ const props = defineProps<{
   studentId?: number; // 学生编号（主表的关联字段）
 }>();
 
-/** 表格操作按钮的回调函数 */
-function onActionClick({
-  code,
-  row,
-}: OnActionClickParams<Demo03StudentApi.Demo03Course>) {
-  switch (code) {
-    case 'delete': {
-      onDelete(row);
-      break;
-    }
-  }
-}
-
 const [Grid, gridApi] = useVbenVxeGrid({
   gridOptions: {
-    columns: useDemo03CourseGridEditColumns(onActionClick),
+    columns: useDemo03CourseGridEditColumns(),
     border: true,
     showOverflow: true,
     autoResize: true,
@@ -51,14 +37,14 @@ const [Grid, gridApi] = useVbenVxeGrid({
 });
 
 /** 添加学生课程 */
-const onAdd = async () => {
+async function handleAdd() {
   await gridApi.grid.insertAt({} as Demo03StudentApi.Demo03Course, -1);
-};
+}
 
 /** 删除学生课程 */
-const onDelete = async (row: Demo03StudentApi.Demo03Course) => {
+async function handleDelete(row: Demo03StudentApi.Demo03Course) {
   await gridApi.grid.remove(row);
-};
+}
 
 /** 提供获取表格数据的方法供父组件调用 */
 defineExpose({
@@ -68,9 +54,12 @@ defineExpose({
       gridApi.grid.getRemoveRecords() as Demo03StudentApi.Demo03Course[];
     const insertRecords =
       gridApi.grid.getInsertRecords() as Demo03StudentApi.Demo03Course[];
-    return data
-      .filter((row) => !removeRecords.some((removed) => removed.id === row.id))
-      .concat(insertRecords.map((row: any) => ({ ...row, id: undefined })));
+    return [
+      ...data.filter(
+        (row) => !removeRecords.some((removed) => removed.id === row.id),
+      ),
+      ...insertRecords.map((row: any) => ({ ...row, id: undefined })),
+    ];
   },
 });
 
@@ -98,15 +87,32 @@ watch(
     <template #score="{ row }">
       <Input v-model:value="row.score" />
     </template>
+    <template #actions="{ row }">
+      <TableAction
+        :actions="[
+          {
+            label: $t('common.delete'),
+            danger: true,
+            type: 'link',
+            icon: ACTION_ICON.DELETE,
+            auth: ['infra:demo03-student:delete'],
+            popConfirm: {
+              title: $t('ui.actionMessage.deleteConfirm', [row.id]),
+              confirm: handleDelete.bind(null, row),
+            },
+          },
+        ]"
+      />
+    </template>
   </Grid>
   <div class="-mt-4 flex justify-center">
     <Button
-      :icon="h(Plus)"
       type="primary"
       ghost
-      @click="onAdd"
+      @click="handleAdd"
       v-access:code="['infra:demo03-student:create']"
     >
+      <IconifyIcon icon="lucide:plus" />
       {{ $t('ui.actionTitle.create', ['学生课程']) }}
     </Button>
   </div>

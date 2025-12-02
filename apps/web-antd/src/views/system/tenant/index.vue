@@ -1,11 +1,10 @@
 <script lang="ts" setup>
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { SystemTenantApi } from '#/api/system/tenant';
-import type { SystemTenantPackageApi } from '#/api/system/tenant-package';
 
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 
-import { DocAlert, Page, useVbenModal } from '@vben/common-ui';
+import { confirm, DocAlert, Page, useVbenModal } from '@vben/common-ui';
 import { downloadFileFromBlobPart, isEmpty } from '@vben/utils';
 
 import { message } from 'ant-design-vue';
@@ -17,21 +16,10 @@ import {
   exportTenant,
   getTenantPage,
 } from '#/api/system/tenant';
-import { getTenantPackageList } from '#/api/system/tenant-package';
 import { $t } from '#/locales';
 
 import { useGridColumns, useGridFormSchema } from './data';
 import Form from './modules/form.vue';
-
-const tenantPackageList = ref<SystemTenantPackageApi.TenantPackage[]>([]);
-
-/** 获取套餐名称 */
-const getPackageName = (packageId: number) => {
-  if (packageId === 0) {
-    return '系统租户';
-  }
-  return tenantPackageList.value.find((pkg) => pkg.id === packageId)?.name;
-};
 
 const [FormModal, formModalApi] = useVbenModal({
   connectedComponent: Form,
@@ -39,7 +27,7 @@ const [FormModal, formModalApi] = useVbenModal({
 });
 
 /** 刷新表格 */
-function onRefresh() {
+function handleRefresh() {
   gridApi.query();
 }
 
@@ -63,15 +51,29 @@ function handleEdit(row: SystemTenantApi.Tenant) {
 async function handleDelete(row: SystemTenantApi.Tenant) {
   const hideLoading = message.loading({
     content: $t('ui.actionMessage.deleting', [row.name]),
-    key: 'action_key_msg',
+    duration: 0,
   });
   try {
-    await deleteTenant(row.id as number);
-    message.success({
-      content: $t('ui.actionMessage.deleteSuccess', [row.name]),
-      key: 'action_key_msg',
-    });
-    onRefresh();
+    await deleteTenant(row.id!);
+    message.success($t('ui.actionMessage.deleteSuccess', [row.name]));
+    handleRefresh();
+  } finally {
+    hideLoading();
+  }
+}
+
+/** 批量删除租户 */
+async function handleDeleteBatch() {
+  await confirm($t('ui.actionMessage.deleteBatchConfirm'));
+  const hideLoading = message.loading({
+    content: $t('ui.actionMessage.deletingBatch'),
+    duration: 0,
+  });
+  try {
+    await deleteTenantList(checkedIds.value);
+    checkedIds.value = [];
+    message.success($t('ui.actionMessage.deleteSuccess'));
+    handleRefresh();
   } finally {
     hideLoading();
   }
@@ -83,23 +85,7 @@ function handleRowCheckboxChange({
 }: {
   records: SystemTenantApi.Tenant[];
 }) {
-  checkedIds.value = records.map((item) => item.id as number);
-}
-
-/** 批量删除租户 */
-async function handleDeleteBatch() {
-  const hideLoading = message.loading({
-    content: $t('ui.actionMessage.deleting'),
-    duration: 0,
-    key: 'action_process_msg',
-  });
-  try {
-    await deleteTenantList(checkedIds.value);
-    message.success($t('ui.actionMessage.deleteSuccess'));
-    onRefresh();
-  } finally {
-    hideLoading();
-  }
+  checkedIds.value = records.map((item) => item.id!);
 }
 
 const [Grid, gridApi] = useVbenVxeGrid({
@@ -107,7 +93,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     schema: useGridFormSchema(),
   },
   gridOptions: {
-    columns: useGridColumns(getPackageName),
+    columns: useGridColumns(),
     height: 'auto',
     keepSource: true,
     proxyConfig: {
@@ -126,7 +112,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
       isHover: true,
     },
     toolbarConfig: {
-      refresh: { code: 'query' },
+      refresh: true,
       search: true,
     },
   } as VxeTableGridOptions<SystemTenantApi.Tenant>,
@@ -135,11 +121,6 @@ const [Grid, gridApi] = useVbenVxeGrid({
     checkboxChange: handleRowCheckboxChange,
   },
 });
-
-/** 初始化 */
-onMounted(async () => {
-  tenantPackageList.value = await getTenantPackageList();
-});
 </script>
 <template>
   <Page auto-content-height>
@@ -147,7 +128,7 @@ onMounted(async () => {
       <DocAlert title="SaaS 多租户" url="https://doc.iocoder.cn/saas-tenant/" />
     </template>
 
-    <FormModal @success="onRefresh" />
+    <FormModal @success="handleRefresh" />
     <Grid table-title="租户列表">
       <template #toolbar-tools>
         <TableAction
@@ -167,11 +148,11 @@ onMounted(async () => {
               onClick: handleExport,
             },
             {
-              label: '批量删除',
+              label: $t('ui.actionTitle.deleteBatch'),
               type: 'primary',
               danger: true,
-              disabled: isEmpty(checkedIds),
               icon: ACTION_ICON.DELETE,
+              disabled: isEmpty(checkedIds),
               auth: ['system:tenant:delete'],
               onClick: handleDeleteBatch,
             },

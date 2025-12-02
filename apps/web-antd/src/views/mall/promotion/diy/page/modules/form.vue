@@ -45,12 +45,6 @@ const [Modal, modalApi] = useVbenModal({
     modalApi.lock();
     // 提交表单
     const data = (await formApi.getValues()) as MallDiyPageApi.DiyPage;
-
-    // 确保必要的默认值
-    if (!data.previewPicUrls) {
-      data.previewPicUrls = [];
-    }
-
     try {
       await (formData.value?.id ? updateDiyPage(data) : createDiyPage(data));
       // 关闭并提示
@@ -73,11 +67,9 @@ const [Modal, modalApi] = useVbenModal({
     }
     modalApi.lock();
     try {
-      formData.value = await getDiyPage(data.id as number);
+      formData.value = await getDiyPage(data.id);
       // 设置到 values
-      if (formData.value) {
-        await formApi.setValues(formData.value);
-      }
+      await formApi.setValues(formData.value);
     } finally {
       modalApi.unlock();
     }
@@ -86,7 +78,7 @@ const [Modal, modalApi] = useVbenModal({
 </script>
 
 <template>
-  <Modal class="w-2/5" :title="getTitle">
+  <Modal :title="getTitle" class="w-2/5">
     <Form />
   </Modal>
 </template>

@@ -67,11 +67,11 @@ export function deleteClue(id: number) {
 
 /** 导出线索 */
 export function exportClue(params: any) {
-  return requestClient.download('/crm/clue/export-excel', params);
+  return requestClient.download('/crm/clue/export-excel', { params });
 }
 
 /** 线索转移 */
-export function transferClue(data: CrmPermissionApi.TransferReq) {
+export function transferClue(data: CrmPermissionApi.BusinessTransferReqVO) {
   return requestClient.put('/crm/clue/transfer', data);
 }
 

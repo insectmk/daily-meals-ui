@@ -1,6 +1,8 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 
+import { DICT_TYPE } from '@vben/constants';
+import { getDictOptions } from '@vben/hooks';
 import { useUserStore } from '@vben/stores';
 
 import { getContractSimpleList } from '#/api/crm/contract';
@@ -10,7 +12,6 @@ import {
   getReceivablePlanSimpleList,
 } from '#/api/crm/receivable/plan';
 import { getSimpleUserList } from '#/api/system/user';
-import { DICT_TYPE, getDictOptions } from '#/utils';
 
 /** 新增/修改的表单 */
 export function useFormSchema(): VbenFormSchema[] {
@@ -38,13 +39,16 @@ export function useFormSchema(): VbenFormSchema[] {
       label: '负责人',
       component: 'ApiSelect',
       rules: 'required',
+      dependencies: {
+        triggerFields: ['id'],
+        disabled: (values) => values.id,
+      },
       componentProps: {
-        api: () => getSimpleUserList(),
-        fieldNames: {
-          label: 'nickname',
-          value: 'id',
-        },
+        api: getSimpleUserList,
+        labelField: 'nickname',
+        valueField: 'id',
         placeholder: '请选择负责人',
+        allowClear: true,
       },
       defaultValue: userStore.userInfo?.id,
     },
@@ -54,12 +58,14 @@ export function useFormSchema(): VbenFormSchema[] {
       component: 'ApiSelect',
       rules: 'required',
       componentProps: {
-        api: () => getCustomerSimpleList(),
-        fieldNames: {
-          label: 'name',
-          value: 'id',
-        },
+        api: getCustomerSimpleList,
+        labelField: 'name',
+        valueField: 'id',
         placeholder: '请选择客户',
+      },
+      dependencies: {
+        triggerFields: ['id'],
+        disabled: (values) => values.id,
       },
     },
     {
@@ -69,16 +75,18 @@ export function useFormSchema(): VbenFormSchema[] {
       rules: 'required',
       dependencies: {
         triggerFields: ['customerId'],
-        disabled: (values) => !values.customerId,
+        disabled: (values) => !values.customerId || values.id,
         async componentProps(values) {
           if (values.customerId) {
-            values.contractId = undefined;
+            if (!values.id) {
+              // 特殊：只有在【新增】时，才清空合同编号
+              values.contractId = undefined;
+            }
             const contracts = await getContractSimpleList(values.customerId);
             return {
               options: contracts.map((item) => ({
                 label: item.name,
                 value: item.id,
-                disabled: item.auditStatus !== 20,
               })),
               placeholder: '请选择合同',
             } as any;
@@ -119,14 +127,12 @@ export function useFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'returnTime',
-      label: '回款日期',
-      component: 'DatePicker',
+      fieldName: 'returnType',
+      label: '回款方式',
+      component: 'Select',
       componentProps: {
-        placeholder: '请选择回款日期',
-        showTime: false,
-        valueFormat: 'x',
-        format: 'YYYY-MM-DD',
+        options: getDictOptions(DICT_TYPE.CRM_RECEIVABLE_RETURN_TYPE, 'number'),
+        placeholder: '请选择回款方式',
       },
     },
     {
@@ -141,13 +147,15 @@ export function useFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'returnType',
-      label: '回款方式',
-      component: 'Select',
+      fieldName: 'returnTime',
+      label: '回款日期',
+      component: 'DatePicker',
       rules: 'required',
       componentProps: {
-        options: getDictOptions(DICT_TYPE.CRM_RECEIVABLE_RETURN_TYPE, 'number'),
-        placeholder: '请选择回款方式',
+        placeholder: '请选择回款日期',
+        showTime: false,
+        valueFormat: 'x',
+        format: 'YYYY-MM-DD',
       },
     },
     {
@@ -158,6 +166,7 @@ export function useFormSchema(): VbenFormSchema[] {
         placeholder: '请输入备注',
         rows: 4,
       },
+      formItemClass: 'md:col-span-2',
     },
   ];
 }
@@ -169,18 +178,21 @@ export function useGridFormSchema(): VbenFormSchema[] {
       fieldName: 'no',
       label: '回款编号',
       component: 'Input',
+      componentProps: {
+        placeholder: '请输入回款编号',
+        allowClear: true,
+      },
     },
     {
       fieldName: 'customerId',
       label: '客户',
       component: 'ApiSelect',
       componentProps: {
-        api: () => getCustomerSimpleList(),
-        fieldNames: {
-          label: 'name',
-          value: 'id',
-        },
+        api: getCustomerSimpleList,
+        labelField: 'name',
+        valueField: 'id',
         placeholder: '请选择客户',
+        allowClear: true,
       },
     },
   ];
@@ -191,7 +203,7 @@ export function useGridColumns(): VxeTableGridOptions['columns'] {
     {
       title: '回款编号',
       field: 'no',
-      minWidth: 150,
+      minWidth: 160,
       fixed: 'left',
       slots: { default: 'no' },
     },
@@ -204,7 +216,7 @@ export function useGridColumns(): VxeTableGridOptions['columns'] {
     {
       title: '合同编号',
       field: 'contract',
-      minWidth: 150,
+      minWidth: 160,
       slots: { default: 'contractNo' },
     },
     {
@@ -279,7 +291,7 @@ export function useGridColumns(): VxeTableGridOptions['columns'] {
     {
       title: '操作',
       field: 'actions',
-      width: 130,
+      minWidth: 200,
       fixed: 'right',
       slots: { default: 'actions' },
     },

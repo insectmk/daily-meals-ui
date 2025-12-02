@@ -3,9 +3,12 @@ import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 
 import { h } from 'vue';
 
+import { DICT_TYPE } from '@vben/constants';
+import { getDictOptions } from '@vben/hooks';
+
 import { ElTag } from 'element-plus';
 
-import { DICT_TYPE, getDictOptions, getRangePickerDefaultProps } from '#/utils';
+import { getRangePickerDefaultProps } from '#/utils';
 
 /** 列表的搜索表单 */
 export function useGridFormSchema(): VbenFormSchema[] {
@@ -14,13 +17,18 @@ export function useGridFormSchema(): VbenFormSchema[] {
       fieldName: 'nickname',
       label: '用户',
       component: 'Input',
+      componentProps: {
+        placeholder: '请输入用户昵称',
+        clearable: true,
+      },
     },
     {
       fieldName: 'bizType',
       label: '业务类型',
       component: 'Select',
       componentProps: {
-        allowClear: true,
+        placeholder: '请选择业务类型',
+        clearable: true,
         options: getDictOptions(DICT_TYPE.MEMBER_POINT_BIZ_TYPE, 'number'),
       },
     },
@@ -28,6 +36,10 @@ export function useGridFormSchema(): VbenFormSchema[] {
       fieldName: 'title',
       label: '积分标题',
       component: 'Input',
+      componentProps: {
+        placeholder: '请输入积分标题',
+        clearable: true,
+      },
     },
     {
       fieldName: 'createDate',
@@ -35,7 +47,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       component: 'RangePicker',
       componentProps: {
         ...getRangePickerDefaultProps(),
-        allowClear: true,
+        clearable: true,
       },
     },
   ];
@@ -47,26 +59,29 @@ export function useGridColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'id',
       title: '编号',
+      minWidth: 100,
     },
     {
       field: 'createTime',
       title: '获得时间',
+      minWidth: 180,
       formatter: 'formatDateTime',
     },
     {
       field: 'nickname',
       title: '用户',
+      minWidth: 150,
     },
     {
       field: 'point',
       title: '获得积分',
+      minWidth: 120,
       slots: {
         default: ({ row }) => {
           return h(
             ElTag,
             {
-              class: 'mr-1',
-              color: row.point > 0 ? 'blue' : 'red',
+              type: row.point > 0 ? 'primary' : 'danger',
             },
             () => (row.point > 0 ? `+${row.point}` : row.point),
           );
@@ -76,22 +91,27 @@ export function useGridColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'totalPoint',
       title: '总积分',
+      minWidth: 100,
     },
     {
       field: 'title',
       title: '标题',
+      minWidth: 200,
     },
     {
       field: 'description',
       title: '描述',
+      minWidth: 200,
     },
     {
       field: 'bizId',
       title: '业务编码',
+      minWidth: 120,
     },
     {
       field: 'bizType',
       title: '业务类型',
+      minWidth: 120,
       cellRender: {
         name: 'CellDict',
         props: { type: DICT_TYPE.MEMBER_POINT_BIZ_TYPE },

@@ -1,6 +1,6 @@
 {
   "name": "@vben/web-ele",
-  "version": "5.5.7",
+  "version": "5.5.9",
   "homepage": "https://vben.pro",
   "bugs": "https://github.com/vbenjs/vue-vben-admin/issues",
   "repository": {
@@ -26,8 +26,8 @@
     "#/*": "./src/*"
   },
   "dependencies": {
-    "@form-create/designer": "^3.2.6",
-    "@form-create/element-ui": "^3.2.11",
+    "@form-create/designer": "catalog:",
+    "@form-create/element-ui": "catalog:",
     "@tinymce/tinymce-vue": "catalog:",
     "@vben/access": "workspace:*",
     "@vben/common-ui": "workspace:*",
@@ -43,15 +43,23 @@
     "@vben/styles": "workspace:*",
     "@vben/types": "workspace:*",
     "@vben/utils": "workspace:*",
+    "@videojs-player/vue": "catalog:",
     "@vueuse/core": "catalog:",
+    "@vueuse/integrations": "catalog:",
+    "benz-amr-recorder": "catalog:",
     "cropperjs": "catalog:",
-    "crypto-js": "catalog:",
     "dayjs": "catalog:",
     "element-plus": "catalog:",
     "highlight.js": "catalog:",
     "pinia": "catalog:",
+    "tinymce": "catalog:",
+    "video.js": "catalog:",
     "vue": "catalog:",
-    "vue-router": "catalog:"
+    "vue-dompurify-html": "catalog:",
+    "vue-router": "catalog:",
+    "vue3-print-nb": "catalog:",
+    "vue3-signature": "catalog:",
+    "vuedraggable": "catalog:"
   },
   "devDependencies": {
     "unplugin-element-plus": "catalog:"

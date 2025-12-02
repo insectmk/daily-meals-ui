@@ -6,6 +6,9 @@ import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
 import { confirm } from '@vben/common-ui';
+import { DICT_TYPE, SystemUserSocialTypeEnum } from '@vben/constants';
+import { getDictLabel } from '@vben/hooks';
+import { getUrlValue } from '@vben/utils';
 
 import { Button, Card, Image, message } from 'ant-design-vue';
 
@@ -17,7 +20,6 @@ import {
   socialUnbind,
 } from '#/api/system/social/user';
 import { $t } from '#/locales';
-import { DICT_TYPE, getDictLabel, SystemUserSocialTypeEnum } from '#/utils';
 
 const emit = defineEmits<{
   (e: 'update:activeName', v: string): void;
@@ -147,13 +149,6 @@ async function bindSocial() {
   await gridApi.reload();
   // 清理 URL 参数，避免刷新重复触发
   window.history.replaceState({}, '', location.pathname);
-}
-
-// TODO @芋艿：后续搞到 util 里；
-// 双层 encode 需要在回调后进行 decode
-function getUrlValue(key: string): string {
-  const url = new URL(decodeURIComponent(location.href));
-  return url.searchParams.get(key) ?? '';
 }
 
 /** 初始化 */

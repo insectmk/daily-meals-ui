@@ -4,12 +4,14 @@ import type { DescriptionItemSchema } from '#/components/description';
 
 import { h } from 'vue';
 
+import { DICT_TYPE } from '@vben/constants';
+import { getDictOptions } from '@vben/hooks';
 import { erpPriceInputFormatter, formatDateTime } from '@vben/utils';
 
 import { ElTag } from 'element-plus';
 
 import { DictTag } from '#/components/dict-tag';
-import { DICT_TYPE, getDictOptions, getRangePickerDefaultProps } from '#/utils';
+import { getRangePickerDefaultProps } from '#/utils';
 
 /** 列表的搜索表单 */
 export function useGridFormSchema(): VbenFormSchema[] {
@@ -19,7 +21,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       label: '转账单号',
       component: 'Input',
       componentProps: {
-        allowClear: true,
+        clearable: true,
         placeholder: '请输入转账单号',
       },
     },
@@ -29,7 +31,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       component: 'Select',
       componentProps: {
         options: getDictOptions(DICT_TYPE.PAY_CHANNEL_CODE),
-        allowClear: true,
+        clearable: true,
         placeholder: '请选择支付渠道',
       },
     },
@@ -38,7 +40,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       label: '商户单号',
       component: 'Input',
       componentProps: {
-        allowClear: true,
+        clearable: true,
         placeholder: '请输入商户单号',
       },
     },
@@ -48,7 +50,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       component: 'Select',
       componentProps: {
         options: getDictOptions(DICT_TYPE.PAY_TRANSFER_TYPE),
-        allowClear: true,
+        clearable: true,
         placeholder: '请选择类型',
       },
     },
@@ -58,7 +60,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       component: 'Select',
       componentProps: {
         options: getDictOptions(DICT_TYPE.PAY_TRANSFER_STATUS),
-        allowClear: true,
+        clearable: true,
         placeholder: '请选择转账状态',
       },
     },
@@ -67,16 +69,16 @@ export function useGridFormSchema(): VbenFormSchema[] {
       label: '收款人姓名',
       component: 'Input',
       componentProps: {
-        allowClear: true,
+        clearable: true,
         placeholder: '请输入收款人姓名',
       },
     },
     {
-      fieldName: 'accountNo',
+      fieldName: 'userAccount',
       label: '收款人账号',
       component: 'Input',
       componentProps: {
-        allowClear: true,
+        clearable: true,
         placeholder: '请输入收款人账号',
       },
     },
@@ -85,7 +87,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       label: '渠道单号',
       component: 'Input',
       componentProps: {
-        allowClear: true,
+        clearable: true,
         placeholder: '请输入渠道单号',
       },
     },
@@ -95,7 +97,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       component: 'RangePicker',
       componentProps: {
         ...getRangePickerDefaultProps(),
-        allowClear: true,
+        clearable: true,
       },
     },
   ];
@@ -107,96 +109,93 @@ export function useGridColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'id',
       title: '编号',
-    },
-    {
-      field: 'createTime',
-      title: '创建时间',
-      formatter: 'formatDateTime',
-    },
-    {
-      field: 'appName',
-      title: '支付应用',
+      minWidth: 100,
     },
     {
       field: 'price',
       title: '转账金额',
+      minWidth: 120,
       formatter: 'formatAmount2',
+    },
+    {
+      field: 'merchantTransferId',
+      title: '转账单号',
+      minWidth: 350,
+      slots: {
+        default: 'no',
+      },
     },
     {
       field: 'status',
       title: '转账状态',
+      minWidth: 120,
       cellRender: {
         name: 'CellDict',
         props: { type: DICT_TYPE.PAY_TRANSFER_STATUS },
       },
     },
     {
-      field: 'type',
-      title: '类型',
-      cellRender: {
-        name: 'CellDict',
-        props: { type: DICT_TYPE.PAY_TRANSFER_TYPE },
-      },
-    },
-    {
       field: 'channelCode',
-      title: '支付渠道',
+      title: '转账渠道',
+      minWidth: 140,
       cellRender: {
         name: 'CellDict',
         props: { type: DICT_TYPE.PAY_CHANNEL_CODE },
       },
     },
     {
-      field: 'merchantTransferId',
-      title: '商户单号',
+      field: 'createTime',
+      title: '创建时间',
+      minWidth: 180,
+      formatter: 'formatDateTime',
     },
     {
-      field: 'channelTransferNo',
-      title: '渠道单号',
+      field: 'successTime',
+      title: '转账时间',
+      minWidth: 180,
+      formatter: 'formatDateTime',
+    },
+    {
+      field: 'subject',
+      title: '转账标题',
+      minWidth: 150,
+    },
+    {
+      field: 'appName',
+      title: '支付应用',
+      minWidth: 150,
     },
     {
       field: 'userName',
       title: '收款人姓名',
+      minWidth: 150,
     },
     {
-      field: 'accountNo',
-      title: '收款人账号',
+      field: 'userAccount',
+      title: '收款账号',
+      minWidth: 200,
     },
     {
       title: '操作',
-      width: 120,
+      width: 80,
       fixed: 'right',
       slots: { default: 'actions' },
     },
   ];
 }
 
-/** 详情的配置 */
+/** 详情的字段 */
 export function useDetailSchema(): DescriptionItemSchema[] {
   return [
     {
-      field: 'id',
-      label: '编号',
-    },
-    {
       field: 'merchantTransferId',
       label: '商户单号',
-      content: (data) => {
-        return h(ElTag, {
-          color: 'blue',
-          content: data?.merchantTransferId,
-        });
-      },
+      render: (val) => h(ElTag, {}, () => val),
     },
     {
       field: 'no',
       label: '转账单号',
-      content: (data) => {
-        return h(ElTag, {
-          color: 'blue',
-          content: data?.no,
-        });
-      },
+      render: (val) => h(ElTag, { color: 'orange' }, () => val),
     },
     {
       field: 'appId',
@@ -205,31 +204,31 @@ export function useDetailSchema(): DescriptionItemSchema[] {
     {
       field: 'status',
       label: '转账状态',
-      content: (data) =>
+      render: (val) =>
         h(DictTag, {
           type: DICT_TYPE.PAY_TRANSFER_STATUS,
-          value: data?.status,
+          value: val,
         }),
     },
     {
       field: 'price',
       label: '转账金额',
-      content: (data) => {
-        return h(ElTag, {
-          color: 'blue',
-          content: `￥${erpPriceInputFormatter(data?.price)}`,
-        });
-      },
+      render: (val) =>
+        h(
+          ElTag,
+          { color: 'success' },
+          () => `￥${erpPriceInputFormatter(val || 0)}`,
+        ),
     },
     {
       field: 'successTime',
       label: '转账时间',
-      content: (data) => formatDateTime(data?.successTime) as string,
+      render: (val) => formatDateTime(val) as string,
     },
     {
       field: 'createTime',
       label: '创建时间',
-      content: (data) => formatDateTime(data?.createTime) as string,
+      render: (val) => formatDateTime(val) as string,
     },
     {
       field: 'userName',
@@ -242,25 +241,20 @@ export function useDetailSchema(): DescriptionItemSchema[] {
     {
       field: 'channelCode',
       label: '支付渠道',
-      content: (data) =>
+      render: (val) =>
         h(DictTag, {
           type: DICT_TYPE.PAY_CHANNEL_CODE,
-          value: data?.channelCode,
+          value: val,
         }),
     },
     {
-      field: 'channelCode',
+      field: 'userIp',
       label: '支付 IP',
     },
     {
       field: 'channelTransferNo',
       label: '渠道单号',
-      content: (data) => {
-        return h(ElTag, {
-          color: 'blue',
-          content: data?.channelTransferNo,
-        });
-      },
+      render: (val) => (val ? h(ElTag, { color: 'success' }, () => val) : ''),
     },
     {
       field: 'notifyUrl',
