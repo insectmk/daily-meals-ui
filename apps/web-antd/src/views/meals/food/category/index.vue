@@ -21,7 +21,7 @@ import {
 } from '#/api/meals/foodcategory';
 import { $t } from '#/locales';
 
-import { useGridColumns, useGridFormSchema } from './data';
+import useGridColumns, { useGridFormSchema } from './data';
 import Form from './modules/form.vue';
 
 const [FormModal, formModalApi] = useVbenModal({

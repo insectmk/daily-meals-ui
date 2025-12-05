@@ -173,6 +173,16 @@ const IOT_DICT = {
   IOT_VALIDATE_TYPE: 'iot_validate_type', // IOT 数据校验级别
 } as const;
 
+/** ========== MEALS - 每日饭菜模块 ========== */
+const MEALS_DICT = {
+  MEALS_RECIPE_TYPE: 'meals_recipe_type', // 菜谱类型
+  MEALS_RECIPE_TAG: 'meals_recipe_tag', // 菜谱标签
+  MEALS_RECIPE_LEVEL: 'meals_recipe_level', // 菜谱烹饪难度
+  MEALS_FOOD_TYPE: 'meals_food_type', // 食材分类
+  MEALS_FOOD_UNIT: 'meals_food_unit', // 食材单位
+  MEALS_MEAL_TYPE: 'meals_meal_type', // 餐次类型
+} as const;
+
 /** 字典类型枚举 - 统一导出 */
 const DICT_TYPE = {
   ...AI_DICT,
@@ -187,6 +197,7 @@ const DICT_TYPE = {
   ...MALL_DICT,
   ...SYSTEM_DICT,
   ...COMMON_DICT,
+  ...MEALS_DICT,
 } as const;
 
 export { DICT_TYPE };

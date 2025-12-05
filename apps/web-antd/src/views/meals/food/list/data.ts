@@ -1,15 +1,15 @@
 import type { VxeTableGridOptions } from '@vben/plugins/vxe-table';
 
 import type { VbenFormSchema } from '#/adapter/form';
-import type { OnActionClickFn } from '#/adapter/vxe-table';
 import type { MealsFoodApi } from '#/api/meals/food';
 
 import { useAccess } from '@vben/access';
+import { DICT_TYPE } from '@vben/constants';
+import { getDictOptions } from '@vben/hooks';
 import { handleTree } from '@vben/utils';
 
 import { getFoodCategoryList } from '#/api/meals/foodcategory';
 import { getRangePickerDefaultProps } from '#/utils';
-import { DICT_TYPE, getDictOptions } from '#/utils/dict';
 
 const { hasAccessByCodes } = useAccess();
 
@@ -133,7 +133,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
 
 /** 列表的字段 */
 export function useGridColumns(
-  onActionClick?: OnActionClickFn<MealsFoodApi.Food>,
+  onActionClick?: any,
 ): VxeTableGridOptions<MealsFoodApi.Food>['columns'] {
   return [
     {

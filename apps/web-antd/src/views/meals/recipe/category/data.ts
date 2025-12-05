@@ -1,15 +1,15 @@
 import type { VxeTableGridOptions } from '@vben/plugins/vxe-table';
 
 import type { VbenFormSchema } from '#/adapter/form';
-import type { OnActionClickFn } from '#/adapter/vxe-table';
 import type { MealsRecipeCategoryApi } from '#/api/meals/recipecategory';
 
 import { useAccess } from '@vben/access';
+import { DICT_TYPE } from '@vben/constants';
+import { getDictOptions } from '@vben/hooks';
 import { handleTree } from '@vben/utils';
 
 import { getRecipeCategoryList } from '#/api/meals/recipecategory';
 import { getRangePickerDefaultProps } from '#/utils';
-import { DICT_TYPE, getDictOptions } from '#/utils/dict';
 
 const { hasAccessByCodes } = useAccess();
 
@@ -126,9 +126,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
 }
 
 /** 列表的字段 */
-export function useGridColumns(
-  onActionClick?: OnActionClickFn<MealsRecipeCategoryApi.RecipeCategory>,
-): VxeTableGridOptions<MealsRecipeCategoryApi.RecipeCategory>['columns'] {
+export function useGridColumns(): VxeTableGridOptions<MealsRecipeCategoryApi.RecipeCategory>['columns'] {
   return [
     {
       field: 'name',
@@ -182,7 +180,7 @@ export function useGridColumns(
         attrs: {
           nameField: 'id',
           nameTitle: '菜谱分类',
-          onClick: onActionClick,
+          // onClick: onActionClick,
         },
         name: 'CellOperation',
         options: [

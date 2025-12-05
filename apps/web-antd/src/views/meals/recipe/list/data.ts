@@ -1,16 +1,16 @@
 import type { VxeTableGridOptions } from '@vben/plugins/vxe-table';
 
 import type { VbenFormSchema } from '#/adapter/form';
-import type { OnActionClickFn } from '#/adapter/vxe-table';
 import type { MealsRecipeApi } from '#/api/meals/recipe';
 
 import { useAccess } from '@vben/access';
+import { DICT_TYPE } from '@vben/constants';
+import { getDictOptions } from '@vben/hooks';
 import { handleTree } from '@vben/utils';
 
 import { getFood, getSimpleFoodList } from '#/api/meals/food';
 import { getRecipeCategoryList } from '#/api/meals/recipecategory';
 import { getRangePickerDefaultProps } from '#/utils';
-import { DICT_TYPE, getDictOptions } from '#/utils/dict';
 
 const { hasAccessByCodes } = useAccess();
 
@@ -158,7 +158,10 @@ export function useGridFormSchema(): VbenFormSchema[] {
 
 /** 列表的字段 */
 export function useGridColumns(
-  onActionClick?: OnActionClickFn<MealsRecipeApi.Recipe>,
+  onActionClick?: (
+    newStatus: number,
+    row: MealsRecipeApi.Recipe,
+  ) => PromiseLike<boolean | undefined>,
 ): VxeTableGridOptions<MealsRecipeApi.Recipe>['columns'] {
   return [
     {
@@ -350,7 +353,10 @@ export function useRecipeFoodGridFormSchema(): VbenFormSchema[] {
 
 /** 列表的字段 */
 export function useRecipeFoodGridColumns(
-  onActionClick?: OnActionClickFn<MealsRecipeApi.RecipeFood>,
+  onActionClick?: (
+    newStatus: number,
+    row: MealsRecipeApi.Recipe,
+  ) => PromiseLike<boolean | undefined>,
 ): VxeTableGridOptions<MealsRecipeApi.RecipeFood>['columns'] {
   return [
     {
